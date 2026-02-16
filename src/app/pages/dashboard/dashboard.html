@@ -1,0 +1,134 @@
+<div style="max-width: 1200px; margin: 0 auto; padding: 24px">
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px">
+    <div>
+      <h1 style="margin: 0; font-size: 48px; line-height: 1.05">Employee SaaS Dashboard</h1>
+      <div style="color: #666; margin-top: 8px">Backend-connected dashboard</div>
+    </div>
+
+    <button
+      (click)="logout()"
+      style="padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; background: #fff"
+    >
+      Logout
+    </button>
+  </div>
+
+  <!-- PROFILE -->
+  <div style="margin-top: 18px; border: 1px solid #eee; border-radius: 12px; padding: 16px">
+    <div *ngIf="loadingProfile" style="color: #666">Loading profile...</div>
+
+    <div *ngIf="!loadingProfile && profileError" style="color: #b00020">
+      {{ profileError }}
+    </div>
+
+    <div *ngIf="!loadingProfile && me">
+      <h2 style="margin: 0 0 12px 0">Welcome {{ me.name }}</h2>
+
+      <div style="display: flex; gap: 24px; flex-wrap: wrap">
+        <div><b>Email:</b> {{ me.email }}</div>
+        <div><b>Role:</b> {{ me.role }}</div>
+        <div><b>Company ID:</b> {{ me.company_id ?? '-' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPLOYEES -->
+  <div style="margin-top: 18px; border: 1px solid #eee; border-radius: 12px; padding: 16px">
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      "
+    >
+      <h2 style="margin: 0">Employees</h2>
+
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+        <input
+          placeholder="Search by id/name/email/role..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilter()"
+          style="padding: 10px 12px; min-width: 320px; border: 1px solid #ccc; border-radius: 8px"
+        />
+        <button
+          (click)="refresh()"
+          style="padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; background: #fff"
+        >
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-top: 8px; color: #666">
+      Showing {{ filteredEmployees.length }} of {{ total }} (page {{ page }} / {{ totalPages }})
+    </div>
+
+    <div style="margin-top: 10px; display: flex; gap: 10px">
+      <button
+        (click)="prevPage()"
+        [disabled]="page <= 1"
+        style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; background: #fff"
+      >
+        Prev
+      </button>
+
+      <button
+        (click)="nextPage()"
+        [disabled]="page >= totalPages"
+        style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; background: #fff"
+      >
+        Next
+      </button>
+    </div>
+
+    <div *ngIf="loadingEmployees" style="margin-top: 10px; color: #666">Loading employees...</div>
+
+    <div *ngIf="!loadingEmployees && employeesError" style="margin-top: 10px; color: #b00020">
+      {{ employeesError }}
+    </div>
+
+    <div
+      *ngIf="!loadingEmployees && !employeesError && filteredEmployees.length === 0"
+      style="margin-top: 10px; color: #666"
+    >
+      No employees found.
+    </div>
+
+    <div
+      *ngIf="!loadingEmployees && !employeesError && filteredEmployees.length > 0"
+      style="margin-top: 12px; overflow: auto"
+    >
+      <table style="width: 100%; border-collapse: collapse">
+        <thead>
+          <tr style="text-align: left; border-bottom: 1px solid #eee">
+            <th style="padding: 10px 8px">ID</th>
+            <th style="padding: 10px 8px">Name</th>
+            <th style="padding: 10px 8px">Email</th>
+            <th style="padding: 10px 8px">Department</th>
+            <th style="padding: 10px 8px">Position</th>
+            <th style="padding: 10px 8px">Salary</th>
+            <th style="padding: 10px 8px">Company</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let e of filteredEmployees; trackBy: trackById"
+            style="border-bottom: 1px solid #f0f0f0"
+          >
+            <td style="padding: 10px 8px">{{ e.id }}</td>
+            <td style="padding: 10px 8px">{{ e.first_name }} {{ e.last_name }}</td>
+            <td style="padding: 10px 8px">{{ e.email }}</td>
+            <td style="padding: 10px 8px">{{ e.department }}</td>
+            <td style="padding: 10px 8px">{{ e.position }}</td>
+            <td style="padding: 10px 8px">
+              {{ e.salary | currency : 'ZAR' : 'symbol-narrow' : '1.2-2' }}
+            </td>
+            <td style="padding: 10px 8px">{{ e.company_id }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
