@@ -1,59 +1,112 @@
-# EmployeeSaasFrontend
+# Employee SaaS Dashboard
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
+Angular-based dashboard for employee management with role-based access control.
 
-## Development server
+## 🔗 Related Projects
 
-To start a local development server, run:
+- **Backend API**: [employee-api](https://github.com/Gezino-Linden/employee-api)
+- **Live API**: https://employee-api-xpno.onrender.com
+
+## 🛠️ Tech Stack
+
+- Angular 18
+- TypeScript
+- RxJS
+- Tailwind CSS / Custom Styling
+
+## ✨ Features
+
+- JWT Authentication
+- Role-based authorization (Admin/Manager)
+- Employee listing with pagination
+- Search and filter employees
+- Responsive design
+- Real-time data from deployed API
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
 
 ```bash
+# Install dependencies
+npm install
+
+# Configure environment
+# Update src/environments/environment.ts with your API URL
+
+# Start development server
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Navigate to `http://localhost:4200/`
 
-## Code scaffolding
+## 📁 Project Structure
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```
+src/
+├── app/
+│   ├── components/
+│   │   ├── login/
+│   │   └── dashboard/
+│   ├── services/
+│   │   ├── auth.service.ts
+│   │   └── employees.service.ts
+│   └── interceptors/
+│       └── auth.interceptor.ts
+└── environments/
+    ├── environment.ts
+    └── environment.prod.ts
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 🔧 Configuration
 
-```bash
-ng generate --help
+Update `src/environments/environment.ts`:
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'https://employee-api-xpno.onrender.com/api',
+};
 ```
 
-## Building
-
-To build the project run:
+## 📦 Building
 
 ```bash
+# Development build
 ng build
+
+# Production build
+ng build --configuration=production
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 🧪 Testing
 
 ```bash
+# Run unit tests
 ng test
-```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
+# Run e2e tests
 ng e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📝 Additional Resources
 
-## Additional Resources
+- [Angular CLI Documentation](https://angular.dev/tools/cli)
+- [Angular Documentation](https://angular.dev)
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 👤 Author
+
+**Gezino Linden**
+
+- GitHub: [@Gezino-Linden](https://github.com/Gezino-Linden)
+
+## 📄 License
+
+This project is part of a full-stack employee management system.
