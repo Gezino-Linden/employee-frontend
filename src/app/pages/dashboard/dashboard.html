@@ -1,134 +1,477 @@
-<div style="max-width: 1200px; margin: 0 auto; padding: 24px">
-  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px">
-    <div>
-      <h1 style="margin: 0; font-size: 48px; line-height: 1.05">Employee SaaS Dashboard</h1>
-      <div style="color: #666; margin-top: 8px">Backend-connected dashboard</div>
+<!-- File: src/app/pages/dashboard/dashboard.html -->
+<div class="hr-app">
+  <!-- Animated Background -->
+  <div class="bg-mesh"></div>
+  
+  <!-- ===== TOP NAV ===== -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">HR</div>
+      <span class="brand-name">PeopleOS</span>
     </div>
-
-    <button
-      (click)="logout()"
-      style="padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; background: #fff"
-    >
-      Logout
-    </button>
-  </div>
-
-  <!-- PROFILE -->
-  <div style="margin-top: 18px; border: 1px solid #eee; border-radius: 12px; padding: 16px">
-    <div *ngIf="loadingProfile" style="color: #666">Loading profile...</div>
-
-    <div *ngIf="!loadingProfile && profileError" style="color: #b00020">
-      {{ profileError }}
-    </div>
-
-    <div *ngIf="!loadingProfile && me">
-      <h2 style="margin: 0 0 12px 0">Welcome {{ me.name }}</h2>
-
-      <div style="display: flex; gap: 24px; flex-wrap: wrap">
-        <div><b>Email:</b> {{ me.email }}</div>
-        <div><b>Role:</b> {{ me.role }}</div>
-        <div><b>Company ID:</b> {{ me.company_id ?? '-' }}</div>
+    <div class="topnav-right">
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span>{{ me.name }}</span>
+        <span class="role-badge">{{ me.role }}</span>
       </div>
+      <button class="btn-ghost" (click)="logout()">Sign out</button>
     </div>
-  </div>
+  </nav>
 
-  <!-- EMPLOYEES -->
-  <div style="margin-top: 18px; border: 1px solid #eee; border-radius: 12px; padding: 16px">
-    <div
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-      "
-    >
-      <h2 style="margin: 0">Employees</h2>
-
-      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
-        <input
-          placeholder="Search by id/name/email/role..."
-          [(ngModel)]="searchTerm"
-          (input)="applyFilter()"
-          style="padding: 10px 12px; min-width: 320px; border: 1px solid #ccc; border-radius: 8px"
-        />
-        <button
-          (click)="refresh()"
-          style="padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; background: #fff"
-        >
-          Refresh
+  <!-- ===== MAIN LAYOUT ===== -->
+  <main class="main-content">
+    <!-- ===== HEADER ===== -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Employees</h1>
+        <p class="page-subtitle">
+          <span *ngIf="!loadingEmployees">{{ total }} total employees</span>
+          <span *ngIf="loadingEmployees">Loading...</span>
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-secondary" (click)="goToLeave()">🏖️ Leave</button>
+        <button *ngIf="isAdmin()" class="btn-primary" (click)="openCreateModal()">
+          + Add Employee
         </button>
       </div>
     </div>
 
-    <div style="margin-top: 8px; color: #666">
-      Showing {{ filteredEmployees.length }} of {{ total }} (page {{ page }} / {{ totalPages }})
+    <!-- ===== STATS ROW ===== -->
+    <div class="stats-row" *ngIf="!loadingEmployees">
+      <div class="stat-card">
+        <div class="stat-value">{{ total }}</div>
+        <div class="stat-label">Total Employees</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ employees.length }}</div>
+        <div class="stat-label">This Page</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ totalPages }}</div>
+        <div class="stat-label">Total Pages</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ me?.role | titlecase }}</div>
+        <div class="stat-label">Your Role</div>
+      </div>
     </div>
 
-    <div style="margin-top: 10px; display: flex; gap: 10px">
-      <button
-        (click)="prevPage()"
-        [disabled]="page <= 1"
-        style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; background: #fff"
-      >
-        Prev
-      </button>
-
-      <button
-        (click)="nextPage()"
-        [disabled]="page >= totalPages"
-        style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; background: #fff"
-      >
-        Next
-      </button>
+    <!-- ===== SEARCH + CONTROLS ===== -->
+    <div class="controls-row">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input
+          class="search-input"
+          placeholder="Search by name, email, department, position..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilter()"
+        />
+        <button *ngIf="searchTerm" class="search-clear" (click)="searchTerm = ''; applyFilter()">
+          ✕
+        </button>
+      </div>
+      <div class="controls-right">
+        <span class="count-text"> Showing {{ filteredEmployees.length }} of {{ total }} </span>
+        <button class="btn-ghost" (click)="refresh()">↻ Refresh</button>
+      </div>
     </div>
 
-    <div *ngIf="loadingEmployees" style="margin-top: 10px; color: #666">Loading employees...</div>
-
-    <div *ngIf="!loadingEmployees && employeesError" style="margin-top: 10px; color: #b00020">
-      {{ employeesError }}
+    <!-- ===== ERROR ===== -->
+    <div *ngIf="employeesError" class="alert alert-error">
+      ⚠ {{ employeesError }}
+      <button (click)="employeesError = ''" class="alert-close">✕</button>
     </div>
 
+    <!-- ===== LOADING ===== -->
+    <div *ngIf="loadingEmployees" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading employees...</p>
+    </div>
+
+    <!-- ===== EMPTY ===== -->
     <div
-      *ngIf="!loadingEmployees && !employeesError && filteredEmployees.length === 0"
-      style="margin-top: 10px; color: #666"
+      *ngIf="!loadingEmployees && filteredEmployees.length === 0 && !employeesError"
+      class="empty-state"
     >
-      No employees found.
+      <div class="empty-icon">👥</div>
+      <h3>No employees found</h3>
+      <p *ngIf="searchTerm">Try adjusting your search</p>
+      <button *ngIf="isAdmin() && !searchTerm" class="btn-primary" (click)="openCreateModal()">
+        Add First Employee
+      </button>
     </div>
 
-    <div
-      *ngIf="!loadingEmployees && !employeesError && filteredEmployees.length > 0"
-      style="margin-top: 12px; overflow: auto"
-    >
-      <table style="width: 100%; border-collapse: collapse">
+    <!-- ===== TABLE ===== -->
+    <div *ngIf="!loadingEmployees && filteredEmployees.length > 0" class="table-wrap">
+      <table class="emp-table">
         <thead>
-          <tr style="text-align: left; border-bottom: 1px solid #eee">
-            <th style="padding: 10px 8px">ID</th>
-            <th style="padding: 10px 8px">Name</th>
-            <th style="padding: 10px 8px">Email</th>
-            <th style="padding: 10px 8px">Department</th>
-            <th style="padding: 10px 8px">Position</th>
-            <th style="padding: 10px 8px">Salary</th>
-            <th style="padding: 10px 8px">Company</th>
+          <tr>
+            <th>Employee</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr
             *ngFor="let e of filteredEmployees; trackBy: trackById"
-            style="border-bottom: 1px solid #f0f0f0"
+            class="emp-row"
+            [class.inactive-row]="!e.is_active"
           >
-            <td style="padding: 10px 8px">{{ e.id }}</td>
-            <td style="padding: 10px 8px">{{ e.first_name }} {{ e.last_name }}</td>
-            <td style="padding: 10px 8px">{{ e.email }}</td>
-            <td style="padding: 10px 8px">{{ e.department }}</td>
-            <td style="padding: 10px 8px">{{ e.position }}</td>
-            <td style="padding: 10px 8px">
-              {{ e.salary | currency : 'ZAR' : 'symbol-narrow' : '1.2-2' }}
+            <!-- Employee -->
+            <td>
+              <div class="emp-name-cell">
+                <div class="emp-avatar" [style.background]="e.is_active ? '#6366f1' : '#9ca3af'">
+                  {{ getInitials(e) }}
+                </div>
+                <div>
+                  <div class="emp-fullname">{{ e.first_name }} {{ e.last_name }}</div>
+                  <div class="emp-id">#{{ e.id }}</div>
+                </div>
+              </div>
             </td>
-            <td style="padding: 10px 8px">{{ e.company_id }}</td>
+            <!-- Email -->
+            <td class="text-muted">{{ e.email }}</td>
+            <!-- Department -->
+            <td>
+              <span class="dept-badge">{{ e.department }}</span>
+            </td>
+            <!-- Position -->
+            <td class="text-muted">{{ e.position }}</td>
+            <!-- Salary -->
+            <td class="salary-cell">{{ formatMoney(e.salary) }}</td>
+            <!-- Status -->
+            <td>
+              <span
+                class="status-pill"
+                [class.status-active]="e.is_active"
+                [class.status-inactive]="!e.is_active"
+              >
+                {{ e.is_active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <!-- Actions -->
+            <td>
+              <div class="action-btns">
+                <button class="action-btn view-btn" title="View Profile" (click)="openViewModal(e)">
+                  👁
+                </button>
+                <button
+                  *ngIf="isAdmin()"
+                  class="action-btn edit-btn"
+                  title="Edit"
+                  (click)="openEditModal(e)"
+                >
+                  ✎
+                </button>
+                <button
+                  *ngIf="isAdmin()"
+                  class="action-btn salary-btn"
+                  title="Update Salary"
+                  (click)="openSalaryModal(e)"
+                >
+                  💰
+                </button>
+                <button
+                  *ngIf="isAdmin() && e.is_active"
+                  class="action-btn delete-btn"
+                  title="Deactivate"
+                  (click)="confirmDelete(e.id)"
+                >
+                  🗑
+                </button>
+                <button
+                  *ngIf="isAdmin() && !e.is_active"
+                  class="action-btn restore-btn"
+                  title="Restore"
+                  (click)="restoreEmployee(e.id)"
+                >
+                  ↺
+                </button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- ===== PAGINATION ===== -->
+    <div *ngIf="!loadingEmployees && total > limit" class="pagination">
+      <button class="page-btn" [disabled]="page <= 1" (click)="prevPage()">← Prev</button>
+      <span class="page-info">Page {{ page }} of {{ totalPages }}</span>
+      <button class="page-btn" [disabled]="page >= totalPages" (click)="nextPage()">Next →</button>
+    </div>
+  </main>
+</div>
+
+<!-- ========================================================= -->
+<!-- ===== CREATE / EDIT MODAL ===== -->
+<!-- ========================================================= -->
+<div
+  *ngIf="modalMode === 'create' || modalMode === 'edit'"
+  class="modal-overlay active"
+  (click)="closeModal()"
+>
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ modalMode === 'create' ? '+ Add New Employee' : '✎ Edit Employee' }}</h2>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <div *ngIf="modalSuccess" class="alert alert-success">✓ {{ modalSuccess }}</div>
+    <div *ngIf="modalError" class="alert alert-error">⚠ {{ modalError }}</div>
+
+    <form [formGroup]="employeeForm" class="emp-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name *</label>
+          <input
+            formControlName="first_name"
+            placeholder="John"
+            [class.input-error]="
+              hasError('first_name', 'required') || hasError('first_name', 'minlength')
+            "
+          />
+          <span class="field-error" *ngIf="hasError('first_name', 'required')">Required</span>
+          <span class="field-error" *ngIf="hasError('first_name', 'minlength')"
+            >Min 2 characters</span
+          >
+        </div>
+        <div class="form-group">
+          <label>Last Name *</label>
+          <input
+            formControlName="last_name"
+            placeholder="Doe"
+            [class.input-error]="
+              hasError('last_name', 'required') || hasError('last_name', 'minlength')
+            "
+          />
+          <span class="field-error" *ngIf="hasError('last_name', 'required')">Required</span>
+          <span class="field-error" *ngIf="hasError('last_name', 'minlength')"
+            >Min 2 characters</span
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Email *</label>
+        <input
+          formControlName="email"
+          type="email"
+          placeholder="john@company.com"
+          [class.input-error]="hasError('email', 'required') || hasError('email', 'email')"
+        />
+        <span class="field-error" *ngIf="hasError('email', 'required')">Required</span>
+        <span class="field-error" *ngIf="hasError('email', 'email')">Valid email required</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Department *</label>
+          <select
+            formControlName="department"
+            [class.input-error]="hasError('department', 'required')"
+          >
+            <option value="">Select department</option>
+            <option value="IT">IT</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Operations">Operations</option>
+            <option value="Sales">Sales</option>
+            <option value="Legal">Legal</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Customer Support">Customer Support</option>
+          </select>
+          <span class="field-error" *ngIf="hasError('department', 'required')">Required</span>
+        </div>
+        <div class="form-group">
+          <label>Position *</label>
+          <input
+            formControlName="position"
+            placeholder="Software Developer"
+            [class.input-error]="hasError('position', 'required')"
+          />
+          <span class="field-error" *ngIf="hasError('position', 'required')">Required</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Salary (ZAR) *</label>
+        <input
+          formControlName="salary"
+          type="number"
+          placeholder="35000"
+          min="0"
+          [class.input-error]="hasError('salary', 'required') || hasError('salary', 'min')"
+        />
+        <span class="field-error" *ngIf="hasError('salary', 'required')">Required</span>
+        <span class="field-error" *ngIf="hasError('salary', 'min')">Must be 0 or more</span>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" (click)="closeModal()">Cancel</button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="modalLoading"
+          (click)="modalMode === 'create' ? submitCreate() : submitEdit()"
+        >
+          {{
+            modalLoading ? 'Saving...' : modalMode === 'create' ? 'Create Employee' : 'Save Changes'
+          }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- ===== VIEW PROFILE MODAL ===== -->
+<!-- ========================================================= -->
+<div *ngIf="modalMode === 'view' && selectedEmployee" class="modal-overlay active" (click)="closeModal()">
+  <div class="modal modal-profile" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Employee Profile</h2>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <div class="profile-hero">
+      <div
+        class="profile-avatar-lg"
+        [style.background]="selectedEmployee.is_active ? '#6366f1' : '#9ca3af'"
+      >
+        {{ getInitials(selectedEmployee) }}
+      </div>
+      <div>
+        <h2 class="profile-name">
+          {{ selectedEmployee.first_name }} {{ selectedEmployee.last_name }}
+        </h2>
+        <p class="profile-position">
+          {{ selectedEmployee.position }} · {{ selectedEmployee.department }}
+        </p>
+        <span
+          class="status-pill"
+          [class.status-active]="selectedEmployee.is_active"
+          [class.status-inactive]="!selectedEmployee.is_active"
+        >
+          {{ selectedEmployee.is_active ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="profile-grid">
+      <div class="profile-field">
+        <div class="pf-label">Employee ID</div>
+        <div class="pf-value">#{{ selectedEmployee.id }}</div>
+      </div>
+      <div class="profile-field">
+        <div class="pf-label">Email</div>
+        <div class="pf-value">{{ selectedEmployee.email }}</div>
+      </div>
+      <div class="profile-field">
+        <div class="pf-label">Department</div>
+        <div class="pf-value">{{ selectedEmployee.department }}</div>
+      </div>
+      <div class="profile-field">
+        <div class="pf-label">Position</div>
+        <div class="pf-value">{{ selectedEmployee.position }}</div>
+      </div>
+      <div class="profile-field">
+        <div class="pf-label">Salary</div>
+        <div class="pf-value salary-highlight">{{ formatMoney(selectedEmployee.salary) }}</div>
+      </div>
+      <div class="profile-field">
+        <div class="pf-label">Company ID</div>
+        <div class="pf-value">{{ selectedEmployee.company_id }}</div>
+      </div>
+      <div class="profile-field">
+        <div class="pf-label">Joined</div>
+        <div class="pf-value">{{ selectedEmployee.created_at | date : 'dd MMM yyyy' }}</div>
+      </div>
+      <div class="profile-field">
+        <div class="pf-label">Status</div>
+        <div class="pf-value">
+          {{ selectedEmployee.is_active ? 'Active Employee' : 'Deactivated' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions" *ngIf="isAdmin()">
+      <button class="btn-ghost" (click)="closeModal()">Close</button>
+      <button class="btn-secondary" (click)="openSalaryModal(selectedEmployee!); closeModal()">
+        💰 Update Salary
+      </button>
+      <button class="btn-primary" (click)="openEditModal(selectedEmployee!); modalMode = 'edit'">
+        ✎ Edit Employee
+      </button>
+    </div>
+    <div class="modal-actions" *ngIf="!isAdmin()">
+      <button class="btn-primary" (click)="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- ===== DELETE CONFIRM MODAL ===== -->
+<!-- ========================================================= -->
+<div *ngIf="showDeleteConfirm" class="modal-overlay active" (click)="cancelDelete()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="delete-confirm-content">
+      <div class="delete-icon">🗑</div>
+      <h3>Deactivate Employee?</h3>
+      <p>This will mark the employee as inactive. You can restore them later.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" (click)="cancelDelete()">Cancel</button>
+        <button class="btn-danger" [disabled]="deleteLoading" (click)="executeDelete()">
+          {{ deleteLoading ? 'Deactivating...' : 'Yes, Deactivate' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- ===== SALARY MODAL ===== -->
+<!-- ========================================================= -->
+<div
+  *ngIf="showSalaryModal && salaryTargetEmployee"
+  class="modal-overlay active"
+  (click)="closeSalaryModal()"
+>
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>💰 Update Salary</h2>
+      <button class="modal-close" (click)="closeSalaryModal()">✕</button>
+    </div>
+    <div class="salary-modal-body">
+      <p class="salary-for">
+        {{ salaryTargetEmployee.first_name }} {{ salaryTargetEmployee.last_name }}
+      </p>
+      <div class="form-group">
+        <label>Current Salary</label>
+        <div class="current-salary">{{ formatMoney(salaryTargetEmployee.salary) }}</div>
+      </div>
+      <div class="form-group">
+        <label>New Salary (ZAR) *</label>
+        <input type="number" [(ngModel)]="newSalary" min="0" placeholder="Enter new salary" />
+      </div>
+      <div *ngIf="salaryError" class="alert alert-error">⚠ {{ salaryError }}</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" (click)="closeSalaryModal()">Cancel</button>
+      <button
+        class="btn-primary"
+        [disabled]="salaryLoading || newSalary < 0"
+        (click)="submitSalary()"
+      >
+        {{ salaryLoading ? 'Updating...' : 'Update Salary' }}
+      </button>
     </div>
   </div>
 </div>

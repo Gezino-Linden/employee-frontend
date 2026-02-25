@@ -1,0 +1,378 @@
+<div class="leave-app">
+  <!-- Animated Background -->
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">HR</div>
+      <span class="brand-name">PeopleOS</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()">
+        <span>←</span> Dashboard
+      </button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span class="user-name">{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title-group">
+        <h1>Leave Management</h1>
+        <p class="page-subtitle">Request time off and manage leave</p>
+      </div>
+      <div class="quick-stats" *ngIf="balances.length > 0">
+        <div class="stat-pill">
+          <div class="stat-icon purple">📅</div>
+          <div class="stat-info">
+            <span class="stat-value">{{ getTotalAvailable() }}</span>
+            <span class="stat-label">Days Available</span>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-icon green">✓</div>
+          <div class="stat-info">
+            <span class="stat-value">{{ getTotalUsed() }}</span>
+            <span class="stat-label">Used This Year</span>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-icon orange">⏳</div>
+          <div class="stat-info">
+            <span class="stat-value">{{ getTotalPending() }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <button class="tab" [class.tab-active]="activeTab === 'request'" (click)="switchTab('request')">
+          <span>📝</span> Request
+        </button>
+        <button class="tab" [class.tab-active]="activeTab === 'my-requests'" (click)="switchTab('my-requests')">
+          <span>📋</span> My Requests
+        </button>
+        <button *ngIf="isManager()" class="tab" [class.tab-active]="activeTab === 'approvals'" (click)="switchTab('approvals')">
+          <span>✓</span> Approvals
+          <span *ngIf="approvalTotal > 0" class="badge">{{ approvalTotal }}</span>
+        </button>
+        <button class="tab" [class.tab-active]="activeTab === 'balance'" (click)="switchTab('balance')">
+          <span>📊</span> Balance
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB: REQUEST LEAVE -->
+    <div *ngIf="activeTab === 'request'" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Request Time Off</h2>
+        </div>
+
+        <div *ngIf="submitSuccess" class="alert alert-success">
+          <span>✓</span> {{ submitSuccess }}
+        </div>
+        <div *ngIf="submitError" class="alert alert-error">
+          <span>⚠</span> {{ submitError }}
+        </div>
+
+        <!-- Balance Preview -->
+        <div *ngIf="fc('leave_type_id')?.value" class="balance-preview">
+          <ng-container *ngIf="getBalanceByType(fc('leave_type_id')?.value) as bal">
+            <div class="balance-info">
+              <div class="balance-item">
+                <span class="balance-value">{{ bal.remaining_days }}</span>
+                <span class="balance-label">Available Days</span>
+              </div>
+              <div class="balance-item">
+                <span class="balance-value">{{ bal.used_days }}</span>
+                <span class="balance-label">Used</span>
+              </div>
+              <div class="balance-item">
+                <span class="balance-value">{{ bal.pending_days }}</span>
+                <span class="balance-label">Pending</span>
+              </div>
+            </div>
+            <div style="font-size: 14px; color: var(--text-muted);">
+              {{ bal.leave_type }} {{ balanceYear }}
+            </div>
+          </ng-container>
+        </div>
+
+        <form [formGroup]="requestForm" class="leave-form">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Leave Type *</label>
+              <select formControlName="leave_type_id" class="form-select">
+                <option value="">Select leave type</option>
+                <option *ngFor="let type of leaveTypes" [value]="type.id">
+                  {{ type.name }} - {{ type.default_days_per_year }} days ({{ type.is_paid ? 'Paid' : 'Unpaid' }})
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Start Date *</label>
+              <input type="date" formControlName="start_date" [min]="minDate" class="form-input" />
+            </div>
+
+            <div class="form-group">
+              <label>End Date *</label>
+              <input type="date" formControlName="end_date" [min]="fc('start_date')?.value || minDate" class="form-input" />
+            </div>
+
+            <div class="form-group full-width">
+              <label>Reason (Optional)</label>
+              <textarea formControlName="reason" rows="3" class="form-textarea" placeholder="Add any additional details..."></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <button type="button" class="btn btn-primary" [disabled]="submitLoading" (click)="submitRequest()">
+                <span *ngIf="submitLoading" class="loading-spinner"></span>
+                {{ submitLoading ? 'Submitting...' : 'Submit Request' }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB: MY REQUESTS -->
+    <div *ngIf="activeTab === 'my-requests'" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">My Leave Requests</h2>
+          <div class="filter-group">
+            <button class="filter-btn" [class.active]="myRequestsFilter === ''" (click)="filterMyRequests('')">All</button>
+            <button class="filter-btn" [class.active]="myRequestsFilter === 'pending'" (click)="filterMyRequests('pending')">Pending</button>
+            <button class="filter-btn" [class.active]="myRequestsFilter === 'approved'" (click)="filterMyRequests('approved')">Approved</button>
+            <button class="filter-btn" [class.active]="myRequestsFilter === 'rejected'" (click)="filterMyRequests('rejected')">Rejected</button>
+          </div>
+        </div>
+
+        <div *ngIf="loadingMyRequests" class="loading">Loading your requests...</div>
+        <div *ngIf="myRequestsError" class="alert alert-error">
+          <span>⚠</span> {{ myRequestsError }}
+        </div>
+
+        <div *ngIf="!loadingMyRequests && myRequests.length === 0" class="empty">
+          <div class="empty-state-icon">📋</div>
+          <h3>No requests found</h3>
+          <p>Submit your first leave request to see it here.</p>
+        </div>
+
+        <div *ngIf="!loadingMyRequests && myRequests.length > 0" class="requests-list">
+          <div *ngFor="let req of myRequests" class="request-card" [class.pending]="req.status === 'pending'" [class.approved]="req.status === 'approved'" [class.rejected]="req.status === 'rejected'">
+            <div class="request-header">
+              <div class="leave-type">
+                <div class="type-icon">{{ getLeaveTypeIcon(req.leave_type) }}</div>
+                <div class="type-info">
+                  <h3>{{ req.leave_type }}</h3>
+                  <span *ngIf="req.status === 'pending'">Requested {{ getRelativeTime(req.created_at) }}</span>
+                  <span *ngIf="req.status === 'approved'">Approved on {{ formatDate(req.reviewed_at) }}</span>
+                  <span *ngIf="req.status === 'rejected'">Rejected on {{ formatDate(req.reviewed_at) }}</span>
+                </div>
+              </div>
+              <span class="status-badge" [ngClass]="getStatusClass(req.status)">
+                {{ getStatusIcon(req.status) }} {{ req.status }}
+              </span>
+            </div>
+
+            <div class="request-dates">
+              <span>{{ formatDate(req.start_date) }}</span>
+              <span class="date-arrow">→</span>
+              <span>{{ formatDate(req.end_date) }}</span>
+              <span class="days-badge">{{ req.days_requested }} days</span>
+            </div>
+
+            <div *ngIf="req.reason" class="request-reason">
+              {{ req.reason }}
+            </div>
+
+            <div class="request-review" *ngIf="req.reviewed_by_name">
+              <div class="reviewer-info">
+                <span *ngIf="req.status === 'approved'">Approved by</span>
+                <span *ngIf="req.status === 'rejected'">Rejected by</span>
+                <div class="reviewer-avatar">{{ req.reviewed_by_name[0] }}</div>
+                <span>{{ req.reviewed_by_name }} on {{ formatDate(req.reviewed_at) }}</span>
+              </div>
+              <div *ngIf="req.review_notes" style="margin-top: 8px; font-style: italic;">
+                "{{ req.review_notes }}"
+              </div>
+            </div>
+
+            <div class="request-actions" *ngIf="canCancelRequest(req)">
+              <button class="btn btn-danger btn-sm" (click)="confirmCancel(req.id)">Cancel Request</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: APPROVALS -->
+    <div *ngIf="activeTab === 'approvals' && isManager()" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Approval Queue</h2>
+          <div class="filter-group">
+            <button class="filter-btn" [class.active]="approvalsFilter === 'pending'" (click)="filterApprovals('pending')">Pending</button>
+            <button class="filter-btn" [class.active]="approvalsFilter === ''" (click)="filterApprovals('')">All</button>
+          </div>
+        </div>
+
+        <div *ngIf="loadingApprovals" class="loading">Loading approvals...</div>
+        <div *ngIf="approvalsError" class="alert alert-error">
+          <span>⚠</span> {{ approvalsError }}
+        </div>
+
+        <div *ngIf="!loadingApprovals && approvalRequests.length === 0" class="empty">
+          <div class="empty-state-icon">✓</div>
+          <h3>No pending approvals</h3>
+          <p>All caught up! Check back later for new requests.</p>
+        </div>
+
+        <div *ngIf="!loadingApprovals && approvalRequests.length > 0" class="requests-list">
+          <div *ngFor="let req of approvalRequests" class="request-card pending">
+            <div class="request-header">
+              <div class="leave-type">
+                <div class="type-icon" style="background: var(--info-bg);">👤</div>
+                <div class="type-info">
+                  <h3 class="employee-name">{{ req.first_name }} {{ req.last_name }}</h3>
+                  <span>{{ req.leave_type }}</span>
+                </div>
+              </div>
+              <span class="status-badge status-pending">⏳ Pending</span>
+            </div>
+
+            <div class="request-dates">
+              <span>{{ formatDate(req.start_date) }} → {{ formatDate(req.end_date) }}</span>
+              <span class="days-badge">{{ req.days_requested }} days</span>
+            </div>
+
+            <div *ngIf="req.reason" class="request-reason">
+              {{ req.reason }}
+            </div>
+
+            <div class="request-review" *ngIf="req.status === 'pending'">
+              <div class="reviewer-info">
+                <span>Requested {{ getRelativeTime(req.created_at) }}</span>
+              </div>
+              <div class="request-actions">
+                <button class="btn btn-success btn-sm" (click)="openReviewModal(req, 'approve')">✓ Approve</button>
+                <button class="btn btn-danger btn-sm" (click)="openReviewModal(req, 'reject')">✕ Reject</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="approvalTotalPages > 1" class="pagination">
+          <button [disabled]="approvalPage <= 1" (click)="prevApprovalPage()">← Prev</button>
+          <span>Page {{ approvalPage }} of {{ approvalTotalPages }}</span>
+          <button [disabled]="approvalPage >= approvalTotalPages" (click)="nextApprovalPage()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: BALANCE -->
+    <div *ngIf="activeTab === 'balance'" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Leave Balance</h2>
+          <select [(ngModel)]="balanceYear" (change)="loadBalances()" class="year-selector">
+            <option [value]="balanceYear - 1">{{ balanceYear - 1 }}</option>
+            <option [value]="balanceYear">{{ balanceYear }}</option>
+            <option [value]="balanceYear + 1">{{ balanceYear + 1 }}</option>
+          </select>
+        </div>
+
+        <div *ngIf="loadingBalances" class="loading">Loading balances...</div>
+
+        <div *ngIf="!loadingBalances && balances.length === 0" class="empty">
+          <div class="empty-state-icon">📊</div>
+          <h3>No balance data for this year</h3>
+          <p>Contact HR to set up your leave allocations.</p>
+        </div>
+
+        <div *ngIf="!loadingBalances && balances.length > 0" class="balance-grid">
+          <div *ngFor="let bal of balances" class="balance-card">
+            <div class="balance-header">
+              <div class="balance-icon">{{ getLeaveTypeIcon(bal.leave_type) }}</div>
+              <h3>{{ bal.leave_type }}</h3>
+            </div>
+            <div class="balance-stat">
+              <span class="stat-value">{{ bal.remaining_days }}</span>
+              <div class="stat-label">days available</div>
+            </div>
+            <div class="balance-breakdown">
+              <div>
+                <strong>{{ bal.total_days }}</strong>
+                Total
+              </div>
+              <div>
+                <strong>{{ bal.used_days }}</strong>
+                Used
+              </div>
+              <div>
+                <strong>{{ bal.pending_days }}</strong>
+                Pending
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- CANCEL MODAL -->
+<div *ngIf="showCancelConfirm" class="modal-overlay active" (click)="closeCancelConfirm()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <h3>Cancel Leave Request?</h3>
+    <p>This will return the days to your available balance.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="closeCancelConfirm()">Keep Request</button>
+      <button class="btn btn-danger" [disabled]="cancelLoading" (click)="executeCancel()">
+        <span *ngIf="cancelLoading" class="loading-spinner"></span>
+        {{ cancelLoading ? 'Cancelling...' : 'Yes, Cancel Request' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div *ngIf="showReviewModal" class="modal-overlay active" (click)="closeReviewModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>{{ reviewAction === 'approve' ? 'Approve' : 'Reject' }} Leave Request</h3>
+    <p *ngIf="reviewRequest">
+      <strong>{{ reviewRequest.first_name }} {{ reviewRequest.last_name }}</strong> • 
+      {{ reviewRequest.leave_type }}<br>
+      {{ formatDate(reviewRequest.start_date) }} → {{ formatDate(reviewRequest.end_date) }}
+    </p>
+    <div class="form-group">
+      <label>Notes (Optional)</label>
+      <textarea [(ngModel)]="reviewNotes" rows="3" class="form-textarea" placeholder="Add any comments..."></textarea>
+    </div>
+    <div *ngIf="reviewError" class="alert alert-error" style="margin-top: 16px;">
+      <span>⚠</span> {{ reviewError }}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="closeReviewModal()">Cancel</button>
+      <button 
+        [class]="reviewAction === 'approve' ? 'btn btn-success' : 'btn btn-danger'" 
+        [disabled]="reviewLoading" 
+        (click)="submitReview()">
+        <span *ngIf="reviewLoading" class="loading-spinner"></span>
+        {{ reviewLoading ? 'Processing...' : (reviewAction === 'approve' ? 'Approve' : 'Reject') }}
+      </button>
+    </div>
+  </div>
+</div>
