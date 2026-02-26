@@ -37,6 +37,22 @@
         </button>
       </div>
     </div>
+    <div class="page-header">
+  <div>
+    <h1 class="page-title">Employees</h1>
+    <p class="page-subtitle">
+      <span *ngIf="!loadingEmployees">{{ total }} total employees</span>
+      <span *ngIf="loadingEmployees">Loading...</span>
+    </p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <button class="btn-secondary" (click)="goToLeave()">🏖️ Leave</button>
+    <button class="btn-secondary" (click)="goToPayroll()">💰 Payroll</button>
+    <button *ngIf="isAdmin()" class="btn-primary" (click)="openCreateModal()">
+      + Add Employee
+    </button>
+  </div>
+</div>
 
     <!-- ===== STATS ROW ===== -->
     <div class="stats-row" *ngIf="!loadingEmployees">

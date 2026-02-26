@@ -68,6 +68,10 @@
         <button class="tab" [class.tab-active]="activeTab === 'balance'" (click)="switchTab('balance')">
           <span>📊</span> Balance
         </button>
+        <!-- ANALYTICS TAB ADDED HERE -->
+        <button class="tab" [class.tab-active]="activeTab === 'analytics'" (click)="switchTab('analytics')">
+          <span>📈</span> Analytics
+        </button>
       </div>
     </div>
 
@@ -330,6 +334,178 @@
         </div>
       </div>
     </div>
+
+    <!-- TAB: ANALYTICS - ADDED HERE -->
+    <div *ngIf="activeTab === 'analytics'" class="tab-content">
+      <div class="analytics-dashboard">
+        
+        <!-- Header with Year Selector -->
+        <div class="analytics-header">
+          <h2 class="card-title">Leave Analytics</h2>
+          <select [(ngModel)]="analyticsYear" (change)="loadAnalytics()" class="year-selector">
+            <option [value]="analyticsYear - 1">{{ analyticsYear - 1 }}</option>
+            <option [value]="analyticsYear">{{ analyticsYear }}</option>
+            <option [value]="analyticsYear + 1">{{ analyticsYear + 1 }}</option>
+          </select>
+        </div>
+
+        <div *ngIf="loadingAnalytics" class="loading">Loading analytics...</div>
+
+        <div *ngIf="!loadingAnalytics && analyticsData" class="analytics-grid">
+          
+          <!-- KPI Cards Row -->
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <div class="kpi-icon purple">📋</div>
+              <div class="kpi-info">
+                <span class="kpi-value">{{ analyticsData.totalRequests }}</span>
+                <span class="kpi-label">Total Requests</span>
+              </div>
+              <div class="kpi-trend" [style.color]="getTrendColor(analyticsData.totalRequests, 10)">
+                {{ getTrendDirection(analyticsData.totalRequests, 10) }} 12%
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon green">✓</div>
+              <div class="kpi-info">
+                <span class="kpi-value">{{ analyticsData.approvedRequests }}</span>
+                <span class="kpi-label">Approved</span>
+              </div>
+              <div class="kpi-trend success">
+                {{ (analyticsData.approvedRequests / analyticsData.totalRequests * 100) | number:'1.0-0' }}% rate
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon orange">⏳</div>
+              <div class="kpi-info">
+                <span class="kpi-value">{{ analyticsData.pendingRequests }}</span>
+                <span class="kpi-label">Pending</span>
+              </div>
+              <div class="kpi-trend">Awaiting review</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon red">✕</div>
+              <div class="kpi-info">
+                <span class="kpi-value">{{ analyticsData.rejectedRequests }}</span>
+                <span class="kpi-label">Rejected</span>
+              </div>
+              <div class="kpi-trend">
+                {{ (analyticsData.rejectedRequests / analyticsData.totalRequests * 100) | number:'1.0-0' }}% rate
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="charts-row">
+            <!-- Monthly Trends Chart -->
+            <div class="chart-card">
+              <h3 class="chart-title">Monthly Leave Trends</h3>
+              <div class="chart-container">
+                <div class="bar-chart">
+                  <div *ngFor="let month of analyticsData.monthlyTrends" class="bar-group">
+                    <div class="bar-stack">
+                      <div class="bar-segment approved" 
+                           [style.height.%]="(month.approved / 8) * 100"
+                           [title]="'Approved: ' + month.approved"></div>
+                      <div class="bar-segment rejected" 
+                           [style.height.%]="(month.rejected / 8) * 100"
+                           [title]="'Rejected: ' + month.rejected"></div>
+                    </div>
+                    <span class="bar-label">{{ month.month }}</span>
+                  </div>
+                </div>
+                <div class="chart-legend">
+                  <div class="legend-item">
+                    <span class="legend-dot approved"></span>
+                    <span>Approved</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot rejected"></span>
+                    <span>Rejected</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Leave Type Distribution -->
+            <div class="chart-card">
+              <h3 class="chart-title">By Leave Type</h3>
+              <div class="type-list">
+                <div *ngFor="let type of analyticsData.byType" class="type-item">
+                  <div class="type-header">
+                    <span class="type-name">{{ type.name }}</span>
+                    <span class="type-count">{{ type.count }} requests</span>
+                  </div>
+                  <div class="type-bar-bg">
+                    <div class="type-bar-fill" 
+                         [style.width.%]="(type.count / analyticsData.totalRequests) * 100"
+                         [style.background]="getLeaveTypeColor(type.name)"></div>
+                  </div>
+                  <div class="type-days">{{ type.days }} days total</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Usage Rates -->
+          <div class="chart-card full-width">
+            <h3 class="chart-title">Leave Usage Rates</h3>
+            <div class="usage-grid">
+              <div *ngFor="let usage of analyticsData.usageRates" class="usage-item">
+                <div class="usage-header">
+                  <span class="usage-type">{{ usage.type }}</span>
+                  <span class="usage-percent" [class.high]="usage.usagePercent > 80" [class.medium]="usage.usagePercent > 50 && usage.usagePercent <= 80" [class.low]="usage.usagePercent <= 50">
+                    {{ usage.usagePercent }}%
+                  </span>
+                </div>
+                <div class="usage-bar-bg">
+                  <div class="usage-bar-fill" 
+                       [style.width.%]="usage.usagePercent"
+                       [class.high]="usage.usagePercent > 80"
+                       [class.medium]="usage.usagePercent > 50 && usage.usagePercent <= 80"
+                       [class.low]="usage.usagePercent <= 50"></div>
+                </div>
+                <div class="usage-stats">
+                  <span>{{ usage.used }} / {{ usage.total }} days used</span>
+                  <span>{{ usage.remaining }} remaining</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Department Stats (Manager Only) -->
+          <div *ngIf="analyticsData.departmentStats && isManager()" class="chart-card full-width">
+            <h3 class="chart-title">Department Comparison</h3>
+            <div class="dept-table">
+              <div class="dept-header">
+                <span>Department</span>
+                <span>Total Days</span>
+                <span>Used</span>
+                <span>Avg per Employee</span>
+                <span>Utilization</span>
+              </div>
+              <div *ngFor="let dept of analyticsData.departmentStats" class="dept-row">
+                <span class="dept-name">{{ dept.dept }}</span>
+                <span>{{ dept.total }}</span>
+                <span>{{ dept.used }}</span>
+                <span>{{ dept.avg }}</span>
+                <div class="dept-util">
+                  <div class="util-bar">
+                    <div class="util-fill" [style.width.%]="(dept.used / dept.total) * 100"></div>
+                  </div>
+                  <span>{{ (dept.used / dept.total * 100) | number:'1.0-0' }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 

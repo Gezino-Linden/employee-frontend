@@ -1,0 +1,304 @@
+<div class="payroll-app">
+  <!-- Animated Background -->
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">💰</div>
+      <span class="brand-name">PeopleOS</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()">
+        <span>←</span> Dashboard
+      </button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span class="user-name">{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title-group">
+        <h1>Payroll Management</h1>
+        <p class="page-subtitle">Process salaries and manage payments</p>
+      </div>
+      <div class="period-selector">
+        <select [(ngModel)]="selectedMonth" (change)="onPeriodChange()" class="form-select">
+          <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+        </select>
+        <select [(ngModel)]="selectedYear" (change)="onPeriodChange()" class="form-select">
+          <option [value]="selectedYear - 1">{{ selectedYear - 1 }}</option>
+          <option [value]="selectedYear">{{ selectedYear }}</option>
+          <option [value]="selectedYear + 1">{{ selectedYear + 1 }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <button class="tab" [class.tab-active]="activeTab === 'overview'" (click)="switchTab('overview')">
+          <span>📊</span> Overview
+        </button>
+        <button class="tab" [class.tab-active]="activeTab === 'records'" (click)="switchTab('records')">
+          <span>📋</span> Records
+        </button>
+        <button *ngIf="isAdmin()" class="tab" [class.tab-active]="activeTab === 'processing'" (click)="switchTab('processing')">
+          <span>⚙️</span> Processing
+        </button>
+        <button class="tab" [class.tab-active]="activeTab === 'history'" (click)="switchTab('history')">
+          <span>📈</span> History
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB: OVERVIEW -->
+    <div *ngIf="activeTab === 'overview'" class="tab-content">
+      <!-- Summary Cards -->
+      <div class="summary-grid" *ngIf="summary">
+        <div class="summary-card total">
+          <div class="summary-icon">💰</div>
+          <div class="summary-info">
+            <span class="summary-value">{{ formatMoney(summary.total_gross) }}</span>
+            <span class="summary-label">Total Gross</span>
+          </div>
+        </div>
+        
+        <div class="summary-card employees">
+          <div class="summary-icon">👥</div>
+          <div class="summary-info">
+            <span class="summary-value">{{ summary.total_employees }}</span>
+            <span class="summary-label">Employees</span>
+          </div>
+        </div>
+        
+        <div class="summary-card net">
+          <div class="summary-icon">💵</div>
+          <div class="summary-info">
+            <span class="summary-value">{{ formatMoney(summary.total_net) }}</span>
+            <span class="summary-label">Total Net Pay</span>
+          </div>
+        </div>
+        
+        <div class="summary-card deductions">
+          <div class="summary-icon">➖</div>
+          <div class="summary-info">
+            <span class="summary-value">{{ formatMoney(summary.total_deductions) }}</span>
+            <span class="summary-label">Deductions</span>
+          </div>
+        </div>
+        
+        <div class="summary-card processed">
+          <div class="summary-icon">✓</div>
+          <div class="summary-info">
+            <span class="summary-value">{{ summary.processed_count }}</span>
+            <span class="summary-label">Processed</span>
+          </div>
+        </div>
+        
+        <div class="summary-card paid">
+          <div class="summary-icon">✅</div>
+          <div class="summary-info">
+            <span class="summary-value">{{ summary.paid_count }}</span>
+            <span class="summary-label">Paid</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="chart-card" *ngIf="summary">
+        <h3 class="chart-title">Payroll Summary</h3>
+        <div class="breakdown-chart">
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span class="breakdown-label">Draft</span>
+              <span class="breakdown-value">{{ summary.draft_count }}</span>
+            </div>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span class="breakdown-label">Processed</span>
+              <span class="breakdown-value">{{ summary.processed_count }}</span>
+            </div>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span class="breakdown-label">Paid</span>
+              <span class="breakdown-value">{{ summary.paid_count }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: RECORDS -->
+    <div *ngIf="activeTab === 'records'" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Payroll Records</h2>
+          <div class="filter-group">
+            <button class="filter-btn" [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">All</button>
+            <button class="filter-btn" [class.active]="statusFilter === 'draft'" (click)="setStatusFilter('draft')">Draft</button>
+            <button class="filter-btn" [class.active]="statusFilter === 'processed'" (click)="setStatusFilter('processed')">Processed</button>
+            <button class="filter-btn" [class.active]="statusFilter === 'paid'" (click)="setStatusFilter('paid')">Paid</button>
+          </div>
+        </div>
+
+        <div *ngIf="loading" class="loading">Loading payroll records...</div>
+        
+        <div *ngIf="!loading && payrollRecords.length === 0" class="empty">
+          <div class="empty-state-icon">📋</div>
+          <h3>No payroll records</h3>
+          <p>No records found for {{ months[selectedMonth-1]?.label }} {{ selectedYear }}</p>
+        </div>
+
+        <div *ngIf="!loading && payrollRecords.length > 0" class="table-wrap">
+          <table class="payroll-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Basic Salary</th>
+                <th>Allowances</th>
+                <th>Gross Pay</th>
+                <th>Deductions</th>
+                <th>Tax</th>
+                <th>Net Pay</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of filteredRecords" class="payroll-row">
+                <td>
+                  <div class="employee-cell">
+                    <div class="emp-avatar">{{ record.first_name?.[0] }}{{ record.last_name?.[0] }}</div>
+                    <div>
+                      <div class="emp-name">{{ record.first_name }} {{ record.last_name }}</div>
+                      <div class="emp-email">{{ record.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="salary">{{ formatMoney(record.basic_salary) }}</td>
+                <td class="amount positive">+{{ formatMoney(record.allowances) }}</td>
+                <td class="amount">{{ formatMoney(record.gross_pay) }}</td>
+                <td class="amount negative">-{{ formatMoney(record.total_deductions) }}</td>
+                <td class="amount tax">-{{ formatMoney(record.tax) }}</td>
+                <td class="net-salary">{{ formatMoney(record.net_pay) }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="getStatusClass(record.status)">
+                    {{ getStatusIcon(record.status) }} {{ record.status | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-btns">
+                    <button class="action-btn" (click)="downloadPayslip(record.id)" title="Download Payslip">
+                      📄
+                    </button>
+                    <button *ngIf="record.status === 'processed'" class="action-btn pay-btn" (click)="openPaymentModal(record)" title="Mark as Paid">
+                      💰
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PROCESSING -->
+    <div *ngIf="activeTab === 'processing' && isAdmin()" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Process Payroll</h2>
+          <button class="btn btn-primary" [disabled]="selectedEmployees.length === 0 || processingLoading" (click)="processSelectedPayroll()">
+            <span *ngIf="processingLoading" class="loading-spinner"></span>
+            {{ processingLoading ? 'Processing...' : 'Process Selected (' + selectedEmployees.length + ')' }}
+          </button>
+        </div>
+
+        <div class="processing-list">
+          <div class="processing-header">
+            <input type="checkbox" (change)="selectAllEmployees($event)" [checked]="selectedEmployees.length === draftRecords.length && draftRecords.length > 0">
+            <span>Select All Draft Records</span>
+          </div>
+          
+          <div *ngFor="let record of draftRecords" class="processing-item">
+            <input type="checkbox" [checked]="selectedEmployees.includes(record.employee_id)" (change)="toggleEmployeeSelection(record.employee_id)">
+            <div class="processing-emp">
+              <div class="emp-avatar">{{ record.first_name?.[0] }}{{ record.last_name?.[0] }}</div>
+              <div>
+                <div class="emp-name">{{ record.first_name }} {{ record.last_name }}</div>
+                <div class="emp-salary">Net: {{ formatMoney(record.net_pay) }}</div>
+              </div>
+            </div>
+            <span class="status-badge" [ngClass]="getStatusClass(record.status)">
+              {{ record.status | titlecase }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: HISTORY -->
+    <div *ngIf="activeTab === 'history'" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Payment History</h2>
+        </div>
+        
+        <div class="history-timeline">
+          <div *ngFor="let record of paidRecords | slice:0:10" class="timeline-item">
+            <div class="timeline-dot" [class.paid]="record.status === 'paid'"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <span class="timeline-date">{{ record.payment_date | date:'dd MMM yyyy' }}</span>
+                <span class="timeline-amount">{{ formatMoney(record.net_pay) }}</span>
+              </div>
+              <div class="timeline-details">
+                <span>{{ record.first_name }} {{ record.last_name }}</span>
+                <span class="timeline-method">{{ record.payment_method | titlecase }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div *ngIf="showPaymentModal" class="modal-overlay active" (click)="closePaymentModal()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <h3>Mark as Paid</h3>
+    <p *ngIf="selectedPayroll">
+      <strong>{{ selectedPayroll.first_name }} {{ selectedPayroll.last_name }}</strong><br>
+      Net Pay: {{ formatMoney(selectedPayroll.net_pay) }}
+    </p>
+    
+    <div class="form-group">
+      <label>Payment Method</label>
+      <select [(ngModel)]="paymentMethod" class="form-select">
+        <option value="bank_transfer">Bank Transfer</option>
+        <option value="cash">Cash</option>
+        <option value="cheque">Cheque</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>Payment Date</label>
+      <input type="date" [(ngModel)]="paymentDate" class="form-input">
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="closePaymentModal()">Cancel</button>
+      <button class="btn btn-success" (click)="markAsPaid()">Confirm Payment</button>
+    </div>
+  </div>
+</div>

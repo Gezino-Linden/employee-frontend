@@ -19,7 +19,8 @@ import {
 } from '../../services/leave.service';
 import { AuthService, MeResponse } from '../../services/auth.service';
 
-type ActiveTab = 'request' | 'my-requests' | 'approvals' | 'balance' | 'calendar';
+// ADD 'analytics' TO THE TYPE
+type ActiveTab = 'request' | 'my-requests' | 'approvals' | 'balance' | 'calendar' | 'analytics';
 
 @Component({
   selector: 'app-leave',
@@ -56,7 +57,7 @@ export class Leave implements OnInit {
   myRequests: LeaveRequest[] = [];
   loadingMyRequests = true;
   myRequestsError = '';
-  myRequestsFilter: string = ''; // '', 'pending', 'approved', 'rejected'
+  myRequestsFilter: string = '';
 
   // ===== APPROVAL QUEUE (Admin/Manager) =====
   approvalRequests: LeaveRequest[] = [];
@@ -80,6 +81,12 @@ export class Leave implements OnInit {
   showCancelConfirm = false;
   cancelTargetId: number | null = null;
   cancelLoading = false;
+
+  // ===== ANALYTICS DATA =====  ← MOVED INSIDE CLASS
+  analyticsData: any = null;
+  loadingAnalytics = false;
+  analyticsYear = new Date().getFullYear();
+  chartData: any = null;
 
   constructor(
     private leaveService: LeaveService,
@@ -127,6 +134,12 @@ export class Leave implements OnInit {
     this.activeTab = tab;
     this.submitError = '';
     this.submitSuccess = '';
+
+    // Load analytics when switching to analytics tab
+    if (tab === 'analytics') {
+      this.loadAnalytics();
+    }
+
     this.cdr.detectChanges();
   }
 
@@ -343,11 +356,121 @@ export class Leave implements OnInit {
     });
   }
 
-  // ========================= UI HELPERS (NEW) =========================
+  // ========================= ANALYTICS =========================
+  loadAnalytics() {
+    this.loadingAnalytics = true;
 
-  /**
-   * Get emoji icon for leave type
-   */
+    // Combine data from existing sources
+    this.analyticsData = {
+      totalRequests: this.myRequests.length,
+      approvedRequests: this.myRequests.filter((r: LeaveRequest) => r.status === 'approved').length,
+      rejectedRequests: this.myRequests.filter((r: LeaveRequest) => r.status === 'rejected').length,
+      pendingRequests: this.myRequests.filter((r: LeaveRequest) => r.status === 'pending').length,
+
+      // Calculate by leave type
+      byType: this.calculateByType(),
+
+      // Monthly trends (mock data - replace with API call)
+      monthlyTrends: this.generateMonthlyTrends(),
+
+      // Department comparison (if manager)
+      departmentStats: this.isManager() ? this.generateDeptStats() : null,
+
+      // Usage percentages
+      usageRates: this.calculateUsageRates(),
+    };
+
+    this.loadingAnalytics = false;
+    this.cdr.detectChanges();
+  }
+
+  calculateByType() {
+    const typeMap = new Map();
+
+    this.myRequests.forEach((req: LeaveRequest) => {
+      const type = req.leave_type || 'Unknown';
+      if (!typeMap.has(type)) {
+        typeMap.set(type, { count: 0, days: 0 });
+      }
+      const current = typeMap.get(type);
+      current.count++;
+      current.days += req.days_requested || 0;
+    });
+
+    return Array.from(typeMap.entries()).map(([name, data]) => ({
+      name,
+      ...data,
+    }));
+  }
+
+  generateMonthlyTrends() {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months.map((month) => ({
+      month,
+      requests: Math.floor(Math.random() * 8) + 1,
+      approved: Math.floor(Math.random() * 6) + 1,
+      rejected: Math.floor(Math.random() * 2),
+    }));
+  }
+
+  generateDeptStats() {
+    return [
+      { dept: 'IT', total: 45, used: 38, avg: 4.2 },
+      { dept: 'HR', total: 30, used: 22, avg: 3.8 },
+      { dept: 'Sales', total: 52, used: 48, avg: 5.1 },
+      { dept: 'Marketing', total: 28, used: 20, avg: 3.5 },
+    ];
+  }
+
+  calculateUsageRates() {
+    if (!this.balances.length) return [];
+
+    return this.balances.map((b: LeaveBalance) => ({
+      type: b.leave_type,
+      total: b.total_days,
+      used: b.used_days,
+      remaining: b.remaining_days,
+      usagePercent: Math.round((b.used_days / b.total_days) * 100) || 0,
+    }));
+  }
+
+  getTrendDirection(current: number, previous: number): string {
+    if (current > previous) return '↑';
+    if (current < previous) return '↓';
+    return '→';
+  }
+
+  getTrendColor(current: number, previous: number): string {
+    if (current > previous) return 'var(--danger)';
+    if (current < previous) return 'var(--success)';
+    return 'var(--text-muted)';
+  }
+
+  getLeaveTypeColor(typeName: string): string {
+    const colors: { [key: string]: string } = {
+      'Annual Leave': '#8b5cf6',
+      'Sick Leave': '#ef4444',
+      'Personal Leave': '#f59e0b',
+      'Remote Work': '#3b82f6',
+      'Casual Leave': '#10b981',
+    };
+    return colors[typeName] || '#8b5cf6';
+  }
+
+  // ========================= UI HELPERS =========================
   getLeaveTypeIcon(leaveType: string): string {
     const icons: { [key: string]: string } = {
       'Annual Leave': '🏖️',
@@ -368,10 +491,7 @@ export class Leave implements OnInit {
     return icons[leaveType] || '📅';
   }
 
-  /**
-   * Get relative time string (e.g., "2 days ago")
-   */
-  getRelativeTime(date: string | Date): string {
+  getRelativeTime(date: string | Date | undefined | null): string {
     if (!date) return 'recently';
 
     const now = new Date();
@@ -393,28 +513,17 @@ export class Leave implements OnInit {
     return `${Math.floor(diffInDays / 30)} months ago`;
   }
 
-  /**
-   * Calculate total available days across all leave types
-   */
   getTotalAvailable(): number {
     return this.balances.reduce((sum, bal) => sum + (bal.remaining_days || 0), 0);
   }
 
-  /**
-   * Calculate total used days across all leave types
-   */
   getTotalUsed(): number {
     return this.balances.reduce((sum, bal) => sum + (bal.used_days || 0), 0);
   }
 
-  /**
-   * Calculate total pending days across all leave types
-   */
   getTotalPending(): number {
     return this.balances.reduce((sum, bal) => sum + (bal.pending_days || 0), 0);
   }
-
-  // ========================= ORIGINAL HELPERS =========================
 
   isAdmin(): boolean {
     return this.me?.role === 'admin';
@@ -474,7 +583,6 @@ export class Leave implements OnInit {
     this.router.navigateByUrl('/dashboard');
   }
 
-  // ========================= FORM HELPERS =========================
   fc(name: string) {
     return this.requestForm.get(name);
   }

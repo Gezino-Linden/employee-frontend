@@ -1,19 +1,34 @@
 import { Routes } from '@angular/router';
-
 import { authGuard } from './guards/auth-guard';
-import { Login } from './pages/login/login';
-import { Signup } from './pages/signup/signup';
-import { Dashboard } from './pages/dashboard/dashboard';
-import { Leave } from './pages/leave/leave';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  { path: 'login', component: Login },
-  { path: 'signup', component: Signup },
-
-  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
-  { path: 'leave', component: Leave, canActivate: [authGuard] }, // ← ADD authGuard
+  // Lazy loaded routes (better performance)
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login').then((m) => m.Login),
+  },
+  {
+    path: 'signup',
+    loadComponent: () => import('./pages/signup/signup').then((m) => m.Signup),
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'leave',
+    loadComponent: () => import('./pages/leave/leave').then((m) => m.Leave),
+    canActivate: [authGuard],
+  },
+  // ADD PAYROLL ROUTE:
+  {
+    path: 'payroll',
+    loadComponent: () => import('./pages/payroll/payroll').then((m) => m.Payroll),
+    canActivate: [authGuard],
+  },
 
   { path: '**', redirectTo: 'login' },
 ];
