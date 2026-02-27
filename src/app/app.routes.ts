@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
+import { Attendance } from './pages/attendance/attendance';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -27,8 +28,10 @@ export const routes: Routes = [
   {
     path: 'payroll',
     loadComponent: () => import('./pages/payroll/payroll').then((m) => m.Payroll),
+
     canActivate: [authGuard],
   },
+  { path: 'attendance', component: Attendance },
 
   { path: '**', redirectTo: 'login' },
 ];

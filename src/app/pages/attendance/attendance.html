@@ -1,0 +1,475 @@
+<!-- File: src/app/pages/attendance/attendance.html -->
+<div class="attendance-app">
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">🕐</div>
+      <span class="brand-name">PeopleOS</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()"><span>←</span> Dashboard</button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span class="user-name">{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title-group">
+        <h1>Time & Attendance</h1>
+        <p class="page-subtitle">Track hours, breaks and attendance</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <button class="tab" [class.tab-active]="activeTab === 'clock'" (click)="switchTab('clock')">
+          <span>🕐</span> My Clock
+        </button>
+        <button
+          *ngIf="isAdmin()"
+          class="tab"
+          [class.tab-active]="activeTab === 'today'"
+          (click)="switchTab('today')"
+        >
+          <span>📋</span> Today
+        </button>
+        <button
+          *ngIf="isAdmin()"
+          class="tab"
+          [class.tab-active]="activeTab === 'monthly'"
+          (click)="switchTab('monthly')"
+        >
+          <span>📊</span> Monthly Report
+        </button>
+        <button
+          *ngIf="isAdmin()"
+          class="tab"
+          [class.tab-active]="activeTab === 'override'"
+          (click)="switchTab('override')"
+        >
+          <span>✏️</span> Admin Override
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB: CLOCK -->
+    <div *ngIf="activeTab === 'clock'" class="tab-content">
+      <!-- Live Clock -->
+      <div class="clock-hero">
+        <div class="live-clock">{{ currentTime | date : 'HH:mm:ss' }}</div>
+        <div class="live-date">{{ currentTime | date : 'EEEE, dd MMMM yyyy' }}</div>
+      </div>
+
+      <!-- Status Card -->
+      <div class="clock-card">
+        <!-- Not clocked in -->
+        <div *ngIf="!todayRecord || todayRecord.status === 'not_clocked_in'" class="clock-state">
+          <div class="state-icon">⭕</div>
+          <h3>Not Clocked In</h3>
+          <p>You haven't clocked in today yet.</p>
+          <button class="btn-clock btn-clock-in" (click)="clockIn()" [disabled]="actionLoading">
+            {{ actionLoading ? 'Processing...' : '🟢 Clock In' }}
+          </button>
+        </div>
+
+        <!-- Clocked in / on break -->
+        <div *ngIf="isClockedIn() || isOnBreak()" class="clock-state">
+          <div class="state-icon" [class.on-break]="isOnBreak()">
+            {{ isOnBreak() ? '☕' : '✅' }}
+          </div>
+          <h3>{{ isOnBreak() ? 'On Break' : 'Clocked In' }}</h3>
+          <div class="time-row">
+            <div class="time-item">
+              <span class="time-label">Clock In</span>
+              <span class="time-value">{{ formatTime(todayRecord!.clock_in) }}</span>
+            </div>
+            <div class="time-item" *ngIf="isOnBreak()">
+              <span class="time-label">Break Started</span>
+              <span class="time-value">{{ formatTime(todayRecord!.break_start) }}</span>
+            </div>
+            <div class="time-item">
+              <span class="time-label">Total Break</span>
+              <span class="time-value">{{ todayRecord!.total_break_minutes || 0 }}m</span>
+            </div>
+          </div>
+
+          <div class="clock-actions">
+            <button
+              *ngIf="!isOnBreak()"
+              class="btn-clock btn-break"
+              (click)="startBreak()"
+              [disabled]="actionLoading"
+            >
+              ☕ Start Break
+            </button>
+            <button
+              *ngIf="isOnBreak()"
+              class="btn-clock btn-resume"
+              (click)="endBreak()"
+              [disabled]="actionLoading"
+            >
+              💪 End Break
+            </button>
+            <button
+              class="btn-clock btn-clock-out"
+              (click)="clockOut()"
+              [disabled]="actionLoading || isOnBreak()"
+            >
+              🔴 Clock Out
+            </button>
+          </div>
+
+          <p *ngIf="isOnBreak()" class="break-warning">End your break before clocking out.</p>
+        </div>
+
+        <!-- Clocked out -->
+        <div *ngIf="isClockedOut()" class="clock-state">
+          <div class="state-icon done">✅</div>
+          <h3>Day Complete</h3>
+          <div class="time-row">
+            <div class="time-item">
+              <span class="time-label">Clock In</span>
+              <span class="time-value">{{ formatTime(todayRecord!.clock_in) }}</span>
+            </div>
+            <div class="time-item">
+              <span class="time-label">Clock Out</span>
+              <span class="time-value">{{ formatTime(todayRecord!.clock_out) }}</span>
+            </div>
+            <div class="time-item">
+              <span class="time-label">Hours Worked</span>
+              <span class="time-value highlight">{{ formatHours(todayRecord!.total_hours) }}</span>
+            </div>
+            <div class="time-item" *ngIf="todayRecord!.overtime_hours > 0">
+              <span class="time-label">Overtime</span>
+              <span class="time-value overtime"
+                >+{{ formatHours(todayRecord!.overtime_hours) }}</span
+              >
+            </div>
+            <div class="time-item" *ngIf="todayRecord!.late_minutes > 0">
+              <span class="time-label">Late By</span>
+              <span class="time-value late">{{ todayRecord!.late_minutes }}m</span>
+            </div>
+          </div>
+          <div class="pay-summary">
+            <span
+              >Daily Pay: <strong>{{ formatMoney(todayRecord!.daily_pay) }}</strong></span
+            >
+            <span *ngIf="todayRecord!.overtime_pay > 0">
+              + Overtime: <strong>{{ formatMoney(todayRecord!.overtime_pay) }}</strong>
+            </span>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div *ngIf="actionMessage" class="action-success">{{ actionMessage }}</div>
+        <div *ngIf="actionError" class="action-error">{{ actionError }}</div>
+      </div>
+    </div>
+
+    <!-- TAB: TODAY (Admin) -->
+    <div *ngIf="activeTab === 'today' && isAdmin()" class="tab-content">
+      <div class="card" style="margin-bottom: 1rem">
+        <div class="card-header">
+          <h2 class="card-title">Attendance — {{ selectedDate | date : 'dd MMM yyyy' }}</h2>
+          <input
+            type="date"
+            [(ngModel)]="selectedDate"
+            (change)="onDateChange()"
+            class="form-input"
+            style="width: auto"
+          />
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="att-summary-grid" *ngIf="summary">
+          <div class="att-stat present">
+            <span class="att-stat-value">{{ summary.present }}</span>
+            <span class="att-stat-label">✅ Present</span>
+          </div>
+          <div class="att-stat absent">
+            <span class="att-stat-value">{{ summary.absent }}</span>
+            <span class="att-stat-label">❌ Absent</span>
+          </div>
+          <div class="att-stat late">
+            <span class="att-stat-value">{{ summary.late }}</span>
+            <span class="att-stat-label">⏰ Late</span>
+          </div>
+          <div class="att-stat clocked">
+            <span class="att-stat-value">{{ summary.currently_clocked_in }}</span>
+            <span class="att-stat-label">🟢 Active Now</span>
+          </div>
+          <div class="att-stat hours">
+            <span class="att-stat-value">{{ formatHours(summary.total_hours_worked) }}</span>
+            <span class="att-stat-label">⏱ Total Hours</span>
+          </div>
+          <div class="att-stat cost">
+            <span class="att-stat-value">{{ formatMoney(summary.total_daily_cost) }}</span>
+            <span class="att-stat-label">💰 Daily Cost</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Records Table -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Employee Records</h2>
+        </div>
+
+        <div *ngIf="recordsLoading" class="loading">Loading...</div>
+
+        <div *ngIf="!recordsLoading && records.length === 0" class="empty" style="padding: 2rem">
+          <div class="empty-state-icon">📋</div>
+          <h3>No records for this date</h3>
+          <p>Employees haven't clocked in yet or no data exists for this date.</p>
+        </div>
+
+        <div *ngIf="!recordsLoading && records.length > 0" class="table-wrap">
+          <table class="payroll-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Break</th>
+                <th>Hours</th>
+                <th>Overtime</th>
+                <th>Late</th>
+                <th>Status</th>
+                <th>Daily Pay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of records" class="payroll-row">
+                <td>
+                  <div class="employee-cell">
+                    <div class="emp-avatar">{{ r.first_name[0] }}{{ r.last_name[0] }}</div>
+                    <div>
+                      <div class="emp-name">{{ r.first_name }} {{ r.last_name }}</div>
+                      <div class="emp-email">{{ r.department }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ formatTime(r.clock_in) }}</td>
+                <td>{{ formatTime(r.clock_out) }}</td>
+                <td>{{ r.total_break_minutes || 0 }}m</td>
+                <td>
+                  <strong>{{ formatHours(r.total_hours) }}</strong>
+                </td>
+                <td class="amount positive">
+                  <span *ngIf="r.overtime_hours > 0">+{{ formatHours(r.overtime_hours) }}</span>
+                  <span *ngIf="!r.overtime_hours || r.overtime_hours === 0">—</span>
+                </td>
+                <td class="amount negative">
+                  <span *ngIf="r.late_minutes > 0">{{ r.late_minutes }}m</span>
+                  <span *ngIf="!r.late_minutes || r.late_minutes === 0">—</span>
+                </td>
+                <td>
+                  <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+                    {{ getStatusIcon(r.status) }} {{ r.status | titlecase }}
+                  </span>
+                </td>
+                <td>{{ formatMoney(r.daily_pay) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: MONTHLY REPORT -->
+    <div *ngIf="activeTab === 'monthly' && isAdmin()" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Monthly Report</h2>
+          <div style="display: flex; gap: 0.5rem; align-items: center">
+            <select [(ngModel)]="reportMonth" class="form-select">
+              <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+            </select>
+            <select [(ngModel)]="reportYear" class="form-select">
+              <option [value]="reportYear - 1">{{ reportYear - 1 }}</option>
+              <option [value]="reportYear">{{ reportYear }}</option>
+            </select>
+            <button
+              class="btn btn-primary"
+              (click)="loadMonthlyReport()"
+              [disabled]="reportLoading"
+            >
+              {{ reportLoading ? 'Loading...' : '🔍 Generate' }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="reportLoading" class="loading">Generating report...</div>
+
+        <div
+          *ngIf="!reportLoading && monthlyReport.length === 0"
+          class="empty"
+          style="padding: 2rem"
+        >
+          <div class="empty-state-icon">📊</div>
+          <h3>No data</h3>
+          <p>Select a period and click Generate to view the report.</p>
+        </div>
+
+        <div *ngIf="!reportLoading && monthlyReport.length > 0" class="table-wrap">
+          <table class="payroll-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Dept</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Late</th>
+                <th>Half Day</th>
+                <th>Total Hours</th>
+                <th>Overtime</th>
+                <th>Avg Late</th>
+                <th>Total Pay</th>
+                <th>OT Pay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of monthlyReport" class="payroll-row">
+                <td>
+                  <div class="emp-name">{{ r.first_name }} {{ r.last_name }}</div>
+                </td>
+                <td>{{ r.department || '—' }}</td>
+                <td class="amount positive">{{ r.days_present }}</td>
+                <td class="amount negative">{{ r.days_absent }}</td>
+                <td class="amount tax">{{ r.days_late }}</td>
+                <td>{{ r.days_half }}</td>
+                <td>
+                  <strong>{{ formatHours(r.total_hours) }}</strong>
+                </td>
+                <td class="amount positive">
+                  <span *ngIf="r.total_overtime > 0">+{{ formatHours(r.total_overtime) }}</span>
+                  <span *ngIf="!r.total_overtime || r.total_overtime === 0">—</span>
+                </td>
+                <td class="amount tax">
+                  <span *ngIf="r.avg_late_minutes > 0"
+                    >{{ r.avg_late_minutes | number : '1.0-0' }}m</span
+                  >
+                  <span *ngIf="!r.avg_late_minutes || r.avg_late_minutes === 0">—</span>
+                </td>
+                <td class="net-salary">{{ formatMoney(r.total_pay) }}</td>
+                <td class="amount positive">{{ formatMoney(r.total_overtime_pay) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="totals-row">
+                <td colspan="2"><strong>TOTALS</strong></td>
+                <td class="amount positive">
+                  <strong>{{ getTotalPresent() }}</strong>
+                </td>
+                <td class="amount negative">
+                  <strong>{{ getTotalAbsent() }}</strong>
+                </td>
+                <td class="amount tax">
+                  <strong>{{ getTotalLate() }}</strong>
+                </td>
+                <td>—</td>
+                <td>
+                  <strong>{{ formatHours(getTotalHours()) }}</strong>
+                </td>
+                <td class="amount positive">
+                  <strong>+{{ formatHours(getTotalOvertime()) }}</strong>
+                </td>
+                <td>—</td>
+                <td class="net-salary">
+                  <strong>{{ formatMoney(getTotalPay()) }}</strong>
+                </td>
+                <td class="amount positive">
+                  <strong>{{ formatMoney(getTotalOTPay()) }}</strong>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: ADMIN OVERRIDE -->
+    <div *ngIf="activeTab === 'override' && isAdmin()" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Admin Override</h2>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted, #888)">
+              Manually set or correct attendance for any employee.
+            </p>
+          </div>
+        </div>
+
+        <div class="override-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Employee</label>
+              <select [(ngModel)]="overrideForm.employee_id" class="form-select">
+                <option [value]="0">Select employee...</option>
+                <option *ngFor="let e of employees" [value]="e.id">
+                  {{ e.first_name }} {{ e.last_name }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" [(ngModel)]="overrideForm.date" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select [(ngModel)]="overrideForm.status" class="form-select">
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+                <option value="late">Late</option>
+                <option value="half_day">Half Day</option>
+                <option value="on_leave">On Leave</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Clock In Time</label>
+              <input type="time" [(ngModel)]="overrideForm.clock_in" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Clock Out Time</label>
+              <input type="time" [(ngModel)]="overrideForm.clock_out" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Notes</label>
+              <input
+                type="text"
+                [(ngModel)]="overrideForm.notes"
+                class="form-input"
+                placeholder="Reason for override..."
+              />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" (click)="submitOverride()" [disabled]="overrideLoading">
+              {{ overrideLoading ? 'Saving...' : '💾 Save Attendance' }}
+            </button>
+          </div>
+
+          <div
+            *ngIf="overrideMessage"
+            [class]="overrideMessage.startsWith('❌') ? 'initialize-error' : 'initialize-success'"
+            style="margin-top: 1rem"
+          >
+            {{ overrideMessage }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
