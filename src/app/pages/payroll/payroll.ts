@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,6 +13,7 @@ type PayrollTab = 'overview' | 'records' | 'processing' | 'history';
   imports: [CommonModule, FormsModule],
   templateUrl: './payroll.html',
   styleUrls: ['./payroll.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Payroll implements OnInit {
   // User info
@@ -48,6 +49,8 @@ export class Payroll implements OnInit {
   // Processing
   selectedEmployees: number[] = [];
   processingLoading = false;
+  initializeLoading = false;
+  initializeMessage = '';
 
   // Payment modal
   showPaymentModal = false;
@@ -55,7 +58,7 @@ export class Payroll implements OnInit {
   paymentMethod = 'bank_transfer';
   paymentDate = new Date().toISOString().split('T')[0];
 
-  // ✅ ADDED: Status filter
+  // Status filter
   statusFilter: string = 'all';
 
   constructor(
@@ -70,7 +73,6 @@ export class Payroll implements OnInit {
     this.loadPayrollData();
   }
 
-  // ✅ ADDED: Getters for filtered records
   get filteredRecords() {
     if (this.statusFilter === 'all') return this.payrollRecords;
     return this.payrollRecords.filter((r) => r.status === this.statusFilter);
@@ -80,22 +82,28 @@ export class Payroll implements OnInit {
     return this.payrollRecords.filter((r) => r.status === 'draft');
   }
 
+  isAllDraftSelected(): boolean {
+    return (
+      this.draftRecords.length > 0 && this.selectedEmployees.length === this.draftRecords.length
+    );
+  }
+
   get paidRecords() {
     return this.payrollRecords.filter((r) => r.status === 'paid');
   }
 
-  // ✅ ADDED: Status filter method
   setStatusFilter(status: string) {
     this.statusFilter = status;
+    this.cdr.detectChanges();
   }
 
   loadProfile() {
     this.auth.getMe().subscribe({
-      next: (user) => {
+      next: (user: MeResponse) => {
         this.me = user;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Failed to load profile:', err);
       },
     });
@@ -111,24 +119,33 @@ export class Payroll implements OnInit {
     const monthStr = this.selectedMonth.toString().padStart(2, '0');
 
     this.payrollService.getPayrollSummary(monthStr, this.selectedYear).subscribe({
-      next: (summary) => {
+      next: (summary: PayrollSummary) => {
         this.summary = summary;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        this.error = 'Failed to load summary';
+      error: (err: any) => {
+        this.summary = {
+          total_employees: 0,
+          total_gross: 0,
+          total_deductions: 0,
+          total_net: 0,
+          tax: 0,
+          paid_count: 0,
+          processed_count: 0,
+          draft_count: 0,
+        };
         this.loading = false;
         this.cdr.detectChanges();
       },
     });
 
     this.payrollService.getPayrollRecords(monthStr, this.selectedYear).subscribe({
-      next: (records) => {
+      next: (records: PayrollRecord[]) => {
         this.payrollRecords = records;
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = 'Failed to load records';
         this.loading = false;
         this.cdr.detectChanges();
@@ -138,6 +155,31 @@ export class Payroll implements OnInit {
 
   onPeriodChange() {
     this.loadPayrollData();
+  }
+
+  initializePeriod() {
+    this.initializeLoading = true;
+    this.initializeMessage = '';
+    this.error = '';
+
+    this.payrollService.initializePayrollPeriod(this.selectedMonth, this.selectedYear).subscribe({
+      next: (res: any) => {
+        this.initializeLoading = false;
+        this.initializeMessage = res.message || `Initialized payroll for ${res.count} employees`;
+        this.loadPayrollData();
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.initializeMessage = '';
+          this.cdr.detectChanges();
+        }, 4000);
+      },
+      error: (err: any) => {
+        this.initializeLoading = false;
+        this.error =
+          err.error?.details || err.error?.error || 'Failed to initialize payroll period';
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   getStatusClass(status: string): string {
@@ -158,7 +200,6 @@ export class Payroll implements OnInit {
     return map[status] || '•';
   }
 
-  // ✅ FIXED: Handle null/undefined values
   formatMoney(amount: number | null | undefined): string {
     if (amount === null || amount === undefined || isNaN(amount)) {
       return 'R 0.00';
@@ -171,10 +212,11 @@ export class Payroll implements OnInit {
 
   selectAllEmployees(event: any) {
     if (event.target.checked) {
-      this.selectedEmployees = this.payrollRecords.map((r) => r.employee_id);
+      this.selectedEmployees = this.draftRecords.map((r) => r.employee_id);
     } else {
       this.selectedEmployees = [];
     }
+    this.cdr.detectChanges();
   }
 
   toggleEmployeeSelection(employeeId: number) {
@@ -184,6 +226,7 @@ export class Payroll implements OnInit {
     } else {
       this.selectedEmployees.push(employeeId);
     }
+    this.cdr.detectChanges();
   }
 
   processSelectedPayroll() {
@@ -202,7 +245,7 @@ export class Payroll implements OnInit {
         this.loadPayrollData();
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = 'Failed to process payroll';
         this.processingLoading = false;
         this.cdr.detectChanges();
@@ -235,15 +278,16 @@ export class Payroll implements OnInit {
         this.closePaymentModal();
         this.loadPayrollData();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = 'Failed to mark as paid';
+        this.cdr.detectChanges();
       },
     });
   }
 
   downloadPayslip(payrollId: number) {
     this.payrollService.generatePayslip(payrollId).subscribe({
-      next: (blob) => {
+      next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -251,8 +295,9 @@ export class Payroll implements OnInit {
         link.click();
         window.URL.revokeObjectURL(url);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = 'Failed to download payslip';
+        this.cdr.detectChanges();
       },
     });
   }

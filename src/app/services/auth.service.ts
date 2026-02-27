@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 type LoginRequest = { email: string; password: string };
 type LoginResponse = { token: string };
 
+// ✅ EXPORT ADDED
 export type MeResponse = {
   id: number;
   name: string;
@@ -13,9 +15,10 @@ export type MeResponse = {
   company_id: number | null;
 };
 
+// ✅ EXPORT ADDED
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private baseUrl = 'https://employee-api-xpno.onrender.com/api'; // ✅ Added /api
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

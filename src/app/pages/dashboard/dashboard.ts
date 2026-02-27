@@ -376,6 +376,9 @@ export class Dashboard implements OnInit {
   goToPayroll() {
     this.router.navigateByUrl('/payroll');
   }
+  goToAttendance() {
+    this.router.navigateByUrl('/attendance');
+  }
 
   // ========================= FORM HELPERS =========================
   fc(name: string) {

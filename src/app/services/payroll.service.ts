@@ -41,7 +41,7 @@ export interface PayrollSummary {
   total_gross: number;
   total_deductions: number;
   total_net: number;
-  tax: number; 
+  tax: number;
   paid_count: number;
   processed_count: number;
   draft_count: number;

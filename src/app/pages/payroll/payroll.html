@@ -9,9 +9,7 @@
       <span class="brand-name">PeopleOS</span>
     </div>
     <div class="topnav-right">
-      <button class="btn-ghost-sm" (click)="goToDashboard()">
-        <span>←</span> Dashboard
-      </button>
+      <button class="btn-ghost-sm" (click)="goToDashboard()"><span>←</span> Dashboard</button>
       <div *ngIf="me" class="user-chip">
         <div class="user-avatar-sm">{{ me.name[0] }}</div>
         <span class="user-name">{{ me.name }}</span>
@@ -59,7 +57,6 @@
 
     <!-- TAB: OVERVIEW -->
     <div *ngIf="activeTab === 'overview'" class="tab-content">
-      <!-- Summary Cards -->
       <div class="summary-grid" *ngIf="summary">
         <div class="summary-card total">
           <div class="summary-icon">💰</div>
@@ -68,7 +65,6 @@
             <span class="summary-label">Total Gross</span>
           </div>
         </div>
-        
         <div class="summary-card employees">
           <div class="summary-icon">👥</div>
           <div class="summary-info">
@@ -76,7 +72,6 @@
             <span class="summary-label">Employees</span>
           </div>
         </div>
-        
         <div class="summary-card net">
           <div class="summary-icon">💵</div>
           <div class="summary-info">
@@ -84,7 +79,6 @@
             <span class="summary-label">Total Net Pay</span>
           </div>
         </div>
-        
         <div class="summary-card deductions">
           <div class="summary-icon">➖</div>
           <div class="summary-info">
@@ -92,7 +86,6 @@
             <span class="summary-label">Deductions</span>
           </div>
         </div>
-        
         <div class="summary-card processed">
           <div class="summary-icon">✓</div>
           <div class="summary-info">
@@ -100,7 +93,6 @@
             <span class="summary-label">Processed</span>
           </div>
         </div>
-        
         <div class="summary-card paid">
           <div class="summary-icon">✅</div>
           <div class="summary-info">
@@ -110,7 +102,6 @@
         </div>
       </div>
 
-      <!-- Quick Stats -->
       <div class="chart-card" *ngIf="summary">
         <h3 class="chart-title">Payroll Summary</h3>
         <div class="breakdown-chart">
@@ -150,11 +141,11 @@
         </div>
 
         <div *ngIf="loading" class="loading">Loading payroll records...</div>
-        
+
         <div *ngIf="!loading && payrollRecords.length === 0" class="empty">
           <div class="empty-state-icon">📋</div>
           <h3>No payroll records</h3>
-          <p>No records found for {{ months[selectedMonth-1]?.label }} {{ selectedYear }}</p>
+          <p>No records found for {{ months[selectedMonth - 1]?.label }} {{ selectedYear }}</p>
         </div>
 
         <div *ngIf="!loading && payrollRecords.length > 0" class="table-wrap">
@@ -176,7 +167,7 @@
               <tr *ngFor="let record of filteredRecords" class="payroll-row">
                 <td>
                   <div class="employee-cell">
-                    <div class="emp-avatar">{{ record.first_name?.[0] }}{{ record.last_name?.[0] }}</div>
+                    <div class="emp-avatar">{{ record.first_name[0] }}{{ record.last_name[0] }}</div>
                     <div>
                       <div class="emp-name">{{ record.first_name }} {{ record.last_name }}</div>
                       <div class="emp-email">{{ record.email }}</div>
@@ -196,12 +187,8 @@
                 </td>
                 <td>
                   <div class="action-btns">
-                    <button class="action-btn" (click)="downloadPayslip(record.id)" title="Download Payslip">
-                      📄
-                    </button>
-                    <button *ngIf="record.status === 'processed'" class="action-btn pay-btn" (click)="openPaymentModal(record)" title="Mark as Paid">
-                      💰
-                    </button>
+                    <button class="action-btn" (click)="downloadPayslip(record.id)" title="Download Payslip">📄</button>
+                    <button *ngIf="record.status === 'processed'" class="action-btn pay-btn" (click)="openPaymentModal(record)" title="Mark as Paid">💰</button>
                   </div>
                 </td>
               </tr>
@@ -213,9 +200,36 @@
 
     <!-- TAB: PROCESSING -->
     <div *ngIf="activeTab === 'processing' && isAdmin()" class="tab-content">
+
+      <!-- Step 1: Initialize -->
+      <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Step 1 — Initialize Period</h2>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted, #888);">
+              Creates draft payroll records for all active employees for
+              {{ months[selectedMonth - 1]?.label }} {{ selectedYear }}.
+              Safe to run again — existing records are not overwritten.
+            </p>
+          </div>
+          <button class="btn btn-secondary" [disabled]="initializeLoading" (click)="initializePeriod()">
+            <span *ngIf="initializeLoading" class="loading-spinner"></span>
+            {{ initializeLoading ? 'Initializing...' : '🚀 Initialize Period' }}
+          </button>
+        </div>
+        <div *ngIf="initializeMessage" class="initialize-success">✅ {{ initializeMessage }}</div>
+        <div *ngIf="error" class="initialize-error">❌ {{ error }}</div>
+      </div>
+
+      <!-- Step 2: Process -->
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">Process Payroll</h2>
+          <div>
+            <h2 class="card-title">Step 2 — Process Payroll</h2>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted, #888);">
+              Select draft records below and mark them as processed.
+            </p>
+          </div>
           <button class="btn btn-primary" [disabled]="selectedEmployees.length === 0 || processingLoading" (click)="processSelectedPayroll()">
             <span *ngIf="processingLoading" class="loading-spinner"></span>
             {{ processingLoading ? 'Processing...' : 'Process Selected (' + selectedEmployees.length + ')' }}
@@ -224,14 +238,23 @@
 
         <div class="processing-list">
           <div class="processing-header">
-            <input type="checkbox" (change)="selectAllEmployees($event)" [checked]="selectedEmployees.length === draftRecords.length && draftRecords.length > 0">
+            <input type="checkbox" (change)="selectAllEmployees($event)" [checked]="isAllDraftSelected()" />
             <span>Select All Draft Records</span>
+            <span style="margin-left: auto; font-size: 0.85rem; color: var(--text-muted, #888);">
+              {{ draftRecords.length }} draft record(s)
+            </span>
           </div>
-          
+
+          <div *ngIf="draftRecords.length === 0" class="empty" style="padding: 2rem;">
+            <div class="empty-state-icon">📋</div>
+            <h3>No draft records</h3>
+            <p>Click "Initialize Period" above to create draft records for all active employees.</p>
+          </div>
+
           <div *ngFor="let record of draftRecords" class="processing-item">
-            <input type="checkbox" [checked]="selectedEmployees.includes(record.employee_id)" (change)="toggleEmployeeSelection(record.employee_id)">
+            <input type="checkbox" [checked]="selectedEmployees.includes(record.employee_id)" (change)="toggleEmployeeSelection(record.employee_id)" />
             <div class="processing-emp">
-              <div class="emp-avatar">{{ record.first_name?.[0] }}{{ record.last_name?.[0] }}</div>
+              <div class="emp-avatar">{{ record.first_name[0] }}{{ record.last_name[0] }}</div>
               <div>
                 <div class="emp-name">{{ record.first_name }} {{ record.last_name }}</div>
                 <div class="emp-salary">Net: {{ formatMoney(record.net_pay) }}</div>
@@ -251,13 +274,12 @@
         <div class="card-header">
           <h2 class="card-title">Payment History</h2>
         </div>
-        
         <div class="history-timeline">
-          <div *ngFor="let record of paidRecords | slice:0:10" class="timeline-item">
+          <div *ngFor="let record of paidRecords | slice : 0 : 10" class="timeline-item">
             <div class="timeline-dot" [class.paid]="record.status === 'paid'"></div>
             <div class="timeline-content">
               <div class="timeline-header">
-                <span class="timeline-date">{{ record.payment_date | date:'dd MMM yyyy' }}</span>
+                <span class="timeline-date">{{ record.payment_date | date : 'dd MMM yyyy' }}</span>
                 <span class="timeline-amount">{{ formatMoney(record.net_pay) }}</span>
               </div>
               <div class="timeline-details">
@@ -266,10 +288,14 @@
               </div>
             </div>
           </div>
+          <div *ngIf="paidRecords.length === 0" class="empty" style="padding: 2rem;">
+            <div class="empty-state-icon">📈</div>
+            <h3>No payment history</h3>
+            <p>Paid records will appear here.</p>
+          </div>
         </div>
       </div>
     </div>
-
   </main>
 </div>
 
@@ -278,10 +304,9 @@
   <div class="modal modal-sm" (click)="$event.stopPropagation()">
     <h3>Mark as Paid</h3>
     <p *ngIf="selectedPayroll">
-      <strong>{{ selectedPayroll.first_name }} {{ selectedPayroll.last_name }}</strong><br>
+      <strong>{{ selectedPayroll.first_name }} {{ selectedPayroll.last_name }}</strong><br />
       Net Pay: {{ formatMoney(selectedPayroll.net_pay) }}
     </p>
-    
     <div class="form-group">
       <label>Payment Method</label>
       <select [(ngModel)]="paymentMethod" class="form-select">
@@ -290,12 +315,10 @@
         <option value="cheque">Cheque</option>
       </select>
     </div>
-    
     <div class="form-group">
       <label>Payment Date</label>
-      <input type="date" [(ngModel)]="paymentDate" class="form-input">
+      <input type="date" [(ngModel)]="paymentDate" class="form-input" />
     </div>
-    
     <div class="modal-actions">
       <button class="btn btn-ghost" (click)="closePaymentModal()">Cancel</button>
       <button class="btn btn-success" (click)="markAsPaid()">Confirm Payment</button>
