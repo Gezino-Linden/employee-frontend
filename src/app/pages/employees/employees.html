@@ -1,1 +1,345 @@
-<p>employees works!</p>
+<!-- File: src/app/pages/employees/employees.html -->
+<div class="emp-app">
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">👥</div>
+      <span class="brand-name">PeopleOS</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()">← Dashboard</button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span>{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- ===================== LIST TAB ===================== -->
+    <div *ngIf="activeTab === 'list'">
+      <div class="page-header">
+        <div>
+          <h1>Employees</h1>
+          <p class="page-subtitle">{{ totalEmployees }} total employees</p>
+        </div>
+        <button *ngIf="isAdmin()" class="btn btn-primary" (click)="openAdd()">
+          + Add Employee
+        </button>
+      </div>
+
+      <div class="filters-bar">
+        <input
+          type="text"
+          class="form-input search-input"
+          placeholder="🔍 Search name, email, department..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        />
+        <select class="form-select" [(ngModel)]="filterDepartment" (change)="onFilterChange()">
+          <option value="">All Departments</option>
+          <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+        </select>
+        <select class="form-select" [(ngModel)]="filterActive" (change)="onFilterChange()">
+          <option [ngValue]="true">Active</option>
+          <option [ngValue]="false">Inactive</option>
+        </select>
+      </div>
+
+      <div *ngIf="listLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading employees...</p>
+      </div>
+
+      <div *ngIf="!listLoading && employees.length === 0" class="empty-state">
+        <div class="empty-icon">👥</div>
+        <h3>No employees found</h3>
+        <p>Try adjusting your search or filters.</p>
+        <button *ngIf="isAdmin()" class="btn btn-primary" (click)="openAdd()">Add First Employee</button>
+      </div>
+
+      <div *ngIf="!listLoading && employees.length > 0" class="emp-grid">
+        <div *ngFor="let emp of employees" class="emp-card" (click)="viewEmployee(emp)">
+          <div class="emp-card-header">
+            <div class="emp-avatar-lg">{{ getInitials(emp) }}</div>
+            <div class="emp-card-status" [class.active]="emp.is_active" [class.inactive]="!emp.is_active">
+              {{ emp.is_active ? 'Active' : 'Inactive' }}
+            </div>
+          </div>
+          <div class="emp-card-body">
+            <h3 class="emp-card-name">{{ emp.first_name }} {{ emp.last_name }}</h3>
+            <p class="emp-card-position">{{ emp.position }}</p>
+            <p class="emp-card-dept">🏢 {{ emp.department }}</p>
+            <p class="emp-card-salary">💰 {{ formatMoney(emp.salary) }}</p>
+            <p class="emp-card-age" *ngIf="emp.age">🎂 Age {{ emp.age }}</p>
+          </div>
+          <div class="emp-card-footer">
+            <button class="btn-card-action" (click)="viewEmployee(emp); $event.stopPropagation()">View</button>
+            <button *ngIf="isAdmin()" class="btn-card-action" (click)="openEdit(emp); $event.stopPropagation()">Edit</button>
+            <button *ngIf="isAdmin()" class="btn-card-action salary" (click)="openSalaryHistory(emp); $event.stopPropagation()">Salary</button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="totalPages > 1" class="pagination">
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">←</button>
+        <button *ngFor="let p of pages" class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">→</button>
+      </div>
+    </div>
+
+    <!-- ===================== DETAIL TAB ===================== -->
+    <div *ngIf="activeTab === 'detail' && selectedEmployee">
+      <div class="page-header">
+        <button class="btn-back" (click)="backToList()">← Back</button>
+        <div class="header-actions" *ngIf="isAdmin()">
+          <button class="btn btn-secondary" (click)="openEdit(selectedEmployee!)">✏️ Edit</button>
+          <button class="btn btn-salary" (click)="openSalaryHistory(selectedEmployee!)">💰 Salary History</button>
+          <button class="btn btn-danger-outline" (click)="confirmDelete()">🗑 Deactivate</button>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-hero">
+          <div class="detail-avatar">{{ getInitials(selectedEmployee) }}</div>
+          <div class="detail-hero-info">
+            <h2>{{ selectedEmployee.first_name }} {{ selectedEmployee.last_name }}</h2>
+            <p class="detail-position">{{ selectedEmployee.position }}</p>
+            <span class="status-badge"
+              [class.status-active]="selectedEmployee.is_active"
+              [class.status-inactive]="!selectedEmployee.is_active">
+              {{ selectedEmployee.is_active ? '✅ Active' : '❌ Inactive' }}
+            </span>
+          </div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">{{ selectedEmployee.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Department</span>
+            <span class="detail-value">{{ selectedEmployee.department }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Position</span>
+            <span class="detail-value">{{ selectedEmployee.position }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Monthly Salary</span>
+            <span class="detail-value salary-highlight">{{ formatMoney(selectedEmployee.salary) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Age (Tax Rebate)</span>
+            <span class="detail-value">{{ getAgeGroup(selectedEmployee.age) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Employee Since</span>
+            <span class="detail-value">{{ formatDate(selectedEmployee.created_at) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="deleteConfirm" class="confirm-modal">
+        <div class="confirm-box">
+          <h3>⚠️ Deactivate Employee?</h3>
+          <p>This will mark <strong>{{ selectedEmployee.first_name }} {{ selectedEmployee.last_name }}</strong> as inactive. Their data is preserved.</p>
+          <div class="confirm-actions">
+            <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+            <button class="btn btn-danger" (click)="submitDelete()" [disabled]="deleteLoading">
+              {{ deleteLoading ? 'Deactivating...' : 'Yes, Deactivate' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== ADD TAB ===================== -->
+    <div *ngIf="activeTab === 'add'">
+      <div class="page-header">
+        <button class="btn-back" (click)="backToList()">← Back</button>
+      </div>
+      <div class="form-card">
+        <h2 class="form-title">➕ Add New Employee</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" class="form-input" [(ngModel)]="form.first_name" placeholder="John" />
+          </div>
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" class="form-input" [(ngModel)]="form.last_name" placeholder="Smith" />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" class="form-input" [(ngModel)]="form.email" placeholder="john@company.com" />
+          </div>
+          <div class="form-group">
+            <label>Department *</label>
+            <select class="form-select" [(ngModel)]="form.department">
+              <option value="">Select department...</option>
+              <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+              <option value="__new__">+ Add new department</option>
+            </select>
+            <input
+              *ngIf="form.department === '__new__'"
+              type="text"
+              class="form-input"
+              style="margin-top: 0.5rem;"
+              placeholder="Type new department name..."
+              (input)="onNewDepartment($event)"
+            />
+          </div>
+          <div class="form-group">
+            <label>Position *</label>
+            <input type="text" class="form-input" [(ngModel)]="form.position" placeholder="Software Developer" />
+          </div>
+          <div class="form-group">
+            <label>Monthly Salary (ZAR) *</label>
+            <input type="number" class="form-input" [(ngModel)]="form.salary" placeholder="25000" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Age <span class="label-hint">(used for PAYE tax rebate)</span></label>
+            <input type="number" class="form-input" [(ngModel)]="form.age" placeholder="30" min="18" max="100" />
+            <span class="field-hint" *ngIf="form.age && form.age >= 18">
+              {{ form.age < 65 ? '✅ Primary rebate — R17,235/yr' : form.age < 75 ? '✅ Secondary rebate — R26,679/yr' : '✅ Tertiary rebate — R29,824/yr' }}
+            </span>
+          </div>
+        </div>
+        <div *ngIf="formError" class="form-error">❌ {{ formError }}</div>
+        <div *ngIf="formSuccess" class="form-success">{{ formSuccess }}</div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" (click)="backToList()">Cancel</button>
+          <button class="btn btn-primary" (click)="submitAdd()" [disabled]="formLoading">
+            {{ formLoading ? 'Adding...' : '✅ Add Employee' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== EDIT TAB ===================== -->
+    <div *ngIf="activeTab === 'edit' && selectedEmployee">
+      <div class="page-header">
+        <button class="btn-back" (click)="activeTab = 'detail'">← Back</button>
+      </div>
+      <div class="form-card">
+        <h2 class="form-title">✏️ Edit — {{ selectedEmployee.first_name }} {{ selectedEmployee.last_name }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" class="form-input" [(ngModel)]="form.first_name" />
+          </div>
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" class="form-input" [(ngModel)]="form.last_name" />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" class="form-input" [(ngModel)]="form.email" />
+          </div>
+          <div class="form-group">
+            <label>Department *</label>
+            <select class="form-select" [(ngModel)]="form.department">
+              <option value="">Select department...</option>
+              <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+              <option value="__new__">+ Add new department</option>
+            </select>
+            <input
+              *ngIf="form.department === '__new__'"
+              type="text"
+              class="form-input"
+              style="margin-top: 0.5rem;"
+              placeholder="Type new department name..."
+              (input)="onNewDepartment($event)"
+            />
+          </div>
+          <div class="form-group">
+            <label>Position *</label>
+            <input type="text" class="form-input" [(ngModel)]="form.position" />
+          </div>
+          <div class="form-group">
+            <label>Monthly Salary (ZAR)</label>
+            <input type="number" class="form-input" [(ngModel)]="form.salary" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Age <span class="label-hint">(used for PAYE tax rebate)</span></label>
+            <input type="number" class="form-input" [(ngModel)]="form.age" min="18" max="100" />
+            <span class="field-hint" *ngIf="form.age && form.age >= 18">
+              {{ form.age < 65 ? '✅ Primary rebate — R17,235/yr' : form.age < 75 ? '✅ Secondary rebate — R26,679/yr' : '✅ Tertiary rebate — R29,824/yr' }}
+            </span>
+          </div>
+        </div>
+        <div *ngIf="formError" class="form-error">❌ {{ formError }}</div>
+        <div *ngIf="formSuccess" class="form-success">{{ formSuccess }}</div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" (click)="activeTab = 'detail'">Cancel</button>
+          <button class="btn btn-primary" (click)="submitEdit()" [disabled]="formLoading">
+            {{ formLoading ? 'Saving...' : '💾 Save Changes' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SALARY TAB ===================== -->
+    <div *ngIf="activeTab === 'salary' && selectedEmployee">
+      <div class="page-header">
+        <button class="btn-back" (click)="activeTab = 'detail'">← Back</button>
+      </div>
+      <div class="form-card" style="margin-bottom: 1.5rem;">
+        <h2 class="form-title">💰 Update Salary — {{ selectedEmployee.first_name }} {{ selectedEmployee.last_name }}</h2>
+        <p class="form-subtitle">Current: <strong>{{ formatMoney(selectedEmployee.salary) }}/month</strong></p>
+        <div class="form-group" style="max-width: 320px;">
+          <label>New Monthly Salary (ZAR)</label>
+          <input type="number" class="form-input" [(ngModel)]="newSalary" min="0" />
+        </div>
+        <div *ngIf="salaryMessage" [class]="salaryMessage.startsWith('❌') ? 'form-error' : 'form-success'" style="margin-top: 1rem;">
+          {{ salaryMessage }}
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" (click)="submitSalaryUpdate()" [disabled]="salaryLoading">
+            {{ salaryLoading ? 'Updating...' : '💾 Update Salary' }}
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Salary History</h2>
+        </div>
+        <div *ngIf="salaryHistoryLoading" class="loading-state">
+          <div class="spinner"></div>
+        </div>
+        <div *ngIf="!salaryHistoryLoading && salaryHistory.length === 0" class="empty-state" style="padding: 2rem;">
+          <p>No salary history found.</p>
+        </div>
+        <div *ngIf="!salaryHistoryLoading && salaryHistory.length > 0" class="table-wrap">
+          <table class="emp-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Previous Salary</th>
+                <th>New Salary</th>
+                <th>Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let h of salaryHistory">
+                <td>{{ formatDate(h.changed_at) }}</td>
+                <td>{{ formatMoney(h.old_salary) }}</td>
+                <td><strong>{{ formatMoney(h.new_salary) }}</strong></td>
+                <td [class]="h.new_salary > h.old_salary ? 'positive' : 'negative'">
+                  {{ h.new_salary > h.old_salary ? '▲' : '▼' }}
+                  {{ formatMoney(Math.abs(h.new_salary - h.old_salary)) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

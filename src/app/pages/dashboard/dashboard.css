@@ -1209,3 +1209,53 @@ body {
 .emp-table td:nth-last-child(2) {
   min-width: 120px;
 }
+.nav-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.nav-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 1.75rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.nav-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+
+.nav-card.indigo:hover { border-color: rgba(99,102,241,0.5); background: rgba(99,102,241,0.07); }
+.nav-card.green:hover  { border-color: rgba(16,185,129,0.5); background: rgba(16,185,129,0.07); }
+.nav-card.amber:hover  { border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.07); }
+.nav-card.blue:hover   { border-color: rgba(59,130,246,0.5); background: rgba(59,130,246,0.07); }
+
+.nav-card-icon { font-size: 2.5rem; flex-shrink: 0; }
+
+.nav-card-body { flex: 1; }
+.nav-card-body h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+}
+.nav-card-body p {
+  margin: 0;
+  font-size: 0.83rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.nav-card-arrow {
+  font-size: 1.3rem;
+  color: var(--text-muted, #94a3b8);
+  transition: transform 0.2s;
+}
+.nav-card:hover .nav-card-arrow { transform: translateX(4px); }

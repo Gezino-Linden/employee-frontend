@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import {
   AttendanceService,
   AttendanceRecord,
@@ -16,6 +17,7 @@ import {
   MonthlyReport,
 } from '../../services/attendance.service';
 import { AuthService, MeResponse } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 type AttendanceTab = 'clock' | 'today' | 'monthly' | 'override';
 
@@ -85,13 +87,14 @@ export class Attendance implements OnInit, OnDestroy {
   overrideLoading = false;
   overrideMessage = '';
 
-  // Employees list for override
+  // Employees list for override dropdown
   employees: any[] = [];
 
   constructor(
     private attendanceService: AttendanceService,
     private auth: AuthService,
     private router: Router,
+    private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -183,17 +186,15 @@ export class Attendance implements OnInit, OnDestroy {
     });
   }
 
+  // ✅ FIXED: uses environment.apiUrl instead of window.env
   loadEmployees() {
-    // Reuse existing employees endpoint
-    fetch(`${(window as any).env?.apiUrl || ''}/api/employees?page=1&limit=100`, {
-      headers: { Authorization: 'Bearer ' + localStorage.getItem('token') },
-    })
-      .then((r) => r.json())
-      .then((d) => {
+    this.http.get<any>(`${environment.apiUrl}/employees?page=1&limit=100`).subscribe({
+      next: (d: any) => {
         this.employees = d.data || d || [];
         this.cdr.detectChanges();
-      })
-      .catch(() => {});
+      },
+      error: () => {},
+    });
   }
 
   onDateChange() {
