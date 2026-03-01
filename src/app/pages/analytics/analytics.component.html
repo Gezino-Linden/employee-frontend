@@ -1,0 +1,371 @@
+<!-- File: src/app/pages/analytics/analytics.component.html -->
+<div class="analytics-app">
+  <div class="bg-mesh"></div>
+
+  <!-- Top Navigation -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <span class="brand-icon">📊</span>
+      <span class="brand-name">Analytics</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" routerLink="/dashboard">← Dashboard</button>
+      <div class="user-chip">
+        <div class="user-avatar-sm">L</div>
+        <span>Local Admin</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title-group">
+        <h1>Analytics Dashboard</h1>
+        <p class="page-subtitle">Comprehensive insights and reporting</p>
+      </div>
+      
+      <div class="period-selector">
+        <select class="form-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+          <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+        </select>
+        <select class="form-select" [(ngModel)]="selectedMonth" (change)="onMonthChange()">
+          <option [value]="1">January</option>
+          <option [value]="2">February</option>
+          <option [value]="3">March</option>
+          <option [value]="4">April</option>
+          <option [value]="5">May</option>
+          <option [value]="6">June</option>
+          <option [value]="7">July</option>
+          <option [value]="8">August</option>
+          <option [value]="9">September</option>
+          <option [value]="10">October</option>
+          <option [value]="11">November</option>
+          <option [value]="12">December</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading analytics data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="alert alert-error">
+      {{ error }}
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading && !error && dashboardData">
+      <!-- KPI Cards -->
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-icon">👥</div>
+          <div class="summary-info">
+            <div class="summary-value">{{ dashboardData.employees.total_employees }}</div>
+            <div class="summary-label">Total Employees</div>
+            <div class="summary-detail">{{ dashboardData.employees.active_employees }} active</div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-icon">💰</div>
+          <div class="summary-info">
+            <div class="summary-value">{{ formatCurrency(dashboardData.payroll.total_gross) }}</div>
+            <div class="summary-label">Gross Payroll</div>
+            <div class="summary-detail">{{ dashboardData.payroll.processed_count }} processed</div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-icon">💵</div>
+          <div class="summary-info">
+            <div class="summary-value">{{ formatCurrency(dashboardData.payroll.total_net) }}</div>
+            <div class="summary-label">Net Pay</div>
+            <div class="summary-detail">{{ formatCurrency(dashboardData.payroll.total_tax) }} tax</div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-icon">🏖️</div>
+          <div class="summary-info">
+            <div class="summary-value">{{ dashboardData.leave.approved_requests }}</div>
+            <div class="summary-label">Approved Leave</div>
+            <div class="summary-detail">{{ dashboardData.leave.total_days_taken }} days</div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-icon">⏰</div>
+          <div class="summary-info">
+            <div class="summary-value">{{ dashboardData.attendance.present_count }}</div>
+            <div class="summary-label">Present Today</div>
+            <div class="summary-detail">{{ dashboardData.attendance.late_count }} late</div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-icon">📋</div>
+          <div class="summary-info">
+            <div class="summary-value">{{ formatCurrency(dashboardData.compliance.outstanding_amount) }}</div>
+            <div class="summary-label">SARS Outstanding</div>
+            <div class="summary-detail">{{ dashboardData.compliance.pending_payments }} pending</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button 
+            class="tab" 
+            [class.tab-active]="activeTab === 'overview'"
+            (click)="switchTab('overview')">
+            📊 Overview
+          </button>
+          <button 
+            class="tab" 
+            [class.tab-active]="activeTab === 'payroll'"
+            (click)="switchTab('payroll')">
+            💰 Payroll
+          </button>
+          <button 
+            class="tab" 
+            [class.tab-active]="activeTab === 'leave'"
+            (click)="switchTab('leave')">
+            🏖️ Leave
+          </button>
+          <button 
+            class="tab" 
+            [class.tab-active]="activeTab === 'attendance'"
+            (click)="switchTab('attendance')">
+            ⏰ Attendance
+          </button>
+          <button 
+            class="tab" 
+            [class.tab-active]="activeTab === 'compliance'"
+            (click)="switchTab('compliance')">
+            📋 Compliance
+          </button>
+          <button 
+            class="tab" 
+            [class.tab-active]="activeTab === 'hr'"
+            (click)="switchTab('hr')">
+            👥 HR Insights
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Overview Tab -->
+        <div *ngIf="activeTab === 'overview'" class="overview-content">
+          <div class="alert alert-success" *ngIf="dashboardData.compliance.outstanding_amount === '0'">
+            ✅ All compliance obligations are up to date!
+          </div>
+
+          <div class="cards-grid">
+            <div class="info-card">
+              <h3>📊 Quick Stats</h3>
+              <div class="stats-list">
+                <div class="stat-item">
+                  <span>Active Employees</span>
+                  <strong>{{ dashboardData.employees.active_employees }}</strong>
+                </div>
+                <div class="stat-item">
+                  <span>Payroll Processed</span>
+                  <strong>{{ dashboardData.payroll.processed_count }}</strong>
+                </div>
+                <div class="stat-item">
+                  <span>Leave Requests</span>
+                  <strong>{{ dashboardData.leave.total_requests }}</strong>
+                </div>
+                <div class="stat-item">
+                  <span>Attendance Rate</span>
+                  <strong>{{ calculatePercentage(dashboardData.attendance.present_count, dashboardData.attendance.present_count + dashboardData.attendance.absent_count) }}%</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <h3>🔔 Alerts & Notifications</h3>
+              <div class="alerts-list">
+                <div class="alert-item" *ngIf="dashboardData.leave.pending_requests > 0">
+                  <span class="alert-icon">⚠️</span>
+                  <span>{{ dashboardData.leave.pending_requests }} leave requests awaiting approval</span>
+                </div>
+                <div class="alert-item" *ngIf="dashboardData.compliance.pending_payments > 0">
+                  <span class="alert-icon">📋</span>
+                  <span>{{ dashboardData.compliance.pending_payments }} SARS payments pending</span>
+                </div>
+                <div class="alert-item" *ngIf="dashboardData.attendance.late_count > 5">
+                  <span class="alert-icon">⏰</span>
+                  <span>{{ dashboardData.attendance.late_count }} late arrivals this month</span>
+                </div>
+                <div class="alert-item" *ngIf="dashboardData.leave.pending_requests === 0 && dashboardData.compliance.pending_payments === 0">
+                  <span class="alert-icon">✅</span>
+                  <span>All systems running smoothly!</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payroll Tab -->
+        <div *ngIf="activeTab === 'payroll'" class="payroll-content">
+          <div class="charts-grid" *ngIf="payrollData">
+            <div class="chart-card">
+              <h3 class="chart-title">Monthly Payroll Trend</h3>
+              <div class="chart-container" *ngIf="payrollChartData">
+                <canvas baseChart
+                  [data]="payrollChartData"
+                  [options]="payrollChartOptions"
+                  [type]="payrollChartType">
+                </canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <h3 class="chart-title">Department Breakdown</h3>
+              <div class="chart-container" *ngIf="departmentChartData">
+                <canvas baseChart
+                  [data]="departmentChartData"
+                  [options]="departmentChartOptions"
+                  [type]="departmentChartType">
+                </canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="loading" *ngIf="!payrollData">Loading payroll data...</div>
+        </div>
+
+        <!-- Leave Tab -->
+        <div *ngIf="activeTab === 'leave'" class="leave-content">
+          <div class="chart-card" *ngIf="leaveData">
+            <h3 class="chart-title">Leave Type Breakdown</h3>
+            <div class="chart-container" *ngIf="leaveChartData">
+              <canvas baseChart
+                [data]="leaveChartData"
+                [options]="leaveChartOptions"
+                [type]="leaveChartType">
+              </canvas>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-value">{{ leaveData.approvalStats.approval_rate }}%</div>
+                <div class="stat-label">Approval Rate</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">{{ leaveData.approvalStats.pending }}</div>
+                <div class="stat-label">Pending</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">{{ leaveData.approvalStats.approved }}</div>
+                <div class="stat-label">Approved</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">{{ leaveData.approvalStats.rejected }}</div>
+                <div class="stat-label">Rejected</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="loading" *ngIf="!leaveData">Loading leave data...</div>
+        </div>
+
+        <!-- Attendance Tab -->
+        <div *ngIf="activeTab === 'attendance'" class="attendance-content">
+          <div class="card" *ngIf="attendanceData">
+            <div class="card-header">
+              <h3>Attendance Summary</h3>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-value">{{ attendanceData.overtimeStats.total_overtime_hours }}</div>
+                <div class="stat-label">Overtime Hours</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">{{ formatCurrency(attendanceData.overtimeStats.total_overtime_pay) }}</div>
+                <div class="stat-label">Overtime Pay</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">{{ attendanceData.overtimeStats.employees_with_overtime }}</div>
+                <div class="stat-label">With Overtime</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="loading" *ngIf="!attendanceData">Loading attendance data...</div>
+        </div>
+
+        <!-- Compliance Tab -->
+        <div *ngIf="activeTab === 'compliance'" class="compliance-content">
+          <div class="card" *ngIf="complianceData">
+            <div class="card-header">
+              <h3>SARS Compliance Status</h3>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-value">{{ formatCurrency(complianceData.outstanding.total_outstanding) }}</div>
+                <div class="stat-label">Total Outstanding</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">{{ complianceData.outstanding.overdue_count }}</div>
+                <div class="stat-label">Overdue</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">{{ complianceData.outstanding.pending_count }}</div>
+                <div class="stat-label">Pending</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="loading" *ngIf="!complianceData">Loading compliance data...</div>
+        </div>
+
+        <!-- HR Insights Tab -->
+        <div *ngIf="activeTab === 'hr'" class="hr-content">
+          <div class="cards-grid" *ngIf="hrData">
+            <div class="info-card">
+              <h3>👥 Headcount by Department</h3>
+              <div class="list-items">
+                <div class="list-item" *ngFor="let dept of hrData.headcount">
+                  <span>{{ dept.department }}</span>
+                  <strong>{{ dept.count }} ({{ dept.active_count }} active)</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <h3>💰 Salary Statistics</h3>
+              <div class="stats-list">
+                <div class="stat-item">
+                  <span>Average</span>
+                  <strong>{{ formatCurrency(hrData.salaryStats.avg_salary) }}</strong>
+                </div>
+                <div class="stat-item">
+                  <span>Median</span>
+                  <strong>{{ formatCurrency(hrData.salaryStats.median_salary) }}</strong>
+                </div>
+                <div class="stat-item">
+                  <span>Min</span>
+                  <strong>{{ formatCurrency(hrData.salaryStats.min_salary) }}</strong>
+                </div>
+                <div class="stat-item">
+                  <span>Max</span>
+                  <strong>{{ formatCurrency(hrData.salaryStats.max_salary) }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="loading" *ngIf="!hrData">Loading HR insights...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

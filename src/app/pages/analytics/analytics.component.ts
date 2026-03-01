@@ -17,7 +17,7 @@ import {
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.css'],
 })
