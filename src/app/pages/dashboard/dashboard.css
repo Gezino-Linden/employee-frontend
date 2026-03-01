@@ -1300,3 +1300,11 @@ body {
   border-color: rgba(245, 158, 11, 0.5);
   background: rgba(245, 158, 11, 0.07);
 }
+.nav-card.violet:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(139, 92, 246, 0.07);
+}
+.nav-card.orange:hover {
+  border-color: rgba(249, 115, 22, 0.5);
+  background: rgba(249, 115, 22, 0.07);
+}

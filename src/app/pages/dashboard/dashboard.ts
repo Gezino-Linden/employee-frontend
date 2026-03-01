@@ -58,4 +58,10 @@ export class Dashboard implements OnInit {
   goToIrp5() {
     this.router.navigateByUrl('/irp5');
   }
+  goToAnalytics() {
+    this.router.navigateByUrl('/analytics');
+  }
+  goToReports() {
+    this.router.navigateByUrl('/reports');
+  }
 }

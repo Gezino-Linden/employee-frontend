@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
-import { AnalyticsComponent } from './pages/analytics/analytics.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -51,10 +50,18 @@ export const routes: Routes = [
     path: 'irp5',
     loadComponent: () => import('./pages/irp5/irp5').then((m) => m.IRP5),
     canActivate: [authGuard],
-  },{
-  path: 'analytics',
-  component: AnalyticsComponent
-},
+  },
+  {
+    path: 'analytics',
+    loadComponent: () =>
+      import('./pages/analytics/analytics.component').then((m) => m.AnalyticsComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reports',
+    loadComponent: () => import('./pages/reports/reports').then((m) => m.Reports),
+    canActivate: [authGuard],
+  },
 
   { path: '**', redirectTo: 'login' }, // ← wildcard ALWAYS last
 ];

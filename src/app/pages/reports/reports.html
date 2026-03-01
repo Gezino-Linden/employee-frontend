@@ -1,0 +1,248 @@
+<!-- File: src/app/pages/reports/reports.html -->
+<div class="reports-app">
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">📑</div>
+      <span class="brand-name">PeopleOS</span>
+      <span class="brand-sub">/ Reports</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()">← Dashboard</button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span>{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <h1>Full HR <span class="title-accent">Report</span></h1>
+        <p class="page-subtitle">Export complete HR data — employees, payroll, leave, attendance &amp; SARS compliance</p>
+      </div>
+    </div>
+
+    <!-- FILTERS + EXPORT ACTIONS -->
+    <div class="controls-card">
+      <div class="controls-left">
+        <div class="control-group">
+          <label>Year</label>
+          <select class="form-select" [(ngModel)]="filterYear" (change)="loadPreview()">
+            <option [value]="filterYear - 1">{{ filterYear - 1 }}</option>
+            <option [value]="filterYear">{{ filterYear }}</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Period</label>
+          <select class="form-select" [(ngModel)]="filterMonth" (change)="loadPreview()">
+            <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+          </select>
+        </div>
+        <div class="period-badge">
+          📅 {{ getPeriodLabel() }}
+        </div>
+      </div>
+      <div class="controls-right">
+        <button class="btn btn-excel" [disabled]="excelLoading" (click)="exportExcel()">
+          <span *ngIf="excelLoading" class="spinner-sm"></span>
+          <span *ngIf="!excelLoading">📊</span>
+          {{ excelLoading ? 'Generating...' : 'Export Excel' }}
+        </button>
+        <button class="btn btn-pdf" [disabled]="pdfLoading" (click)="exportPDF()">
+          <span *ngIf="pdfLoading" class="spinner-sm"></span>
+          <span *ngIf="!pdfLoading">📄</span>
+          {{ pdfLoading ? 'Generating...' : 'Export PDF' }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="errorMsg" class="alert alert-error">❌ {{ errorMsg }}</div>
+
+    <!-- PREVIEW LOADING -->
+    <div *ngIf="loadingPreview" class="loading-state">
+      <div class="spinner"></div><p>Loading report preview...</p>
+    </div>
+
+    <!-- REPORT PREVIEW -->
+    <div *ngIf="!loadingPreview && preview">
+
+      <div class="preview-label">📋 Report Preview — what will be included</div>
+
+      <!-- EMPLOYEES -->
+      <div class="report-section">
+        <div class="section-header">
+          <span class="section-icon">👥</span>
+          <div>
+            <h3>Employees</h3>
+            <p>Full employee register with salaries, departments &amp; tax numbers</p>
+          </div>
+          <div class="section-count">{{ preview.employee_count }} records</div>
+        </div>
+        <div class="section-stats">
+          <div class="stat-pill">
+            <span class="stat-value">{{ preview.employee_count }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat-pill stat-green">
+            <span class="stat-value">{{ preview.active_employees }}</span>
+            <span class="stat-label">Active</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-value">{{ preview.employee_count - preview.active_employees }}</span>
+            <span class="stat-label">Inactive</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYROLL -->
+      <div class="report-section">
+        <div class="section-header">
+          <span class="section-icon">💰</span>
+          <div>
+            <h3>Payroll</h3>
+            <p>All payroll records with gross, PAYE, UIF, net pay per employee</p>
+          </div>
+          <div class="section-count">{{ preview.payroll_records }} records</div>
+        </div>
+        <div class="section-stats">
+          <div class="stat-pill">
+            <span class="stat-value">{{ formatMoney(preview.total_gross) }}</span>
+            <span class="stat-label">Gross</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-value">{{ formatMoney(preview.total_paye) }}</span>
+            <span class="stat-label">PAYE</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-value">{{ formatMoney(preview.total_uif) }}</span>
+            <span class="stat-label">UIF</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-value">{{ formatMoney(preview.total_net) }}</span>
+            <span class="stat-label">Net Pay</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEAVE -->
+      <div class="report-section">
+        <div class="section-header">
+          <span class="section-icon">🏖️</span>
+          <div>
+            <h3>Leave</h3>
+            <p>All leave requests with dates, type, days and approval status</p>
+          </div>
+          <div class="section-count">{{ preview.leave_requests }} requests</div>
+        </div>
+        <div class="section-stats">
+          <div class="stat-pill">
+            <span class="stat-value">{{ preview.leave_requests }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat-pill stat-green">
+            <span class="stat-value">{{ preview.approved_leave }}</span>
+            <span class="stat-label">Approved</span>
+          </div>
+          <div class="stat-pill stat-yellow">
+            <span class="stat-value">{{ preview.leave_requests - preview.approved_leave }}</span>
+            <span class="stat-label">Other</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATTENDANCE -->
+      <div class="report-section">
+        <div class="section-header">
+          <span class="section-icon">🕐</span>
+          <div>
+            <h3>Attendance</h3>
+            <p>Clock in/out records, hours worked and overtime</p>
+          </div>
+          <div class="section-count">{{ preview.attendance_records }} records</div>
+        </div>
+        <div class="section-stats">
+          <div class="stat-pill">
+            <span class="stat-value">{{ preview.attendance_records }}</span>
+            <span class="stat-label">Records</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SARS COMPLIANCE -->
+      <div class="report-section">
+        <div class="section-header">
+          <span class="section-icon">🏛️</span>
+          <div>
+            <h3>SARS Compliance</h3>
+            <p>EMP201 declarations, UI-19 submissions &amp; IRP5 certificates</p>
+          </div>
+          <div class="section-count">{{ preview.emp201_count + preview.ui19_count + preview.irp5_count }} total</div>
+        </div>
+        <div class="section-stats">
+          <div class="stat-pill">
+            <span class="stat-value">{{ preview.emp201_count }}</span>
+            <span class="stat-label">EMP201</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-value">{{ preview.ui19_count }}</span>
+            <span class="stat-label">UI-19</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-value">{{ preview.irp5_count }}</span>
+            <span class="stat-label">IRP5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHAT'S INCLUDED -->
+      <div class="includes-card">
+        <h3>📦 What's included in your export</h3>
+        <div class="includes-grid">
+          <div class="include-col">
+            <div class="include-title">📊 Excel (.xlsx) — 7 Sheets</div>
+            <div class="include-item">✅ Summary KPIs sheet</div>
+            <div class="include-item">✅ Employee register</div>
+            <div class="include-item">✅ Payroll records with formulas</div>
+            <div class="include-item">✅ Leave report</div>
+            <div class="include-item">✅ Attendance log</div>
+            <div class="include-item">✅ SARS compliance (EMP201 + UI-19)</div>
+            <div class="include-item">✅ IRP5 certificates</div>
+          </div>
+          <div class="include-col">
+            <div class="include-title">📄 PDF — Print-Ready Report</div>
+            <div class="include-item">✅ Professional header &amp; branding</div>
+            <div class="include-item">✅ 8 KPI summary cards</div>
+            <div class="include-item">✅ All sections in one document</div>
+            <div class="include-item">✅ Formatted tables with totals</div>
+            <div class="include-item">✅ Status badges (approved/pending)</div>
+            <div class="include-item">✅ Print-optimised layout</div>
+            <div class="include-item">✅ Opens browser print dialog</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPORT ACTIONS BOTTOM -->
+      <div class="export-actions">
+        <button class="btn btn-excel btn-lg" [disabled]="excelLoading" (click)="exportExcel()">
+          <span *ngIf="excelLoading" class="spinner-sm"></span>
+          <span *ngIf="!excelLoading">📊</span>
+          {{ excelLoading ? 'Generating Excel...' : 'Download Excel Report' }}
+        </button>
+        <button class="btn btn-pdf btn-lg" [disabled]="pdfLoading" (click)="exportPDF()">
+          <span *ngIf="pdfLoading" class="spinner-sm"></span>
+          <span *ngIf="!pdfLoading">📄</span>
+          {{ pdfLoading ? 'Generating PDF...' : 'Open PDF Report' }}
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+</div>
