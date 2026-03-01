@@ -49,4 +49,7 @@ export class Dashboard implements OnInit {
   goToLeave() {
     this.router.navigateByUrl('/leave');
   }
+  goToEmp201() {
+    this.router.navigateByUrl('/emp201');
+  }
 }

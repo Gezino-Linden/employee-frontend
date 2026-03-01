@@ -85,6 +85,7 @@ export class Leave implements OnInit {
   // ===== ANALYTICS DATA =====  ← MOVED INSIDE CLASS
   analyticsData: any = null;
   loadingAnalytics = false;
+  analyticsError: string = ''; // <-- ADD THIS
   analyticsYear = new Date().getFullYear();
   chartData: any = null;
 
@@ -357,74 +358,48 @@ export class Leave implements OnInit {
   }
 
   // ========================= ANALYTICS =========================
+  // ========================= ANALYTICS =========================
   loadAnalytics() {
     this.loadingAnalytics = true;
+    this.analyticsError = ''; // Add this property if not exists
 
-    // Combine data from existing sources
-    this.analyticsData = {
-      totalRequests: this.myRequests.length,
-      approvedRequests: this.myRequests.filter((r: LeaveRequest) => r.status === 'approved').length,
-      rejectedRequests: this.myRequests.filter((r: LeaveRequest) => r.status === 'rejected').length,
-      pendingRequests: this.myRequests.filter((r: LeaveRequest) => r.status === 'pending').length,
-
-      // Calculate by leave type
-      byType: this.calculateByType(),
-
-      // Monthly trends (mock data - replace with API call)
-      monthlyTrends: this.generateMonthlyTrends(),
-
-      // Department comparison (if manager)
-      departmentStats: this.isManager() ? this.generateDeptStats() : null,
-
-      // Usage percentages
-      usageRates: this.calculateUsageRates(),
-    };
-
-    this.loadingAnalytics = false;
-    this.cdr.detectChanges();
-  }
-
-  calculateByType() {
-    const typeMap = new Map();
-
-    this.myRequests.forEach((req: LeaveRequest) => {
-      const type = req.leave_type || 'Unknown';
-      if (!typeMap.has(type)) {
-        typeMap.set(type, { count: 0, days: 0 });
-      }
-      const current = typeMap.get(type);
-      current.count++;
-      current.days += req.days_requested || 0;
+    // Call the REAL API endpoint
+    this.leaveService.getAnalytics(this.analyticsYear).subscribe({
+      next: (data) => {
+        this.analyticsData = data;
+        this.prepareChartData(data.monthly_trends);
+        this.loadingAnalytics = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.loadingAnalytics = false;
+        this.analyticsError = err?.error?.error || 'Failed to load analytics';
+        console.error('Analytics error:', err);
+        this.cdr.detectChanges();
+      },
     });
-
-    return Array.from(typeMap.entries()).map(([name, data]) => ({
-      name,
-      ...data,
-    }));
   }
 
-  generateMonthlyTrends() {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return months.map((month) => ({
-      month,
-      requests: Math.floor(Math.random() * 8) + 1,
-      approved: Math.floor(Math.random() * 6) + 1,
-      rejected: Math.floor(Math.random() * 2),
-    }));
+  // Add this helper method for chart data
+  prepareChartData(monthlyData: any[]) {
+    if (!monthlyData) return;
+
+    // Find max value for scaling
+    const maxRequests = Math.max(...monthlyData.map((m) => m.requests || 0), 1);
+
+    this.chartData = {
+      months: monthlyData,
+      maxValue: maxRequests,
+      // Calculate heights as percentages
+      getBarHeight: (value: number) => {
+        return maxRequests > 0 ? (value / maxRequests) * 100 : 0;
+      },
+    };
   }
+
+  // Remove or comment out these mock methods:
+  // - generateMonthlyTrends()
+  // - generateDeptStats()
 
   generateDeptStats() {
     return [
@@ -590,5 +565,9 @@ export class Leave implements OnInit {
   hasError(name: string, error: string) {
     const c = this.fc(name);
     return c?.hasError(error) && c?.touched;
+  }
+  onYearChange(year: any) {
+    this.analyticsYear = Number(year);
+    this.loadAnalytics();
   }
 }

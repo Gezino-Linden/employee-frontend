@@ -342,7 +342,7 @@
         <!-- Header with Year Selector -->
         <div class="analytics-header">
           <h2 class="card-title">Leave Analytics</h2>
-          <select [(ngModel)]="analyticsYear" (change)="loadAnalytics()" class="year-selector">
+          <select [ngModel]="analyticsYear" (ngModelChange)="onYearChange($event)" class="year-selector">
             <option [value]="analyticsYear - 1">{{ analyticsYear - 1 }}</option>
             <option [value]="analyticsYear">{{ analyticsYear }}</option>
             <option [value]="analyticsYear + 1">{{ analyticsYear + 1 }}</option>

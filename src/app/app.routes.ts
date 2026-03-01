@@ -1,12 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
-import { Attendance } from './pages/attendance/attendance';
-import { Employees } from './pages/employees/employees';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  // Lazy loaded routes (better performance)
   {
     path: 'login',
     loadComponent: () => import('./pages/login/login').then((m) => m.Login),
@@ -25,15 +22,26 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/leave/leave').then((m) => m.Leave),
     canActivate: [authGuard],
   },
-  // ADD PAYROLL ROUTE:
   {
     path: 'payroll',
     loadComponent: () => import('./pages/payroll/payroll').then((m) => m.Payroll),
-
     canActivate: [authGuard],
   },
-  { path: 'attendance', component: Attendance },
-  { path: 'employees', component: Employees },
+  {
+    path: 'attendance',
+    loadComponent: () => import('./pages/attendance/attendance').then((m) => m.Attendance),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'employees',
+    loadComponent: () => import('./pages/employees/employees').then((m) => m.Employees),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'emp201',
+    loadComponent: () => import('./pages/emp201/emp201').then((m) => m.EMP201),
+    canActivate: [authGuard],
+  },
 
   { path: '**', redirectTo: 'login' },
 ];

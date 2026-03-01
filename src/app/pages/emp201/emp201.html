@@ -1,0 +1,460 @@
+<!-- File: src/app/pages/emp201/emp201.html -->
+<div class="emp201-app">
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">📋</div>
+      <span class="brand-name">PeopleOS</span>
+      <span class="brand-sub">/ EMP201</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()">← Dashboard</button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span>{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <h1>EMP201 <span class="title-accent">Declarations</span></h1>
+        <p class="page-subtitle">Monthly SARS employer tax submissions — PAYE, SDL & UIF</p>
+      </div>
+      <div class="header-actions">
+        <select class="form-select year-select" [(ngModel)]="filterYear" (change)="loadSummary(); loadDeclarations()">
+          <option [value]="filterYear - 1">{{ filterYear - 1 }}</option>
+          <option [value]="filterYear">{{ filterYear }}</option>
+          <option [value]="filterYear + 1">{{ filterYear + 1 }}</option>
+        </select>
+        <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">
+          + Generate EMP201
+        </button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'">
+        📊 Dashboard
+      </button>
+      <button class="tab" [class.active]="activeTab === 'declarations'" (click)="activeTab = 'declarations'">
+        📋 Declarations
+      </button>
+      <button *ngIf="isManager()" class="tab" [class.active]="activeTab === 'generate'" (click)="activeTab = 'generate'">
+        ⚙️ Generate
+      </button>
+    </div>
+
+    <!-- ==================== DASHBOARD TAB ==================== -->
+    <div *ngIf="activeTab === 'dashboard'">
+
+      <div *ngIf="!loadingSummary && summary" class="kpi-grid">
+        <div class="kpi-card kpi-liability">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ formatMoney(summary.total_liability_ytd) }}</div>
+            <div class="kpi-label">Total Liability YTD</div>
+          </div>
+          <div class="kpi-glow"></div>
+        </div>
+        <div class="kpi-card kpi-paid">
+          <div class="kpi-icon">✅</div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ formatMoney(summary.total_paid_ytd) }}</div>
+            <div class="kpi-label">Total Paid to SARS</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-outstanding">
+          <div class="kpi-icon">⏳</div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ formatMoney(summary.total_outstanding) }}</div>
+            <div class="kpi-label">Outstanding Balance</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-count">
+          <div class="kpi-icon">📋</div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ summary.total_declarations }}</div>
+            <div class="kpi-label">Declarations {{ filterYear }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!loadingSummary && summary" class="status-pills">
+        <div class="status-pill pill-submitted">
+          <span class="pill-dot"></span>
+          <span class="pill-count">{{ summary.submitted_count }}</span>
+          <span class="pill-label">Submitted to SARS</span>
+        </div>
+        <div class="status-pill pill-paid">
+          <span class="pill-dot"></span>
+          <span class="pill-count">{{ summary.paid_count }}</span>
+          <span class="pill-label">Payments Made</span>
+        </div>
+        <div class="status-pill pill-overdue">
+          <span class="pill-dot"></span>
+          <span class="pill-count">{{ summary.overdue_count }}</span>
+          <span class="pill-label">Overdue</span>
+        </div>
+      </div>
+
+      <div class="section-title">Recent Declarations</div>
+      <div *ngIf="loadingDeclarations" class="loading-state">
+        <div class="spinner"></div><p>Loading...</p>
+      </div>
+      <div *ngIf="!loadingDeclarations && declarations.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No declarations yet</h3>
+        <p>Generate your first EMP201 from processed payroll records.</p>
+        <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">Generate EMP201</button>
+      </div>
+      <div *ngIf="!loadingDeclarations && declarations.length > 0" class="declarations-grid">
+        <div *ngFor="let d of declarations.slice(0,6)" class="decl-card" (click)="viewDeclaration(d)">
+          <div class="decl-card-header">
+            <div class="decl-period">{{ getPeriodName(d.tax_period, d.tax_year) }}</div>
+            <div class="decl-badges">
+              <span class="badge" [ngClass]="getSubmissionClass(d.submission_status)">{{ d.submission_status }}</span>
+              <span class="badge" [ngClass]="getPaymentClass(d.computed_payment_status || d.payment_status)">{{ d.computed_payment_status || d.payment_status }}</span>
+            </div>
+          </div>
+          <div class="decl-liability">{{ formatMoney(d.total_liability) }}</div>
+          <div class="decl-meta">
+            <span>👥 {{ d.employee_count }} employees</span>
+            <span *ngIf="d.due_date" [class.overdue-text]="(d.computed_payment_status || d.payment_status) === 'overdue'">
+              {{ getDueStatus(d.due_date) }}
+            </span>
+          </div>
+          <div class="decl-breakdown">
+            <div class="breakdown-row"><span>PAYE</span><span>{{ formatMoney(d.paye_amount) }}</span></div>
+            <div class="breakdown-row"><span>SDL</span><span>{{ formatMoney(d.sdl_amount) }}</span></div>
+            <div class="breakdown-row"><span>UIF</span><span>{{ formatMoney(d.uif_total_amount) }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== DECLARATIONS TAB ==================== -->
+    <div *ngIf="activeTab === 'declarations'">
+      <div class="toolbar">
+        <div class="filter-pills">
+          <button class="filter-btn" [class.active]="filterStatus === ''" (click)="filterStatus = ''; loadDeclarations()">All</button>
+          <button class="filter-btn" [class.active]="filterStatus === 'draft'" (click)="filterStatus = 'draft'; loadDeclarations()">Draft</button>
+          <button class="filter-btn" [class.active]="filterStatus === 'submitted'" (click)="filterStatus = 'submitted'; loadDeclarations()">Submitted</button>
+        </div>
+        <span class="count-label">{{ declarations.length }} declarations</span>
+      </div>
+
+      <div *ngIf="loadingDeclarations" class="loading-state">
+        <div class="spinner"></div><p>Loading declarations...</p>
+      </div>
+
+      <div *ngIf="!loadingDeclarations && declarations.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No declarations found</h3>
+        <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">Generate EMP201</button>
+      </div>
+
+      <div *ngIf="!loadingDeclarations && declarations.length > 0" class="table-wrap">
+        <table class="decl-table">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Employees</th>
+              <th>Remuneration</th>
+              <th>PAYE</th>
+              <th>SDL</th>
+              <th>UIF</th>
+              <th>Total Liability</th>
+              <th>Submission</th>
+              <th>Payment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of declarations" class="decl-row" (click)="viewDeclaration(d)">
+              <td class="period-cell">{{ getPeriodName(d.tax_period, d.tax_year) }}</td>
+              <td>{{ d.employee_count }}</td>
+              <td class="money">{{ formatMoney(d.total_remuneration) }}</td>
+              <td class="money paye">{{ formatMoney(d.paye_amount) }}</td>
+              <td class="money">{{ formatMoney(d.sdl_amount) }}</td>
+              <td class="money">{{ formatMoney(d.uif_total_amount) }}</td>
+              <td class="money total">{{ formatMoney(d.total_liability) }}</td>
+              <td><span class="badge" [ngClass]="getSubmissionClass(d.submission_status)">{{ d.submission_status }}</span></td>
+              <td><span class="badge" [ngClass]="getPaymentClass(d.computed_payment_status || d.payment_status)">{{ d.computed_payment_status || d.payment_status }}</span></td>
+              <td>
+                <div class="row-actions" (click)="$event.stopPropagation()">
+                  <button class="icon-btn" title="View" (click)="viewDeclaration(d)">👁</button>
+                  <button class="icon-btn" title="Export CSV" (click)="exportCSV(d.id)">📥</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ==================== DETAIL TAB ==================== -->
+    <div *ngIf="activeTab === 'detail' && selectedDeclaration">
+      <div class="detail-header">
+        <button class="btn-back" (click)="activeTab = 'declarations'">← Back</button>
+        <div class="detail-actions" *ngIf="isManager()">
+          <button class="btn btn-secondary" (click)="exportCSV(selectedDeclaration.id)">📥 Export CSV</button>
+          <button *ngIf="selectedDeclaration.submission_status === 'draft'" class="btn btn-info" (click)="openSubmitModal()">
+            📤 Submit to SARS
+          </button>
+          <button *ngIf="selectedDeclaration.payment_status !== 'paid'" class="btn btn-success" (click)="openPaymentModal()">
+            💰 Record Payment
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-card detail-summary">
+          <div class="detail-period">{{ getPeriodName(selectedDeclaration.tax_period, selectedDeclaration.tax_year) }}</div>
+          <div class="detail-liability">{{ formatMoney(selectedDeclaration.total_liability) }}</div>
+          <div class="detail-liability-label">Total Liability to SARS</div>
+          <div class="detail-badges">
+            <span class="badge lg" [ngClass]="getSubmissionClass(selectedDeclaration.submission_status)">{{ selectedDeclaration.submission_status }}</span>
+            <span class="badge lg" [ngClass]="getPaymentClass(selectedDeclaration.payment_status)">{{ selectedDeclaration.payment_status }}</span>
+          </div>
+          <div class="detail-employees">👥 {{ selectedDeclaration.employee_count }} employees · {{ formatMoney(selectedDeclaration.total_remuneration) }} remuneration</div>
+        </div>
+
+        <div class="detail-card">
+          <h3 class="card-title">Tax Breakdown</h3>
+          <div class="tax-breakdown">
+            <div class="tax-row">
+              <div class="tax-label"><span class="tax-dot paye"></span><span>PAYE (Employees Tax)</span></div>
+              <span class="tax-amount">{{ formatMoney(selectedDeclaration.paye_amount) }}</span>
+            </div>
+            <div class="tax-row">
+              <div class="tax-label"><span class="tax-dot sdl"></span><span>SDL (Skills Development Levy)</span></div>
+              <span class="tax-amount">{{ formatMoney(selectedDeclaration.sdl_amount) }}</span>
+            </div>
+            <div class="tax-row">
+              <div class="tax-label"><span class="tax-dot uif-emp"></span><span>UIF Employee (1%)</span></div>
+              <span class="tax-amount">{{ formatMoney(selectedDeclaration.uif_employee_amount) }}</span>
+            </div>
+            <div class="tax-row">
+              <div class="tax-label"><span class="tax-dot uif-er"></span><span>UIF Employer (1%)</span></div>
+              <span class="tax-amount">{{ formatMoney(selectedDeclaration.uif_employer_amount) }}</span>
+            </div>
+            <div class="tax-row" *ngIf="+(selectedDeclaration.eti_amount) > 0">
+              <div class="tax-label"><span class="tax-dot eti"></span><span>ETI (Employment Tax Incentive)</span></div>
+              <span class="tax-amount eti-credit">- {{ formatMoney(selectedDeclaration.eti_amount) }}</span>
+            </div>
+            <div class="tax-total-row">
+              <span>Total Liability</span>
+              <span class="tax-total">{{ formatMoney(selectedDeclaration.total_liability) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <h3 class="card-title">Submission Details</h3>
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="info-label">Status</span>
+              <span class="badge" [ngClass]="getSubmissionClass(selectedDeclaration.submission_status)">{{ selectedDeclaration.submission_status }}</span>
+            </div>
+            <div class="info-row" *ngIf="selectedDeclaration.submission_date">
+              <span class="info-label">Submitted</span>
+              <span>{{ formatDate(selectedDeclaration.submission_date) }}</span>
+            </div>
+            <div class="info-row" *ngIf="selectedDeclaration.submission_reference">
+              <span class="info-label">SARS Reference</span>
+              <span class="mono">{{ selectedDeclaration.submission_reference }}</span>
+            </div>
+            <div class="info-row" *ngIf="selectedDeclaration.sars_acknowledgement">
+              <span class="info-label">Acknowledgement</span>
+              <span class="mono">{{ selectedDeclaration.sars_acknowledgement }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Period</span>
+              <span>{{ formatDate(selectedDeclaration.period_start_date) }} – {{ formatDate(selectedDeclaration.period_end_date) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <h3 class="card-title">Payment Details</h3>
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="info-label">Status</span>
+              <span class="badge" [ngClass]="getPaymentClass(selectedDeclaration.payment_status)">{{ selectedDeclaration.payment_status }}</span>
+            </div>
+            <div class="info-row" *ngIf="selectedDeclaration.payment_date">
+              <span class="info-label">Payment Date</span>
+              <span>{{ formatDate(selectedDeclaration.payment_date) }}</span>
+            </div>
+            <div class="info-row" *ngIf="selectedDeclaration.payment_reference">
+              <span class="info-label">Reference</span>
+              <span class="mono">{{ selectedDeclaration.payment_reference }}</span>
+            </div>
+            <div class="info-row" *ngIf="selectedDeclaration.payment_amount">
+              <span class="info-label">Amount Paid</span>
+              <span class="paid-amount">{{ formatMoney(selectedDeclaration.payment_amount) }}</span>
+            </div>
+            <div class="info-row" *ngIf="!selectedDeclaration.payment_date">
+              <span class="info-label">Due Date</span>
+              <span>{{ formatDate(selectedDeclaration.due_date || null) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINE ITEMS TABLE -->
+      <div class="line-items-section">
+        <h3 class="section-title">Employee Breakdown</h3>
+        <div *ngIf="loadingDetail" class="loading-state"><div class="spinner"></div></div>
+        <div *ngIf="!loadingDetail && lineItems.length === 0" class="empty-state" style="padding: 2rem;">
+          <p>No line items found.</p>
+        </div>
+        <div *ngIf="!loadingDetail && lineItems.length > 0" class="table-wrap">
+          <table class="decl-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Gross Remuneration</th>
+                <th>PAYE</th>
+                <th>UIF (Employee)</th>
+                <th>UIF (Employer)</th>
+                <th>SDL</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of lineItems" class="decl-row">
+                <td class="emp-name-cell">{{ item.employee_name }}</td>
+                <td class="money">{{ formatMoney(item.gross_remuneration) }}</td>
+                <td class="money paye">{{ formatMoney(item.paye_deducted) }}</td>
+                <td class="money">{{ formatMoney(item.uif_employee) }}</td>
+                <td class="money">{{ formatMoney(item.uif_employer) }}</td>
+                <td class="money">{{ formatMoney(item.sdl_contribution) }}</td>
+                <td class="money total">{{ formatMoney(+item.paye_deducted + +item.uif_employee + +item.uif_employer + +item.sdl_contribution) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="totals-row">
+                <td><strong>TOTAL</strong></td>
+                <td class="money"><strong>{{ formatMoney(selectedDeclaration.total_remuneration) }}</strong></td>
+                <td class="money paye"><strong>{{ formatMoney(selectedDeclaration.paye_amount) }}</strong></td>
+                <td class="money"><strong>{{ formatMoney(selectedDeclaration.uif_employee_amount) }}</strong></td>
+                <td class="money"><strong>{{ formatMoney(selectedDeclaration.uif_employer_amount) }}</strong></td>
+                <td class="money"><strong>{{ formatMoney(selectedDeclaration.sdl_amount) }}</strong></td>
+                <td class="money total"><strong>{{ formatMoney(selectedDeclaration.total_liability) }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== GENERATE TAB ==================== -->
+    <div *ngIf="activeTab === 'generate'">
+      <div class="generate-card">
+        <div class="generate-icon">⚙️</div>
+        <h2>Generate EMP201 Declaration</h2>
+        <p>Auto-generates from processed or paid payroll records for the selected period.</p>
+
+        <div class="generate-form">
+          <div class="form-group">
+            <label>Month</label>
+            <select class="form-select" [(ngModel)]="generateMonth">
+              <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Year</label>
+            <select class="form-select" [(ngModel)]="generateYear">
+              <option [value]="generateYear - 1">{{ generateYear - 1 }}</option>
+              <option [value]="generateYear">{{ generateYear }}</option>
+              <option [value]="generateYear + 1">{{ generateYear + 1 }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="generateMessage" class="alert alert-success">{{ generateMessage }}</div>
+        <div *ngIf="generateError" class="alert alert-error">❌ {{ generateError }}</div>
+
+        <div class="generate-info">
+          <div class="info-item">📌 Only <strong>processed</strong> or <strong>paid</strong> payroll records are included</div>
+          <div class="info-item">🔒 If a declaration already exists for this period, it will return the existing one</div>
+          <div class="info-item">💡 UIF is capped at R177.12 per employee per side</div>
+          <div class="info-item">📊 SDL calculated at 1% of gross remuneration</div>
+        </div>
+
+        <button class="btn btn-primary btn-lg" [disabled]="generateLoading" (click)="generateEMP201()">
+          <span *ngIf="generateLoading" class="spinner-sm"></span>
+          {{ generateLoading ? 'Generating...' : '⚙️ Generate EMP201' }}
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== SUBMIT MODAL ===== -->
+<div *ngIf="showSubmitModal" class="modal-overlay" (click)="showSubmitModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📤 Submit to SARS</h3>
+      <button class="modal-close" (click)="showSubmitModal = false">✕</button>
+    </div>
+    <p class="modal-desc">Record that this EMP201 has been submitted via SARS eFiling.</p>
+    <div class="form-group">
+      <label>SARS Reference Number *</label>
+      <input class="form-input" [(ngModel)]="submitReference" placeholder="e.g. REF2026020001" />
+    </div>
+    <div class="form-group">
+      <label>Acknowledgement Number (optional)</label>
+      <input class="form-input" [(ngModel)]="submitAcknowledgement" placeholder="e.g. ACK123456" />
+    </div>
+    <div *ngIf="submitError" class="alert alert-error">{{ submitError }}</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showSubmitModal = false">Cancel</button>
+      <button class="btn btn-primary" [disabled]="submitLoading || !submitReference" (click)="submitToSARS()">
+        {{ submitLoading ? 'Submitting...' : 'Confirm Submission' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAYMENT MODAL ===== -->
+<div *ngIf="showPaymentModal" class="modal-overlay" (click)="showPaymentModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>💰 Record SARS Payment</h3>
+      <button class="modal-close" (click)="showPaymentModal = false">✕</button>
+    </div>
+    <p class="modal-desc" *ngIf="selectedDeclaration">
+      Recording payment for {{ getPeriodName(selectedDeclaration.tax_period, selectedDeclaration.tax_year) }}
+    </p>
+    <div class="form-group">
+      <label>Payment Date *</label>
+      <input type="date" class="form-input" [(ngModel)]="paymentDate" />
+    </div>
+    <div class="form-group">
+      <label>Payment Reference *</label>
+      <input class="form-input" [(ngModel)]="paymentReference" placeholder="e.g. EFT-2026-002-SARS" />
+    </div>
+    <div class="form-group">
+      <label>Amount Paid (ZAR)</label>
+      <input type="number" class="form-input" [(ngModel)]="paymentAmount" />
+    </div>
+    <div *ngIf="paymentError" class="alert alert-error">{{ paymentError }}</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showPaymentModal = false">Cancel</button>
+      <button class="btn btn-success" [disabled]="paymentLoading || !paymentDate || !paymentReference" (click)="recordPayment()">
+        {{ paymentLoading ? 'Recording...' : '✅ Confirm Payment' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -43,8 +43,7 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: 
-      radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    background: radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
       radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
       radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.1) 0%, transparent 40%);
     animation: meshRotate 30s linear infinite;
@@ -52,8 +51,12 @@
 }
 
 @keyframes meshRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // Main Container
@@ -146,9 +149,15 @@
   }
 
   // Card variants
-  &:nth-child(1) .card-icon { background: rgba(139, 92, 246, 0.1); }
-  &:nth-child(2) .card-icon { background: rgba(16, 185, 129, 0.1); }
-  &:nth-child(3) .card-icon { background: rgba(245, 158, 11, 0.1); }
+  &:nth-child(1) .card-icon {
+    background: rgba(139, 92, 246, 0.1);
+  }
+  &:nth-child(2) .card-icon {
+    background: rgba(16, 185, 129, 0.1);
+  }
+  &:nth-child(3) .card-icon {
+    background: rgba(245, 158, 11, 0.1);
+  }
 
   // Error state
   &.error {
@@ -208,7 +217,8 @@
   gap: 16px;
   margin-top: 8px;
 
-  a, button {
+  a,
+  button {
     background: var(--accent-gradient);
     color: white;
     text-decoration: none;
@@ -282,9 +292,14 @@
   .actions {
     flex-direction: column;
 
-    a, button {
+    a,
+    button {
       width: 100%;
       justify-content: center;
     }
   }
+}
+.nav-card.purple:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(139, 92, 246, 0.07);
 }

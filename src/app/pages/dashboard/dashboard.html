@@ -2,7 +2,6 @@
 <div class="hr-app">
   <div class="bg-mesh"></div>
 
-  <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
       <div class="brand-icon">HR</div>
@@ -20,7 +19,6 @@
 
   <main class="main-content">
 
-    <!-- WELCOME -->
     <div class="page-header">
       <div>
         <h1 class="page-title">Welcome back, {{ me?.name?.split(' ')?.[0] }} 👋</h1>
@@ -28,7 +26,6 @@
       </div>
     </div>
 
-    <!-- NAV CARDS -->
     <div class="nav-cards">
 
       <div class="nav-card indigo" (click)="goToEmployees()">
@@ -63,6 +60,15 @@
         <div class="nav-card-body">
           <h3>Leave</h3>
           <p>Manage leave requests &amp; balances</p>
+        </div>
+        <div class="nav-card-arrow">→</div>
+      </div>
+
+      <div class="nav-card purple" (click)="goToEmp201()">
+        <div class="nav-card-icon">📋</div>
+        <div class="nav-card-body">
+          <h3>EMP201</h3>
+          <p>SARS PAYE, SDL &amp; UIF submissions</p>
         </div>
         <div class="nav-card-arrow">→</div>
       </div>

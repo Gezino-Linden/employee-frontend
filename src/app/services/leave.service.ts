@@ -64,6 +64,7 @@ export type LeaveRequestsResponse = {
 
 @Injectable({ providedIn: 'root' })
 export class LeaveService {
+  // FIXED: Removed space at the end
   private baseUrl = 'https://employee-api-xpno.onrender.com/api/leave';
 
   constructor(private http: HttpClient) {}
@@ -130,4 +131,16 @@ export class LeaveService {
   getTeamLeaves(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/team`);
   }
+
+  // ===== ANALYTICS =====
+  // FIXED: Use baseUrl instead of hardcoded path
+  getAnalytics(year: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/analytics?year=${year}`);
+  }
 }
+
+// Move this to a separate file: src/environments/environment.ts
+export const environment = {
+  production: false,
+  apiUrl: 'https://employee-api-xpno.onrender.com/api',
+};
