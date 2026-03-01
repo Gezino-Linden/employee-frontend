@@ -8,7 +8,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -74,16 +75,19 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: 
-    radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+  background: radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.1) 0%, transparent 40%);
   animation: meshRotate 30s linear infinite;
 }
 
 @keyframes meshRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===== APP SHELL ===== */
@@ -138,13 +142,17 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   animation: shimmer 3s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
 }
 
 .brand-name {
@@ -301,9 +309,15 @@ body {
   background: rgba(139, 92, 246, 0.1);
 }
 
-.stat-card:nth-child(2) .stat-icon { background: rgba(16, 185, 129, 0.1); }
-.stat-card:nth-child(3) .stat-icon { background: rgba(245, 158, 11, 0.1); }
-.stat-card:nth-child(4) .stat-icon { background: rgba(239, 68, 68, 0.1); }
+.stat-card:nth-child(2) .stat-icon {
+  background: rgba(16, 185, 129, 0.1);
+}
+.stat-card:nth-child(3) .stat-icon {
+  background: rgba(245, 158, 11, 0.1);
+}
+.stat-card:nth-child(4) .stat-icon {
+  background: rgba(239, 68, 68, 0.1);
+}
 
 .stat-value {
   font-size: 32px;
@@ -578,7 +592,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 100%);
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 100%);
 }
 
 .emp-fullname {
@@ -1004,7 +1018,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 100%);
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 100%);
 }
 
 .profile-name {
@@ -1220,8 +1234,8 @@ body {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 1.75rem;
   cursor: pointer;
@@ -1230,17 +1244,34 @@ body {
 
 .nav-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
-.nav-card.indigo:hover { border-color: rgba(99,102,241,0.5); background: rgba(99,102,241,0.07); }
-.nav-card.green:hover  { border-color: rgba(16,185,129,0.5); background: rgba(16,185,129,0.07); }
-.nav-card.amber:hover  { border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.07); }
-.nav-card.blue:hover   { border-color: rgba(59,130,246,0.5); background: rgba(59,130,246,0.07); }
+.nav-card.indigo:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.07);
+}
+.nav-card.green:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.07);
+}
+.nav-card.amber:hover {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.07);
+}
+.nav-card.blue:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.07);
+}
 
-.nav-card-icon { font-size: 2.5rem; flex-shrink: 0; }
+.nav-card-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
 
-.nav-card-body { flex: 1; }
+.nav-card-body {
+  flex: 1;
+}
 .nav-card-body h3 {
   margin: 0 0 0.3rem;
   font-size: 1.1rem;
@@ -1258,4 +1289,14 @@ body {
   color: var(--text-muted, #94a3b8);
   transition: transform 0.2s;
 }
-.nav-card:hover .nav-card-arrow { transform: translateX(4px); }
+.nav-card:hover .nav-card-arrow {
+  transform: translateX(4px);
+}
+.nav-card.teal:hover {
+  border-color: rgba(20, 184, 166, 0.5);
+  background: rgba(20, 184, 166, 0.07);
+}
+.nav-card.gold:hover {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.07);
+}

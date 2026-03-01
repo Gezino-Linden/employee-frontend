@@ -52,4 +52,10 @@ export class Dashboard implements OnInit {
   goToEmp201() {
     this.router.navigateByUrl('/emp201');
   }
+  goToUI19() {
+    this.router.navigateByUrl('/ui19');
+  }
+  goToIrp5() {
+    this.router.navigateByUrl('/irp5');
+  }
 }

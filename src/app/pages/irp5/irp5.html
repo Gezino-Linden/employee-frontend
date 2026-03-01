@@ -1,0 +1,352 @@
+<!-- File: src/app/pages/irp5/irp5.html -->
+<div class="irp5-app">
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">📜</div>
+      <span class="brand-name">PeopleOS</span>
+      <span class="brand-sub">/ IRP5</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()">← Dashboard</button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span>{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <h1>IRP5 <span class="title-accent">Tax Certificates</span></h1>
+        <p class="page-subtitle">Annual employee tax certificates &amp; IT3(a) reconciliation for SARS</p>
+      </div>
+      <div class="header-actions">
+        <select class="form-select" [(ngModel)]="selectedTaxYear" (change)="onYearChange()">
+          <option *ngFor="let y of taxYears" [value]="y">Tax Year {{ y }} ({{ getTaxYearLabel(y) }})</option>
+        </select>
+        <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">
+          + Generate IRP5
+        </button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab === 'certificates'" (click)="activeTab = 'certificates'">
+        📜 Certificates
+      </button>
+      <button class="tab" [class.active]="activeTab === 'reconciliation'" (click)="activeTab = 'reconciliation'; loadReconciliation()">
+        📊 IT3(a) Reconciliation
+      </button>
+      <button *ngIf="isManager()" class="tab" [class.active]="activeTab === 'generate'" (click)="activeTab = 'generate'">
+        ⚙️ Generate
+      </button>
+    </div>
+
+    <!-- ==================== CERTIFICATES TAB ==================== -->
+    <div *ngIf="activeTab === 'certificates'">
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <span class="count-label">{{ certificates.length }} certificates for {{ getTaxYearLabel(selectedTaxYear) }}</span>
+        </div>
+        <div class="toolbar-right">
+          <button *ngIf="certificates.length > 0" class="btn btn-secondary" (click)="exportCSV()">
+            📥 Export CSV (e@syFile)
+          </button>
+          <button *ngIf="isAdmin() && certificates.length > 0" class="btn btn-success" [disabled]="issueLoading" (click)="issueAll()">
+            {{ issueLoading ? 'Issuing...' : '✅ Issue All Certificates' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="issueMessage" class="alert alert-success">{{ issueMessage }}</div>
+
+      <div *ngIf="loadingCerts" class="loading-state">
+        <div class="spinner"></div><p>Loading certificates...</p>
+      </div>
+
+      <div *ngIf="!loadingCerts && certificates.length === 0" class="empty-state">
+        <div class="empty-icon">📜</div>
+        <h3>No IRP5 certificates yet</h3>
+        <p>Generate IRP5 certificates from full-year payroll records.</p>
+        <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">Generate IRP5</button>
+      </div>
+
+      <div *ngIf="!loadingCerts && certificates.length > 0" class="certs-grid">
+        <div *ngFor="let cert of certificates" class="cert-card" (click)="viewCert(cert)">
+          <div class="cert-card-header">
+            <div class="cert-avatar">{{ cert.employee_name[0] }}</div>
+            <div class="cert-info">
+              <div class="cert-name">{{ cert.employee_name }}</div>
+              <div class="cert-dept">{{ cert.department || 'No department' }}</div>
+            </div>
+            <span class="badge" [ngClass]="getStatusClass(cert.generation_status)">{{ cert.generation_status }}</span>
+          </div>
+
+          <div class="cert-amounts">
+            <div class="amount-row">
+              <span class="amount-label">Gross (3601)</span>
+              <span class="amount-value income">{{ formatMoney(cert.code_3601) }}</span>
+            </div>
+            <div class="amount-row">
+              <span class="amount-label">PAYE (4101)</span>
+              <span class="amount-value deduction">{{ formatMoney(cert.code_4101) }}</span>
+            </div>
+            <div class="amount-row">
+              <span class="amount-label">UIF (4141)</span>
+              <span class="amount-value deduction">{{ formatMoney(cert.code_4141) }}</span>
+            </div>
+            <div class="amount-row net-row">
+              <span class="amount-label">Net Pay</span>
+              <span class="amount-value net">{{ formatMoney(cert.net_pay) }}</span>
+            </div>
+          </div>
+
+          <div class="cert-footer">
+            <span class="cert-number">{{ cert.certificate_number }}</span>
+            <div class="cert-actions" (click)="$event.stopPropagation()">
+              <button class="icon-btn" title="Print PDF" (click)="printCertificate(cert)">🖨️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== RECONCILIATION TAB ==================== -->
+    <div *ngIf="activeTab === 'reconciliation'">
+
+      <div *ngIf="loadingRecon" class="loading-state">
+        <div class="spinner"></div><p>Loading reconciliation...</p>
+      </div>
+
+      <div *ngIf="!loadingRecon && !reconciliation" class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h3>No reconciliation for {{ selectedTaxYear }}</h3>
+        <p>Generate IRP5 certificates first to build the IT3(a) reconciliation.</p>
+        <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">Generate IRP5</button>
+      </div>
+
+      <div *ngIf="!loadingRecon && reconciliation">
+
+        <div class="recon-header-card">
+          <div class="recon-title-area">
+            <div class="recon-badge">IT3(a)</div>
+            <div>
+              <h2>Annual Reconciliation</h2>
+              <p>Tax Year {{ selectedTaxYear }} — {{ getTaxYearLabel(selectedTaxYear) }}</p>
+            </div>
+          </div>
+          <div class="recon-actions">
+            <button class="btn btn-secondary" (click)="exportCSV()">📥 Export CSV</button>
+          </div>
+        </div>
+
+        <div class="recon-grid">
+          <div class="recon-card recon-remun">
+            <div class="recon-icon">💼</div>
+            <div class="recon-body">
+              <div class="recon-value">{{ formatMoney(reconciliation.total_remuneration) }}</div>
+              <div class="recon-label">Total Remuneration</div>
+              <div class="recon-code">Code 3601</div>
+            </div>
+          </div>
+          <div class="recon-card recon-paye">
+            <div class="recon-icon">🏛️</div>
+            <div class="recon-body">
+              <div class="recon-value">{{ formatMoney(reconciliation.total_paye) }}</div>
+              <div class="recon-label">Total PAYE Withheld</div>
+              <div class="recon-code">Code 4101</div>
+            </div>
+          </div>
+          <div class="recon-card recon-uif">
+            <div class="recon-icon">🛡️</div>
+            <div class="recon-body">
+              <div class="recon-value">{{ formatMoney(+reconciliation.total_uif_employee + +reconciliation.total_uif_employer) }}</div>
+              <div class="recon-label">Total UIF (Both Sides)</div>
+              <div class="recon-code">Code 4141 + 4142</div>
+            </div>
+          </div>
+          <div class="recon-card recon-sdl">
+            <div class="recon-icon">📚</div>
+            <div class="recon-body">
+              <div class="recon-value">{{ formatMoney(reconciliation.total_sdl) }}</div>
+              <div class="recon-label">Total SDL (1%)</div>
+              <div class="recon-code">Code 4149</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="recon-table-card">
+          <h3 class="card-title">IT3(a) Summary — SARS Submission Detail</h3>
+          <table class="recon-table">
+            <thead>
+              <tr>
+                <th>SARS Code</th>
+                <th>Description</th>
+                <th>Employees</th>
+                <th style="text-align:right;">Total Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="code-pill code-income">3601</span></td>
+                <td>Salary / Wages</td>
+                <td>{{ reconciliation.employee_count }}</td>
+                <td class="money income">{{ formatMoney(reconciliation.total_remuneration) }}</td>
+              </tr>
+              <tr>
+                <td><span class="code-pill code-deduction">4101</span></td>
+                <td>Employees Tax (PAYE) Withheld</td>
+                <td>{{ reconciliation.employee_count }}</td>
+                <td class="money deduction">{{ formatMoney(reconciliation.total_paye) }}</td>
+              </tr>
+              <tr>
+                <td><span class="code-pill code-deduction">4141</span></td>
+                <td>UIF Employee Contribution (1%)</td>
+                <td>{{ reconciliation.employee_count }}</td>
+                <td class="money deduction">{{ formatMoney(reconciliation.total_uif_employee) }}</td>
+              </tr>
+              <tr>
+                <td><span class="code-pill code-deduction">4142</span></td>
+                <td>UIF Employer Contribution (1%)</td>
+                <td>{{ reconciliation.employee_count }}</td>
+                <td class="money deduction">{{ formatMoney(reconciliation.total_uif_employer) }}</td>
+              </tr>
+              <tr>
+                <td><span class="code-pill code-deduction">4149</span></td>
+                <td>Skills Development Levy (1%)</td>
+                <td>{{ reconciliation.employee_count }}</td>
+                <td class="money deduction">{{ formatMoney(reconciliation.total_sdl) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="3"><strong>TOTAL DEDUCTIONS TO SARS</strong></td>
+                <td class="money"><strong>{{ formatMoney(reconciliation.total_deductions) }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="recon-employees">
+          <span>👥 <strong>{{ reconciliation.employee_count }}</strong> employees included</span>
+          <span>📅 Tax year: <strong>{{ getTaxYearLabel(selectedTaxYear) }}</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== GENERATE TAB ==================== -->
+    <div *ngIf="activeTab === 'generate'">
+      <div class="generate-card">
+        <div class="generate-icon">📜</div>
+        <h2>Generate IRP5 Certificates</h2>
+        <p>Auto-generates annual tax certificates from full-year payroll records.</p>
+
+        <div class="form-group" style="max-width:300px; margin: 0 auto 24px;">
+          <label>Tax Year</label>
+          <select class="form-select" [(ngModel)]="generateTaxYear">
+            <option value="2025">2024/2025 (Mar 2024 – Feb 2025)</option>
+            <option value="2026">2025/2026 (Mar 2025 – Feb 2026)</option>
+          </select>
+        </div>
+
+        <div *ngIf="generateMessage" class="alert alert-success">{{ generateMessage }}</div>
+        <div *ngIf="generateError" class="alert alert-error">❌ {{ generateError }}</div>
+
+        <div class="generate-info">
+          <div class="info-item">📅 SA tax year runs <strong>1 March – 28/29 February</strong></div>
+          <div class="info-item">📌 Only <strong>processed</strong> or <strong>paid</strong> payroll records included</div>
+          <div class="info-item">🔄 Re-generating will <strong>recalculate</strong> all amounts from scratch</div>
+          <div class="info-item">🖨️ Each certificate can be <strong>printed as PDF</strong> from the certificates tab</div>
+          <div class="info-item">📥 Export bulk <strong>CSV for SARS e@syFile</strong> bulk upload</div>
+          <div class="info-item">📊 IT3(a) reconciliation is <strong>auto-generated</strong> alongside certificates</div>
+        </div>
+
+        <button class="btn btn-primary btn-lg" [disabled]="generateLoading" (click)="generate()">
+          <span *ngIf="generateLoading" class="spinner-sm"></span>
+          {{ generateLoading ? 'Generating...' : '📜 Generate IRP5 Certificates' }}
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ==================== CERTIFICATE DETAIL MODAL ==================== -->
+<div *ngIf="showCertModal && selectedCert" class="modal-overlay" (click)="showCertModal = false">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h3>{{ selectedCert.employee_name }}</h3>
+        <p class="modal-sub">{{ selectedCert.certificate_number }} · Tax Year {{ selectedCert.tax_year }}</p>
+      </div>
+      <div class="modal-header-actions">
+        <button class="btn btn-primary" (click)="printCertificate(selectedCert)">🖨️ Print PDF</button>
+        <button class="modal-close" (click)="showCertModal = false">✕</button>
+      </div>
+    </div>
+
+    <div class="modal-cert-grid">
+      <div class="modal-section">
+        <div class="modal-section-title">Employee Details</div>
+        <div class="modal-info-rows">
+          <div class="modal-info-row"><span>ID Number</span><span class="mono">{{ selectedCert.employee_id_number || '—' }}</span></div>
+          <div class="modal-info-row"><span>Tax Number</span><span class="mono">{{ selectedCert.employee_tax_number || '—' }}</span></div>
+          <div class="modal-info-row"><span>UIF Number</span><span class="mono">{{ selectedCert.employee_uif_number || '—' }}</span></div>
+          <div class="modal-info-row"><span>Department</span><span>{{ selectedCert.department || '—' }}</span></div>
+          <div class="modal-info-row"><span>Months Employed</span><span>{{ selectedCert.months_employed }}</span></div>
+          <div class="modal-info-row"><span>Status</span><span class="badge" [ngClass]="getStatusClass(selectedCert.generation_status)">{{ selectedCert.generation_status }}</span></div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">SARS Income &amp; Deduction Codes</div>
+        <div class="sars-codes">
+          <div class="sars-code-row income-row">
+            <span class="code-pill code-income">3601</span>
+            <span>Salary / Wages</span>
+            <span class="sars-amount income">{{ formatMoney(selectedCert.code_3601) }}</span>
+          </div>
+          <div class="sars-code-row">
+            <span class="code-pill code-deduction">4101</span>
+            <span>PAYE Withheld</span>
+            <span class="sars-amount deduction">{{ formatMoney(selectedCert.code_4101) }}</span>
+          </div>
+          <div class="sars-code-row">
+            <span class="code-pill code-deduction">4141</span>
+            <span>UIF Employee</span>
+            <span class="sars-amount deduction">{{ formatMoney(selectedCert.code_4141) }}</span>
+          </div>
+          <div class="sars-code-row">
+            <span class="code-pill code-deduction">4142</span>
+            <span>UIF Employer</span>
+            <span class="sars-amount deduction">{{ formatMoney(selectedCert.code_4142) }}</span>
+          </div>
+          <div class="sars-code-row">
+            <span class="code-pill code-deduction">4149</span>
+            <span>SDL (1%)</span>
+            <span class="sars-amount deduction">{{ formatMoney(selectedCert.code_4149) }}</span>
+          </div>
+          <div class="sars-code-row total-sars-row">
+            <span></span>
+            <span><strong>Total Deductions</strong></span>
+            <span class="sars-amount deduction"><strong>{{ formatMoney(selectedCert.total_deductions) }}</strong></span>
+          </div>
+          <div class="sars-code-row net-sars-row">
+            <span></span>
+            <span><strong>Net Pay (Take Home)</strong></span>
+            <span class="sars-amount net"><strong>{{ formatMoney(selectedCert.net_pay) }}</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
