@@ -62,6 +62,16 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/reports/reports').then((m) => m.Reports),
     canActivate: [authGuard],
   },
+  {
+    path: 'shifts',
+    loadComponent: () => import('./pages/shifts/shifts').then((m) => m.Shifts),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'accounting',
+    loadComponent: () => import('./pages/accounting/accounting').then((m) => m.Accounting),
+    canActivate: [authGuard],
+  },
 
   { path: '**', redirectTo: 'login' }, // ← wildcard ALWAYS last
 ];

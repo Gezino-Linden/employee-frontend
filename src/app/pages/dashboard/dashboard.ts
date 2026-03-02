@@ -64,4 +64,10 @@ export class Dashboard implements OnInit {
   goToReports() {
     this.router.navigateByUrl('/reports');
   }
+  goToShifts() {
+    this.router.navigateByUrl('/shifts');
+  }
+  goToAccounting() {
+    this.router.navigateByUrl('/accounting');
+  }
 }

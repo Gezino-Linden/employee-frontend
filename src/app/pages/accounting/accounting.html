@@ -1,0 +1,318 @@
+<!-- File: src/app/pages/accounting/accounting.html -->
+<div class="accounting-app">
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">📒</div>
+      <span class="brand-name">PeopleOS</span>
+      <span class="brand-sub">/ Accounting</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()">← Dashboard</button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span>{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <h1>Accounting <span class="title-accent">&amp; GL</span></h1>
+        <p class="page-subtitle">Chart of accounts, journal entries &amp; GL mappings</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab === 'accounts'" (click)="setTab('accounts')">
+        <span>📋</span> Chart of Accounts
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'journal'" (click)="setTab('journal')">
+        <span>📓</span> Journal Entries
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'mappings'" (click)="setTab('mappings')">
+        <span>🔗</span> GL Mappings
+      </button>
+    </div>
+
+    <!-- ALERTS -->
+    <div *ngIf="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
+    <div *ngIf="errorMsg"   class="alert alert-error">❌ {{ errorMsg }}</div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: CHART OF ACCOUNTS                    -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'accounts'">
+
+      <div class="section-toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" [(ngModel)]="accountSearch" placeholder="Search by code, name or type..." />
+        </div>
+        <span class="section-count">{{ filteredAccounts.length }} accounts</span>
+      </div>
+
+      <div *ngIf="loadingAccounts" class="loading-state">
+        <div class="spinner"></div><p>Loading accounts...</p>
+      </div>
+
+      <div *ngIf="!loadingAccounts">
+        <div *ngFor="let group of groupedAccounts()" class="account-group">
+          <div class="group-header" [style.border-left-color]="getAccountTypeColor(group.type)">
+            <span class="group-dot" [style.background]="getAccountTypeColor(group.type)"></span>
+            <span class="group-name">{{ group.type | titlecase }}</span>
+            <span class="group-count">{{ group.accounts.length }}</span>
+          </div>
+          <div class="accounts-table">
+            <div class="table-header">
+              <span>Code</span><span>Account Name</span><span>Type</span>
+            </div>
+            <div *ngFor="let a of group.accounts" class="account-row">
+              <span class="account-code">{{ a.code }}</span>
+              <span class="account-name">{{ a.name }}</span>
+              <span class="account-type-badge"
+                [style.background]="getAccountTypeColor(a.account_type) + '22'"
+                [style.color]="getAccountTypeColor(a.account_type)">
+                {{ a.account_type }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="filteredAccounts.length === 0" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <p>No accounts found</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: JOURNAL ENTRIES                      -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'journal'">
+
+      <div class="journal-layout">
+
+        <!-- GENERATE PANEL -->
+        <div class="journal-panel">
+          <h3>Generate Journal Entry</h3>
+
+          <div class="form-group">
+            <label>Payroll Period *</label>
+            <select class="form-select" [(ngModel)]="journalForm.payroll_period_id">
+              <option value="">Select period...</option>
+              <option *ngFor="let p of periods" [value]="p.id">
+                {{ formatDate(p.period_start) }} – {{ formatDate(p.period_end) }}
+              </option>
+            </select>
+            <div *ngIf="loadingPeriods" class="hint">Loading periods...</div>
+            <div *ngIf="!loadingPeriods && periods.length === 0" class="hint">No payroll periods found</div>
+          </div>
+
+          <div class="form-group">
+            <label>Journal Type</label>
+            <div class="type-toggle">
+              <button class="type-btn" [class.active]="journalForm.type === 'standard'" (click)="journalForm.type = 'standard'">
+                📊 Standard
+              </button>
+              <button class="type-btn" [class.active]="journalForm.type === 'hospitality'" (click)="journalForm.type = 'hospitality'">
+                🏨 Hospitality
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="journalForm.type === 'hospitality'" class="form-group">
+            <label>Property ID (optional)</label>
+            <input class="form-input" [(ngModel)]="journalForm.property_id" placeholder="Filter by property..." type="number" />
+          </div>
+
+          <div class="journal-info-box" *ngIf="journalForm.type === 'hospitality'">
+            🏨 Hospitality mode includes <strong>tips (cash &amp; card)</strong> and <strong>service charges</strong> in the journal entry.
+          </div>
+
+          <button class="btn btn-primary full-btn"
+            [disabled]="generatingJournal || !journalForm.payroll_period_id"
+            (click)="generateJournal()">
+            <span *ngIf="generatingJournal" class="spinner-sm"></span>
+            {{ generatingJournal ? 'Generating...' : '⚡ Generate Journal' }}
+          </button>
+
+          <button *ngIf="journal" class="btn btn-export full-btn" [disabled]="exportingCSV" (click)="exportCSV()">
+            <span *ngIf="exportingCSV" class="spinner-sm"></span>
+            {{ exportingCSV ? 'Exporting...' : '📥 Export CSV' }}
+          </button>
+        </div>
+
+        <!-- JOURNAL OUTPUT -->
+        <div class="journal-output" *ngIf="journal">
+
+          <!-- JOURNAL HEADER -->
+          <div class="journal-header-card">
+            <div class="journal-id-row">
+              <span class="journal-id">{{ journal.journal_id }}</span>
+              <span class="balanced-badge"
+                [class.balanced]="journal.is_balanced"
+                [class.unbalanced]="!journal.is_balanced">
+                {{ journal.is_balanced ? '✓ Balanced' : '⚠ Unbalanced' }}
+              </span>
+            </div>
+            <div class="journal-meta">
+              <span>📅 {{ formatDate(journal.period_start) }} – {{ formatDate(journal.period_end) }}</span>
+              <span>🔖 {{ journal.reference }}</span>
+              <span class="type-chip">{{ journal.type | titlecase }}</span>
+            </div>
+          </div>
+
+          <!-- SUMMARY CARDS -->
+          <div class="summary-row">
+            <div class="summary-card debit-card">
+              <div class="summary-label">Total Debits</div>
+              <div class="summary-value">{{ formatMoney(journal.total_debits) }}</div>
+            </div>
+            <div class="summary-card credit-card">
+              <div class="summary-label">Total Credits</div>
+              <div class="summary-value">{{ formatMoney(journal.total_credits) }}</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Gross Payroll</div>
+              <div class="summary-value">{{ formatMoney(journal.summary?.payroll?.gross) }}</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Net Salaries</div>
+              <div class="summary-value">{{ formatMoney(journal.summary?.payroll?.net) }}</div>
+            </div>
+          </div>
+
+          <!-- HOSPITALITY SUMMARY -->
+          <div *ngIf="journal.summary?.hospitality" class="hosp-summary">
+            <div class="hosp-title">🏨 Hospitality Breakdown</div>
+            <div class="hosp-grid">
+              <div class="hosp-item">
+                <span>Tips (Cash)</span>
+                <span>{{ formatMoney(journal.summary.hospitality.tips_cash) }}</span>
+              </div>
+              <div class="hosp-item">
+                <span>Tips (Card)</span>
+                <span>{{ formatMoney(journal.summary.hospitality.tips_card) }}</span>
+              </div>
+              <div class="hosp-item">
+                <span>Service Charges</span>
+                <span>{{ formatMoney(journal.summary.hospitality.service_charge) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- JOURNAL LINES TABLE -->
+          <div class="journal-lines">
+            <div class="lines-title">Journal Lines</div>
+            <table class="lines-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Code</th>
+                  <th>Account</th>
+                  <th>Category</th>
+                  <th class="money-col">Debit</th>
+                  <th class="money-col">Credit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of journal.lines" [class.hosp-line]="line.category === 'hospitality'">
+                  <td class="line-num">{{ line.line }}</td>
+                  <td class="line-code">{{ line.account_code }}</td>
+                  <td>{{ line.account_name }}</td>
+                  <td><span class="cat-badge cat-{{ line.category }}">{{ line.category }}</span></td>
+                  <td class="money-col debit-val">{{ line.debit > 0 ? formatMoney(line.debit) : '—' }}</td>
+                  <td class="money-col credit-val">{{ line.credit > 0 ? formatMoney(line.credit) : '—' }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="totals-row">
+                  <td colspan="4"><strong>TOTALS</strong></td>
+                  <td class="money-col debit-val"><strong>{{ formatMoney(journal.total_debits) }}</strong></td>
+                  <td class="money-col credit-val"><strong>{{ formatMoney(journal.total_credits) }}</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- DEPARTMENT BREAKDOWN -->
+          <div *ngIf="getDeptKeys(journal.department_breakdown).length > 0" class="dept-breakdown">
+            <div class="lines-title">Department Breakdown</div>
+            <div class="dept-grid">
+              <div *ngFor="let dept of getDeptKeys(journal.department_breakdown)" class="dept-card">
+                <div class="dept-name">{{ journal.department_breakdown[dept].name }}</div>
+                <div class="dept-gross">{{ formatMoney(journal.department_breakdown[dept].gross) }}</div>
+                <div class="dept-count">{{ journal.department_breakdown[dept].count }} employees</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- EMPTY JOURNAL STATE -->
+        <div *ngIf="!journal && !generatingJournal" class="journal-empty">
+          <div class="empty-icon">📓</div>
+          <p>Select a payroll period and click Generate to create a journal entry</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: GL MAPPINGS                          -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'mappings'">
+
+      <div *ngIf="loadingMappings" class="loading-state">
+        <div class="spinner"></div><p>Loading mappings...</p>
+      </div>
+
+      <div *ngIf="!loadingMappings && mappings.length === 0" class="empty-state">
+        <div class="empty-icon">🔗</div>
+        <p>No GL mappings configured</p>
+      </div>
+
+      <div *ngIf="!loadingMappings && mappings.length > 0" class="mappings-table-wrap">
+        <table class="mappings-table">
+          <thead>
+            <tr>
+              <th>Payroll Item</th>
+              <th>Debit Account</th>
+              <th>Credit Account</th>
+              <th>Department</th>
+              <th>Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of mappings">
+              <td class="item-type">{{ m.payroll_item_type }}</td>
+              <td>
+                <span class="account-code-sm">{{ m.debit_code }}</span>
+                {{ m.debit_name }}
+              </td>
+              <td>
+                <span class="account-code-sm">{{ m.credit_code }}</span>
+                {{ m.credit_name }}
+              </td>
+              <td>{{ m.department || '—' }}</td>
+              <td>
+                <span *ngIf="m.is_default" class="default-badge">✓ Default</span>
+                <span *ngIf="!m.is_default" class="text-muted">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </main>
+</div>

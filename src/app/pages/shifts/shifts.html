@@ -1,0 +1,319 @@
+<!-- File: src/app/pages/shifts/shifts.html -->
+<div class="shifts-app">
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">🗓️</div>
+      <span class="brand-name">PeopleOS</span>
+      <span class="brand-sub">/ Shifts</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goToDashboard()">← Dashboard</button>
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span>{{ me.name }}</span>
+      </div>
+      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <h1>Shift <span class="title-accent">Management</span></h1>
+        <p class="page-subtitle">Templates, assignments, weekly calendar &amp; swap requests</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab === 'templates'" (click)="setTab('templates')">
+        <span>🧩</span> Templates
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'assign'" (click)="setTab('assign')">
+        <span>👤</span> Assign Shifts
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'calendar'" (click)="setTab('calendar')">
+        <span>📅</span> Weekly Calendar
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'swaps'" (click)="setTab('swaps')">
+        <span>🔄</span> Swap Requests
+      </button>
+    </div>
+
+    <!-- ALERTS -->
+    <div *ngIf="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
+    <div *ngIf="errorMsg"   class="alert alert-error">❌ {{ errorMsg }}</div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: TEMPLATES                            -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'templates'">
+
+      <div class="section-toolbar">
+        <span class="section-count">{{ templates.length }} templates</span>
+        <button class="btn btn-primary" (click)="showCreateTemplate = !showCreateTemplate">
+          {{ showCreateTemplate ? '✕ Cancel' : '+ New Template' }}
+        </button>
+      </div>
+
+      <!-- CREATE FORM -->
+      <div *ngIf="showCreateTemplate" class="create-card">
+        <h3>New Shift Template</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Shift Name *</label>
+            <input class="form-input" [(ngModel)]="newTemplate.name" placeholder="e.g. Morning Shift" />
+          </div>
+          <div class="form-group">
+            <label>Code *</label>
+            <input class="form-input" [(ngModel)]="newTemplate.code" placeholder="e.g. MRN" maxlength="10" />
+          </div>
+          <div class="form-group">
+            <label>Start Time *</label>
+            <input class="form-input" type="time" [(ngModel)]="newTemplate.start_time" />
+          </div>
+          <div class="form-group">
+            <label>End Time *</label>
+            <input class="form-input" type="time" [(ngModel)]="newTemplate.end_time" />
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <input class="form-input" [(ngModel)]="newTemplate.department" placeholder="e.g. Front Desk" />
+          </div>
+          <div class="form-group">
+            <label>Color</label>
+            <div class="color-row">
+              <input type="color" class="color-picker" [(ngModel)]="newTemplate.color" />
+              <span class="color-preview" [style.background]="newTemplate.color">{{ newTemplate.color }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Min Staff</label>
+            <input class="form-input" type="number" [(ngModel)]="newTemplate.min_staff" min="1" />
+          </div>
+          <div class="form-group">
+            <label>Max Staff</label>
+            <input class="form-input" type="number" [(ngModel)]="newTemplate.max_staff" min="1" />
+          </div>
+          <div class="form-group">
+            <label>Rate Multiplier</label>
+            <input class="form-input" type="number" [(ngModel)]="newTemplate.base_rate_multiplier" step="0.1" min="1" />
+          </div>
+          <div class="form-group toggle-group">
+            <label>Night Shift?</label>
+            <div class="toggle-wrap">
+              <input type="checkbox" [(ngModel)]="newTemplate.is_night_shift" id="nightShift" class="toggle-input" />
+              <label for="nightShift" class="toggle-label"></label>
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <label>Notes</label>
+            <textarea class="form-input" [(ngModel)]="newTemplate.notes" rows="2" placeholder="Optional notes..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" (click)="showCreateTemplate = false; resetNewTemplate()">Cancel</button>
+          <button class="btn btn-primary" [disabled]="templateLoading || !newTemplate.name || !newTemplate.code" (click)="createTemplate()">
+            <span *ngIf="templateLoading" class="spinner-sm"></span>
+            {{ templateLoading ? 'Creating...' : 'Create Template' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- LOADING -->
+      <div *ngIf="loadingTemplates" class="loading-state">
+        <div class="spinner"></div><p>Loading templates...</p>
+      </div>
+
+      <!-- TEMPLATES GRID -->
+      <div *ngIf="!loadingTemplates" class="templates-grid">
+        <div *ngFor="let t of templates" class="template-card" [style.border-left-color]="t.color">
+          <div class="template-top">
+            <div class="template-color-dot" [style.background]="t.color"></div>
+            <div class="template-info">
+              <h3>{{ t.name }}</h3>
+              <span class="template-code">{{ t.code }}</span>
+              <span *ngIf="t.is_night_shift" class="badge badge-purple">🌙 Night</span>
+            </div>
+            <button *ngIf="isAdmin()" class="btn-icon btn-danger" (click)="deleteTemplate(t.id)" title="Delete">🗑️</button>
+          </div>
+          <div class="template-details">
+            <div class="detail-item">🕐 {{ formatTime(t.start_time) }} – {{ formatTime(t.end_time) }}</div>
+            <div class="detail-item">⏱️ {{ t.duration_hours }}h</div>
+            <div class="detail-item" *ngIf="t.department">🏢 {{ t.department }}</div>
+            <div class="detail-item">👥 {{ t.min_staff }}–{{ t.max_staff }} staff</div>
+            <div class="detail-item">💰 {{ t.base_rate_multiplier }}x rate</div>
+          </div>
+          <div *ngIf="t.notes" class="template-notes">{{ t.notes }}</div>
+        </div>
+
+        <div *ngIf="templates.length === 0" class="empty-state">
+          <div class="empty-icon">🧩</div>
+          <p>No shift templates yet</p>
+          <button class="btn btn-primary" (click)="showCreateTemplate = true">Create your first template</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: ASSIGN SHIFTS                        -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'assign'">
+      <div class="two-col-layout">
+
+        <!-- ASSIGN FORM -->
+        <div class="assign-form-card">
+          <h3>Assign a Shift</h3>
+          <div class="form-group">
+            <label>Employee *</label>
+            <select class="form-select" [(ngModel)]="assignForm.employee_id">
+              <option value="">Select employee...</option>
+              <option *ngFor="let e of employees" [value]="e.id">{{ e.first_name }} {{ e.last_name }} — {{ e.department }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Shift Template *</label>
+            <select class="form-select" [(ngModel)]="assignForm.shift_template_id">
+              <option value="">Select shift...</option>
+              <option *ngFor="let t of templates" [value]="t.id">{{ t.name }} ({{ formatTime(t.start_time) }} – {{ formatTime(t.end_time) }})</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date *</label>
+            <input class="form-input" type="date" [(ngModel)]="assignForm.shift_date" />
+          </div>
+          <div class="form-group">
+            <label>Repeat</label>
+            <select class="form-select" [(ngModel)]="assignForm.repeat">
+              <option value="none">No repeat</option>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Bi-weekly</option>
+            </select>
+          </div>
+          <div class="form-group" *ngIf="assignForm.repeat !== 'none'">
+            <label>For how many weeks?</label>
+            <input class="form-input" type="number" [(ngModel)]="assignForm.repeat_weeks" min="1" max="12" />
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea class="form-input" [(ngModel)]="assignForm.notes" rows="2" placeholder="Optional..."></textarea>
+          </div>
+          <button class="btn btn-primary full-width"
+            [disabled]="assignLoading || !assignForm.employee_id || !assignForm.shift_template_id || !assignForm.shift_date"
+            (click)="assignShift()">
+            <span *ngIf="assignLoading" class="spinner-sm"></span>
+            {{ assignLoading ? 'Assigning...' : 'Assign Shift' }}
+          </button>
+        </div>
+
+        <!-- SHIFTS LIST -->
+        <div class="shifts-list-card">
+          <div class="list-header">
+            <h3>Shifts for Date</h3>
+            <input class="form-input date-filter" type="date" [(ngModel)]="filterDate" (change)="loadShifts()" />
+          </div>
+
+          <div *ngIf="loadingShifts" class="loading-state">
+            <div class="spinner"></div>
+          </div>
+
+          <div *ngIf="!loadingShifts && shifts.length === 0" class="empty-state-sm">
+            No shifts assigned for this date
+          </div>
+
+          <div *ngFor="let s of shifts" class="shift-row" [style.border-left-color]="s.color || '#8b5cf6'">
+            <div class="shift-row-left">
+              <div class="shift-emp-name">{{ s.employee_name }}</div>
+              <div class="shift-meta">{{ s.shift_name }} · {{ formatTime(s.start_time) }}–{{ formatTime(s.end_time) }}</div>
+            </div>
+            <div class="shift-row-right">
+              <span class="badge" [class]="getStatusClass(s.status)">{{ s.status }}</span>
+              <button *ngIf="isAdmin()" class="btn-icon btn-danger" (click)="deleteShift(s.id)">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: WEEKLY CALENDAR                      -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'calendar'">
+
+      <div class="calendar-toolbar">
+        <button class="btn btn-ghost" (click)="prevWeek()">← Prev</button>
+        <span class="week-label">📅 {{ getWeekLabel() }}</span>
+        <button class="btn btn-ghost" (click)="nextWeek()">Next →</button>
+      </div>
+
+      <div *ngIf="loadingCalendar" class="loading-state">
+        <div class="spinner"></div><p>Loading calendar...</p>
+      </div>
+
+      <div *ngIf="!loadingCalendar" class="calendar-grid">
+        <div *ngFor="let day of calendarDays; let i = index" class="calendar-day" [class.today]="isToday(day)">
+          <div class="day-header">
+            <span class="day-name">{{ dayNames[i] }}</span>
+            <span class="day-num" [class.today-badge]="isToday(day)">{{ day.getDate() }}</span>
+          </div>
+          <div class="day-shifts">
+            <div *ngFor="let s of getShiftsForDay(day)" class="cal-shift-pill"
+              [style.background]="(s.color || '#8b5cf6') + '22'"
+              [style.border-color]="s.color || '#8b5cf6'">
+              <div class="cal-shift-name">{{ s.shift_name }}</div>
+              <div class="cal-shift-emp">{{ s.employee_name }}</div>
+              <div class="cal-shift-time">{{ formatTime(s.start_time) }}</div>
+            </div>
+            <div *ngIf="getShiftsForDay(day).length === 0" class="day-empty">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: SWAP REQUESTS                        -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'swaps'">
+
+      <div *ngIf="loadingSwaps" class="loading-state">
+        <div class="spinner"></div><p>Loading swap requests...</p>
+      </div>
+
+      <div *ngIf="!loadingSwaps && swapRequests.length === 0" class="empty-state">
+        <div class="empty-icon">🔄</div>
+        <p>No swap requests at the moment</p>
+      </div>
+
+      <div *ngIf="!loadingSwaps && swapRequests.length > 0" class="swaps-list">
+        <div *ngFor="let swap of swapRequests" class="swap-card">
+          <div class="swap-header">
+            <div class="swap-parties">
+              <span class="swap-name">{{ swap.requester_name }}</span>
+              <span class="swap-arrow">⇄</span>
+              <span class="swap-name">{{ swap.target_name }}</span>
+            </div>
+            <span class="badge" [class]="getStatusClass(swap.status)">{{ swap.status }}</span>
+          </div>
+          <div class="swap-details">
+            <div class="swap-date">📅 {{ swap.requester_shift_date | date:'mediumDate' }} → {{ swap.target_shift_date | date:'mediumDate' }}</div>
+            <div class="swap-reason" *ngIf="swap.reason">💬 {{ swap.reason }}</div>
+            <div class="swap-created">Requested {{ swap.created_at | date:'short' }}</div>
+          </div>
+          <div *ngIf="swap.status === 'pending' && isAdmin()" class="swap-actions">
+            <button class="btn btn-success-sm" (click)="approveSwap(swap.id)">✓ Approve</button>
+            <button class="btn btn-danger-sm" (click)="rejectSwap(swap.id)">✗ Reject</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
