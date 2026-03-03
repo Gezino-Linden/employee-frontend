@@ -2,7 +2,6 @@
 <div class="accounting-app">
   <div class="bg-mesh"></div>
 
-  <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
       <div class="brand-icon">📒</div>
@@ -20,49 +19,82 @@
   </nav>
 
   <main class="main-content">
-
-    <!-- PAGE HEADER -->
     <div class="page-header">
       <div>
-        <h1>Accounting <span class="title-accent">&amp; GL</span></h1>
-        <p class="page-subtitle">Chart of accounts, journal entries &amp; GL mappings</p>
+        <h1>Accounting <span class="title-accent">&amp; Finance</span></h1>
+        <p class="page-subtitle">
+          Chart of accounts, invoices, suppliers, revenue &amp; financials
+        </p>
       </div>
     </div>
 
     <!-- TABS -->
     <div class="tab-bar">
-      <button class="tab-btn" [class.active]="activeTab === 'accounts'" (click)="setTab('accounts')">
-        <span>📋</span> Chart of Accounts
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'accounts'"
+        (click)="setTab('accounts')"
+      >
+        📋 Accounts
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'journal'" (click)="setTab('journal')">
-        <span>📓</span> Journal Entries
+        📓 Journals
       </button>
-      <button class="tab-btn" [class.active]="activeTab === 'mappings'" (click)="setTab('mappings')">
-        <span>🔗</span> GL Mappings
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'mappings'"
+        (click)="setTab('mappings')"
+      >
+        🔗 GL Mappings
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'invoices'"
+        (click)="setTab('invoices')"
+      >
+        🧾 Invoices
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'suppliers'"
+        (click)="setTab('suppliers')"
+      >
+        🏭 Suppliers
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'revenue'" (click)="setTab('revenue')">
+        📈 Revenue
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'financials'"
+        (click)="setTab('financials')"
+      >
+        💰 Financials
       </button>
     </div>
 
-    <!-- ALERTS -->
     <div *ngIf="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
-    <div *ngIf="errorMsg"   class="alert alert-error">❌ {{ errorMsg }}</div>
+    <div *ngIf="errorMsg" class="alert alert-error">❌ {{ errorMsg }}</div>
 
     <!-- ══════════════════════════════════════════ -->
     <!-- TAB: CHART OF ACCOUNTS                    -->
     <!-- ══════════════════════════════════════════ -->
     <div *ngIf="activeTab === 'accounts'">
-
       <div class="section-toolbar">
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
-          <input class="search-input" [(ngModel)]="accountSearch" placeholder="Search by code, name or type..." />
+          <input
+            class="search-input"
+            [(ngModel)]="accountSearch"
+            placeholder="Search by code, name or type..."
+          />
         </div>
         <span class="section-count">{{ filteredAccounts.length }} accounts</span>
       </div>
-
       <div *ngIf="loadingAccounts" class="loading-state">
-        <div class="spinner"></div><p>Loading accounts...</p>
+        <div class="spinner"></div>
+        <p>Loading accounts...</p>
       </div>
-
       <div *ngIf="!loadingAccounts">
         <div *ngFor="let group of groupedAccounts()" class="account-group">
           <div class="group-header" [style.border-left-color]="getAccountTypeColor(group.type)">
@@ -77,15 +109,15 @@
             <div *ngFor="let a of group.accounts" class="account-row">
               <span class="account-code">{{ a.code }}</span>
               <span class="account-name">{{ a.name }}</span>
-              <span class="account-type-badge"
+              <span
+                class="account-type-badge"
                 [style.background]="getAccountTypeColor(a.account_type) + '22'"
-                [style.color]="getAccountTypeColor(a.account_type)">
-                {{ a.account_type }}
-              </span>
+                [style.color]="getAccountTypeColor(a.account_type)"
+                >{{ a.account_type }}</span
+              >
             </div>
           </div>
         </div>
-
         <div *ngIf="filteredAccounts.length === 0" class="empty-state">
           <div class="empty-icon">📋</div>
           <p>No accounts found</p>
@@ -97,13 +129,9 @@
     <!-- TAB: JOURNAL ENTRIES                      -->
     <!-- ══════════════════════════════════════════ -->
     <div *ngIf="activeTab === 'journal'">
-
       <div class="journal-layout">
-
-        <!-- GENERATE PANEL -->
         <div class="journal-panel">
           <h3>Generate Journal Entry</h3>
-
           <div class="form-group">
             <label>Payroll Period *</label>
             <select class="form-select" [(ngModel)]="journalForm.payroll_period_id">
@@ -113,64 +141,80 @@
               </option>
             </select>
             <div *ngIf="loadingPeriods" class="hint">Loading periods...</div>
-            <div *ngIf="!loadingPeriods && periods.length === 0" class="hint">No payroll periods found</div>
+            <div *ngIf="!loadingPeriods && periods.length === 0" class="hint">
+              No payroll periods found
+            </div>
           </div>
-
           <div class="form-group">
             <label>Journal Type</label>
             <div class="type-toggle">
-              <button class="type-btn" [class.active]="journalForm.type === 'standard'" (click)="journalForm.type = 'standard'">
+              <button
+                class="type-btn"
+                [class.active]="journalForm.type === 'standard'"
+                (click)="journalForm.type = 'standard'"
+              >
                 📊 Standard
               </button>
-              <button class="type-btn" [class.active]="journalForm.type === 'hospitality'" (click)="journalForm.type = 'hospitality'">
+              <button
+                class="type-btn"
+                [class.active]="journalForm.type === 'hospitality'"
+                (click)="journalForm.type = 'hospitality'"
+              >
                 🏨 Hospitality
               </button>
             </div>
           </div>
-
           <div *ngIf="journalForm.type === 'hospitality'" class="form-group">
             <label>Property ID (optional)</label>
-            <input class="form-input" [(ngModel)]="journalForm.property_id" placeholder="Filter by property..." type="number" />
+            <input
+              class="form-input"
+              [(ngModel)]="journalForm.property_id"
+              placeholder="Filter by property..."
+              type="number"
+            />
           </div>
-
-          <div class="journal-info-box" *ngIf="journalForm.type === 'hospitality'">
-            🏨 Hospitality mode includes <strong>tips (cash &amp; card)</strong> and <strong>service charges</strong> in the journal entry.
+          <div *ngIf="journalForm.type === 'hospitality'" class="journal-info-box">
+            🏨 Hospitality mode includes <strong>tips</strong> and <strong>service charges</strong>.
           </div>
-
-          <button class="btn btn-primary full-btn"
+          <button
+            class="btn btn-primary full-btn"
             [disabled]="generatingJournal || !journalForm.payroll_period_id"
-            (click)="generateJournal()">
+            (click)="generateJournal()"
+          >
             <span *ngIf="generatingJournal" class="spinner-sm"></span>
             {{ generatingJournal ? 'Generating...' : '⚡ Generate Journal' }}
           </button>
-
-          <button *ngIf="journal" class="btn btn-export full-btn" [disabled]="exportingCSV" (click)="exportCSV()">
+          <button
+            *ngIf="journal"
+            class="btn btn-export full-btn"
+            [disabled]="exportingCSV"
+            (click)="exportCSV()"
+          >
             <span *ngIf="exportingCSV" class="spinner-sm"></span>
             {{ exportingCSV ? 'Exporting...' : '📥 Export CSV' }}
           </button>
         </div>
 
-        <!-- JOURNAL OUTPUT -->
         <div class="journal-output" *ngIf="journal">
-
-          <!-- JOURNAL HEADER -->
           <div class="journal-header-card">
             <div class="journal-id-row">
               <span class="journal-id">{{ journal.journal_id }}</span>
-              <span class="balanced-badge"
+              <span
+                class="balanced-badge"
                 [class.balanced]="journal.is_balanced"
-                [class.unbalanced]="!journal.is_balanced">
-                {{ journal.is_balanced ? '✓ Balanced' : '⚠ Unbalanced' }}
-              </span>
+                [class.unbalanced]="!journal.is_balanced"
+                >{{ journal.is_balanced ? '✓ Balanced' : '⚠ Unbalanced' }}</span
+              >
             </div>
             <div class="journal-meta">
-              <span>📅 {{ formatDate(journal.period_start) }} – {{ formatDate(journal.period_end) }}</span>
+              <span
+                >📅 {{ formatDate(journal.period_start) }} –
+                {{ formatDate(journal.period_end) }}</span
+              >
               <span>🔖 {{ journal.reference }}</span>
               <span class="type-chip">{{ journal.type | titlecase }}</span>
             </div>
           </div>
-
-          <!-- SUMMARY CARDS -->
           <div class="summary-row">
             <div class="summary-card debit-card">
               <div class="summary-label">Total Debits</div>
@@ -189,27 +233,23 @@
               <div class="summary-value">{{ formatMoney(journal.summary?.payroll?.net) }}</div>
             </div>
           </div>
-
-          <!-- HOSPITALITY SUMMARY -->
           <div *ngIf="journal.summary?.hospitality" class="hosp-summary">
             <div class="hosp-title">🏨 Hospitality Breakdown</div>
             <div class="hosp-grid">
               <div class="hosp-item">
-                <span>Tips (Cash)</span>
-                <span>{{ formatMoney(journal.summary.hospitality.tips_cash) }}</span>
+                <span>Tips (Cash)</span
+                ><span>{{ formatMoney(journal.summary.hospitality.tips_cash) }}</span>
               </div>
               <div class="hosp-item">
-                <span>Tips (Card)</span>
-                <span>{{ formatMoney(journal.summary.hospitality.tips_card) }}</span>
+                <span>Tips (Card)</span
+                ><span>{{ formatMoney(journal.summary.hospitality.tips_card) }}</span>
               </div>
               <div class="hosp-item">
-                <span>Service Charges</span>
-                <span>{{ formatMoney(journal.summary.hospitality.service_charge) }}</span>
+                <span>Service Charges</span
+                ><span>{{ formatMoney(journal.summary.hospitality.service_charge) }}</span>
               </div>
             </div>
           </div>
-
-          <!-- JOURNAL LINES TABLE -->
           <div class="journal-lines">
             <div class="lines-title">Journal Lines</div>
             <table class="lines-table">
@@ -224,45 +264,56 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let line of journal.lines" [class.hosp-line]="line.category === 'hospitality'">
+                <tr
+                  *ngFor="let line of journal.lines"
+                  [class.hosp-line]="line.category === 'hospitality'"
+                >
                   <td class="line-num">{{ line.line }}</td>
                   <td class="line-code">{{ line.account_code }}</td>
                   <td>{{ line.account_name }}</td>
-                  <td><span class="cat-badge cat-{{ line.category }}">{{ line.category }}</span></td>
-                  <td class="money-col debit-val">{{ line.debit > 0 ? formatMoney(line.debit) : '—' }}</td>
-                  <td class="money-col credit-val">{{ line.credit > 0 ? formatMoney(line.credit) : '—' }}</td>
+                  <td>
+                    <span class="cat-badge cat-{{ line.category }}">{{ line.category }}</span>
+                  </td>
+                  <td class="money-col debit-val">
+                    {{ line.debit > 0 ? formatMoney(line.debit) : '—' }}
+                  </td>
+                  <td class="money-col credit-val">
+                    {{ line.credit > 0 ? formatMoney(line.credit) : '—' }}
+                  </td>
                 </tr>
               </tbody>
               <tfoot>
                 <tr class="totals-row">
                   <td colspan="4"><strong>TOTALS</strong></td>
-                  <td class="money-col debit-val"><strong>{{ formatMoney(journal.total_debits) }}</strong></td>
-                  <td class="money-col credit-val"><strong>{{ formatMoney(journal.total_credits) }}</strong></td>
+                  <td class="money-col debit-val">
+                    <strong>{{ formatMoney(journal.total_debits) }}</strong>
+                  </td>
+                  <td class="money-col credit-val">
+                    <strong>{{ formatMoney(journal.total_credits) }}</strong>
+                  </td>
                 </tr>
               </tfoot>
             </table>
           </div>
-
-          <!-- DEPARTMENT BREAKDOWN -->
           <div *ngIf="getDeptKeys(journal.department_breakdown).length > 0" class="dept-breakdown">
             <div class="lines-title">Department Breakdown</div>
             <div class="dept-grid">
               <div *ngFor="let dept of getDeptKeys(journal.department_breakdown)" class="dept-card">
                 <div class="dept-name">{{ journal.department_breakdown[dept].name }}</div>
-                <div class="dept-gross">{{ formatMoney(journal.department_breakdown[dept].gross) }}</div>
-                <div class="dept-count">{{ journal.department_breakdown[dept].count }} employees</div>
+                <div class="dept-gross">
+                  {{ formatMoney(journal.department_breakdown[dept].gross) }}
+                </div>
+                <div class="dept-count">
+                  {{ journal.department_breakdown[dept].count }} employees
+                </div>
               </div>
             </div>
           </div>
-
         </div>
-
-        <!-- EMPTY JOURNAL STATE -->
         <div *ngIf="!journal && !generatingJournal" class="journal-empty">
           <div class="empty-icon">📓</div>
           <p>Select a payroll period and click Generate to create a journal entry</p>
         </div>
-
       </div>
     </div>
 
@@ -270,16 +321,14 @@
     <!-- TAB: GL MAPPINGS                          -->
     <!-- ══════════════════════════════════════════ -->
     <div *ngIf="activeTab === 'mappings'">
-
       <div *ngIf="loadingMappings" class="loading-state">
-        <div class="spinner"></div><p>Loading mappings...</p>
+        <div class="spinner"></div>
+        <p>Loading mappings...</p>
       </div>
-
       <div *ngIf="!loadingMappings && mappings.length === 0" class="empty-state">
         <div class="empty-icon">🔗</div>
         <p>No GL mappings configured</p>
       </div>
-
       <div *ngIf="!loadingMappings && mappings.length > 0" class="mappings-table-wrap">
         <table class="mappings-table">
           <thead>
@@ -295,24 +344,917 @@
             <tr *ngFor="let m of mappings">
               <td class="item-type">{{ m.payroll_item_type }}</td>
               <td>
-                <span class="account-code-sm">{{ m.debit_code }}</span>
-                {{ m.debit_name }}
+                <span class="account-code-sm">{{ m.debit_code }}</span
+                >{{ m.debit_name }}
               </td>
               <td>
-                <span class="account-code-sm">{{ m.credit_code }}</span>
-                {{ m.credit_name }}
+                <span class="account-code-sm">{{ m.credit_code }}</span
+                >{{ m.credit_name }}
               </td>
               <td>{{ m.department || '—' }}</td>
               <td>
-                <span *ngIf="m.is_default" class="default-badge">✓ Default</span>
-                <span *ngIf="!m.is_default" class="text-muted">—</span>
+                <span *ngIf="m.is_default" class="default-badge">✓ Default</span
+                ><span *ngIf="!m.is_default" class="text-muted">—</span>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-
     </div>
 
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: INVOICES                             -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'invoices'">
+      <!-- TOOLBAR -->
+      <div class="section-toolbar">
+        <div class="filter-group">
+          <select
+            class="form-select sm-select"
+            [(ngModel)]="invoiceStatusFilter"
+            (change)="loadInvoices()"
+          >
+            <option value="">All Statuses</option>
+            <option value="draft">Draft</option>
+            <option value="sent">Sent</option>
+            <option value="paid">Paid</option>
+            <option value="partial">Partial</option>
+            <option value="overdue">Overdue</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" (click)="showInvoiceForm = !showInvoiceForm">
+          {{ showInvoiceForm ? '✕ Cancel' : '+ New Invoice' }}
+        </button>
+      </div>
+
+      <!-- NEW INVOICE FORM -->
+      <div *ngIf="showInvoiceForm" class="card-panel mb-24">
+        <h3 class="panel-title">New Guest Invoice</h3>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Guest Name *</label>
+            <input
+              class="form-input"
+              [(ngModel)]="newInvoice.guest_name"
+              placeholder="John Smith"
+            />
+          </div>
+          <div class="form-group">
+            <label>Guest Email</label>
+            <input
+              class="form-input"
+              [(ngModel)]="newInvoice.guest_email"
+              placeholder="guest@email.com"
+              type="email"
+            />
+          </div>
+          <div class="form-group">
+            <label>Due Date *</label>
+            <input class="form-input" [(ngModel)]="newInvoice.due_date" type="date" />
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <input
+              class="form-input"
+              [(ngModel)]="newInvoice.notes"
+              placeholder="Optional notes..."
+            />
+          </div>
+        </div>
+
+        <div class="lines-section">
+          <div class="lines-header-row">
+            <span class="lines-label">Line Items</span>
+            <button class="btn-link" (click)="addInvoiceLine()">+ Add Line</button>
+          </div>
+          <div class="line-item-header">
+            <span>Description</span><span>Category</span><span>Qty</span><span>Unit Price</span
+            ><span>Total</span><span></span>
+          </div>
+          <div *ngFor="let line of newInvoice.lines; let i = index" class="line-item-row">
+            <input class="form-input" [(ngModel)]="line.description" placeholder="Room charge..." />
+            <select class="form-select" [(ngModel)]="line.category_id">
+              <option value="">Select...</option>
+              <option *ngFor="let cat of invoiceCategories" [value]="cat.id">{{ cat.name }}</option>
+            </select>
+            <input
+              class="form-input text-center"
+              [(ngModel)]="line.quantity"
+              type="number"
+              min="1"
+            />
+            <input
+              class="form-input"
+              [(ngModel)]="line.unit_price"
+              type="number"
+              min="0"
+              step="0.01"
+            />
+            <span class="line-total">{{ formatMoney(line.quantity * line.unit_price) }}</span>
+            <button class="btn-remove" (click)="removeInvoiceLine(i)">✕</button>
+          </div>
+          <div class="invoice-total-row">
+            <span>Subtotal (excl. VAT)</span>
+            <span class="invoice-total-val">{{ formatMoney(calcInvoiceTotal()) }}</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-ghost" (click)="showInvoiceForm = false">Cancel</button>
+          <button class="btn btn-primary" [disabled]="savingInvoice" (click)="saveInvoice()">
+            <span *ngIf="savingInvoice" class="spinner-sm"></span>
+            {{ savingInvoice ? 'Saving...' : '💾 Create Invoice' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- PAYMENT MODAL -->
+      <div *ngIf="recordingPayment" class="modal-overlay" (click)="recordingPayment = null">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+          <h3>Record Payment</h3>
+          <div class="form-group mt-16">
+            <label>Amount (ZAR) *</label>
+            <input
+              class="form-input"
+              [(ngModel)]="paymentAmount"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select class="form-select" [(ngModel)]="paymentMethod">
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="cash">Cash</option>
+              <option value="card">Card</option>
+              <option value="cheque">Cheque</option>
+            </select>
+          </div>
+          <div class="form-actions mt-16">
+            <button class="btn btn-ghost" (click)="recordingPayment = null">Cancel</button>
+            <button class="btn btn-primary" (click)="submitPayment()">✓ Record Payment</button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="payBillModal" class="modal-overlay" (click)="payBillModal = null">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+          <h3>Pay Supplier Bill</h3>
+          <p
+            *ngIf="payBillModal"
+            style="color: var(--text-secondary); font-size: 13px; margin: 8px 0 16px"
+          >
+            {{ payBillModal.supplier_name }} — {{ formatMoney(payBillModal.balance_due) }} due
+          </p>
+          <div class="form-group mt-16">
+            <label>Amount (ZAR) *</label>
+            <input
+              class="form-input"
+              [(ngModel)]="billPaymentAmount"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select class="form-select" [(ngModel)]="billPaymentMethod">
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="cash">Cash</option>
+              <option value="card">Card</option>
+              <option value="cheque">Cheque</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Payment Date</label>
+            <input class="form-input" [(ngModel)]="billPaymentDate" type="date" />
+          </div>
+          <div class="form-group">
+            <label>Reference</label>
+            <input class="form-input" [(ngModel)]="billPaymentRef" placeholder="EFT ref..." />
+          </div>
+          <div class="form-actions mt-16">
+            <button class="btn btn-ghost" (click)="payBillModal = null">Cancel</button>
+            <button
+              class="btn btn-primary"
+              [disabled]="savingBillPayment"
+              (click)="submitBillPayment()"
+            >
+              <span *ngIf="savingBillPayment" class="spinner-sm"></span>
+              {{ savingBillPayment ? 'Processing...' : '✓ Confirm Payment' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVOICES LIST -->
+      <div *ngIf="loadingInvoices" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading invoices...</p>
+      </div>
+      <div *ngIf="!loadingInvoices && invoices.length === 0" class="empty-state">
+        <div class="empty-icon">🧾</div>
+        <p>No invoices found</p>
+      </div>
+      <div *ngIf="!loadingInvoices && invoices.length > 0" class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Guest</th>
+              <th>Issue Date</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th class="money-col">Total</th>
+              <th class="money-col">Balance</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inv of invoices">
+              <td class="mono-val">{{ inv.invoice_number }}</td>
+              <td>
+                <div class="guest-name">{{ inv.guest_name }}</div>
+                <div class="guest-email">{{ inv.guest_email }}</div>
+              </td>
+              <td>{{ formatDate(inv.issue_date) }}</td>
+              <td>{{ formatDate(inv.due_date) }}</td>
+              <td>
+                <span
+                  class="status-badge"
+                  [style.background]="getInvoiceStatusColor(inv.status) + '22'"
+                  [style.color]="getInvoiceStatusColor(inv.status)"
+                >
+                  {{ inv.status }}
+                </span>
+              </td>
+              <td class="money-col">{{ formatMoney(inv.total_amount) }}</td>
+              <td class="money-col" [class.overdue-val]="Number(inv.balance_due) > 0">
+                {{ formatMoney(inv.balance_due) }}
+              </td>
+              <td>
+                <button
+                  *ngIf="inv.status !== 'paid' && inv.status !== 'cancelled'"
+                  class="btn-action"
+                  (click)="startRecordPayment(inv.id)"
+                >
+                  💳 Pay
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: SUPPLIERS & BILLS                    -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'suppliers'">
+      <div class="sub-tab-bar">
+        <button
+          class="sub-tab-btn"
+          [class.active]="apView === 'suppliers'"
+          (click)="apView = 'suppliers'"
+        >
+          🏭 Suppliers
+        </button>
+        <button class="sub-tab-btn" [class.active]="apView === 'bills'" (click)="apView = 'bills'">
+          📄 Bills
+        </button>
+      </div>
+
+      <!-- SUPPLIERS VIEW -->
+      <div *ngIf="apView === 'suppliers'">
+        <div class="section-toolbar">
+          <span class="section-count">{{ suppliers.length }} suppliers</span>
+          <button class="btn btn-primary" (click)="showSupplierForm = !showSupplierForm">
+            {{ showSupplierForm ? '✕ Cancel' : '+ Add Supplier' }}
+          </button>
+        </div>
+
+        <div *ngIf="showSupplierForm" class="card-panel mb-24">
+          <h3 class="panel-title">New Supplier</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Supplier Name *</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newSupplier.name"
+                placeholder="Acme Supplies"
+              />
+            </div>
+            <div class="form-group">
+              <label>Contact Name</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newSupplier.contact_name"
+                placeholder="Jane Doe"
+              />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newSupplier.email"
+                placeholder="supplier@email.com"
+                type="email"
+              />
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newSupplier.phone"
+                placeholder="+27 11 000 0000"
+              />
+            </div>
+            <div class="form-group">
+              <label>VAT Number</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newSupplier.vat_number"
+                placeholder="4XXXXXXXXX"
+              />
+            </div>
+            <div class="form-group">
+              <label>Payment Terms (days)</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newSupplier.payment_terms"
+                type="number"
+                min="0"
+              />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-ghost" (click)="showSupplierForm = false">Cancel</button>
+            <button class="btn btn-primary" [disabled]="savingSupplier" (click)="saveSupplier()">
+              <span *ngIf="savingSupplier" class="spinner-sm"></span>
+              {{ savingSupplier ? 'Saving...' : '💾 Save Supplier' }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="loadingSuppliers" class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading suppliers...</p>
+        </div>
+        <div *ngIf="!loadingSuppliers && suppliers.length === 0" class="empty-state">
+          <div class="empty-icon">🏭</div>
+          <p>No suppliers yet</p>
+        </div>
+        <div *ngIf="!loadingSuppliers && suppliers.length > 0" class="suppliers-grid">
+          <div *ngFor="let s of suppliers" class="supplier-card">
+            <div class="supplier-header">
+              <div class="supplier-avatar">{{ s.name[0] }}</div>
+              <div>
+                <div class="supplier-name">{{ s.name }}</div>
+                <div class="supplier-contact">{{ s.contact_name || '—' }}</div>
+              </div>
+              <span class="supplier-status" [class.active-dot]="s.is_active">{{
+                s.is_active ? 'Active' : 'Inactive'
+              }}</span>
+            </div>
+            <div class="supplier-details">
+              <span *ngIf="s.email">✉ {{ s.email }}</span>
+              <span *ngIf="s.phone">📞 {{ s.phone }}</span>
+              <span>Net {{ s.payment_terms }} days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BILLS VIEW -->
+      <div *ngIf="apView === 'bills'">
+        <div class="section-toolbar">
+          <span class="section-count">{{ apBills.length }} bills</span>
+          <button class="btn btn-primary" (click)="showBillForm = !showBillForm">
+            {{ showBillForm ? '✕ Cancel' : '+ Add Bill' }}
+          </button>
+        </div>
+
+        <div *ngIf="showBillForm" class="card-panel mb-24">
+          <h3 class="panel-title">New Supplier Bill</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Supplier *</label>
+              <select class="form-select" [(ngModel)]="newBill.supplier_id">
+                <option value="">Select supplier...</option>
+                <option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Bill Number</label>
+              <input class="form-input" [(ngModel)]="newBill.bill_number" placeholder="INV-001" />
+            </div>
+            <div class="form-group">
+              <label>Issue Date</label>
+              <input class="form-input" [(ngModel)]="newBill.issue_date" type="date" />
+            </div>
+            <div class="form-group">
+              <label>Due Date</label>
+              <input class="form-input" [(ngModel)]="newBill.due_date" type="date" />
+            </div>
+            <div class="form-group">
+              <label>Subtotal (excl. VAT) *</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newBill.subtotal"
+                type="number"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div class="form-group">
+              <label>VAT Amount</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newBill.vat_amount"
+                type="number"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select class="form-select" [(ngModel)]="newBill.category">
+                <option value="food_beverage">Food & Beverage</option>
+                <option value="housekeeping">Housekeeping</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="utilities">Utilities</option>
+                <option value="laundry">Laundry</option>
+                <option value="marketing">Marketing</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <input
+                class="form-input"
+                [(ngModel)]="newBill.description"
+                placeholder="Weekly food supply..."
+              />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-ghost" (click)="showBillForm = false">Cancel</button>
+            <button class="btn btn-primary" [disabled]="savingBill" (click)="saveBill()">
+              <span *ngIf="savingBill" class="spinner-sm"></span>
+              {{ savingBill ? 'Saving...' : '💾 Save Bill' }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="loadingBills" class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading bills...</p>
+        </div>
+        <div *ngIf="!loadingBills && apBills.length === 0" class="empty-state">
+          <div class="empty-icon">📄</div>
+          <p>No bills yet</p>
+        </div>
+        <div *ngIf="!loadingBills && apBills.length > 0" class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Bill #</th>
+                <th>Supplier</th>
+                <th>Category</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th class="money-col">Total</th>
+                <th class="money-col">Balance</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let b of apBills">
+                <td class="mono-val">{{ b.bill_number || '—' }}</td>
+                <td>{{ b.supplier_name }}</td>
+                <td>
+                  <span class="cat-chip">{{ b.category }}</span>
+                </td>
+                <td>{{ formatDate(b.due_date) }}</td>
+                <td>
+                  <span
+                    class="status-badge"
+                    [style.background]="getBillStatusColor(b.status) + '22'"
+                    [style.color]="getBillStatusColor(b.status)"
+                  >
+                    {{ b.status }}
+                  </span>
+                </td>
+                <td class="money-col">{{ formatMoney(b.total_amount) }}</td>
+                <td class="money-col" [class.overdue-val]="Number(b.balance_due) > 0">
+                  {{ formatMoney(b.balance_due) }}
+                </td>
+                <!-- NEW: Pay button -->
+                <td>
+                  <button
+                    *ngIf="b.status !== 'paid' && b.status !== 'cancelled'"
+                    class="btn-action"
+                    [disabled]="payingBill === b.id"
+                    (click)="startPayBill(b)"
+                  >
+                    <span *ngIf="payingBill === b.id" class="spinner-sm"></span>
+                    {{ payingBill === b.id ? '...' : '💳 Pay' }}
+                  </button>
+                  <span *ngIf="b.status === 'paid'" class="paid-check">✅ Paid</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: DAILY REVENUE                        -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'revenue'">
+      <div class="section-toolbar">
+        <div class="date-range-group">
+          <input
+            class="form-input sm-input"
+            [(ngModel)]="revenueFromDate"
+            type="date"
+            (change)="loadDailyRevenue()"
+          />
+          <span class="date-sep">to</span>
+          <input
+            class="form-input sm-input"
+            [(ngModel)]="revenueToDate"
+            type="date"
+            (change)="loadDailyRevenue()"
+          />
+        </div>
+        <button class="btn btn-primary" (click)="showRevenueForm = !showRevenueForm">
+          {{ showRevenueForm ? '✕ Cancel' : '+ Log Revenue' }}
+        </button>
+      </div>
+
+      <!-- REVENUE TOTALS -->
+      <div class="summary-row mb-24" *ngIf="dailyRevenue.length > 0">
+        <div class="summary-card">
+          <div class="summary-label">Room Revenue</div>
+          <div class="summary-value teal-val">{{ formatMoney(revenueTotals.room) }}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">F&B Revenue</div>
+          <div class="summary-value teal-val">{{ formatMoney(revenueTotals.fb) }}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Other Revenue</div>
+          <div class="summary-value teal-val">{{ formatMoney(revenueTotals.other) }}</div>
+        </div>
+        <div class="summary-card accent-card">
+          <div class="summary-label">Total Revenue</div>
+          <div class="summary-value">{{ formatMoney(revenueTotals.total) }}</div>
+        </div>
+      </div>
+
+      <!-- LOG REVENUE FORM -->
+      <div *ngIf="showRevenueForm" class="card-panel mb-24">
+        <h3 class="panel-title">Log Daily Revenue</h3>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Date *</label>
+            <input class="form-input" [(ngModel)]="revenueForm.revenue_date" type="date" />
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select class="form-select" [(ngModel)]="revenueForm.department">
+              <option value="rooms">Rooms</option>
+              <option value="fb">Food & Beverage</option>
+              <option value="spa">Spa</option>
+              <option value="events">Events</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Room Revenue (ZAR)</label>
+            <input
+              class="form-input"
+              [(ngModel)]="revenueForm.room_revenue"
+              type="number"
+              min="0"
+              step="0.01"
+            />
+          </div>
+          <div class="form-group">
+            <label>F&B Revenue (ZAR)</label>
+            <input
+              class="form-input"
+              [(ngModel)]="revenueForm.fb_revenue"
+              type="number"
+              min="0"
+              step="0.01"
+            />
+          </div>
+          <div class="form-group">
+            <label>Other Revenue (ZAR)</label>
+            <input
+              class="form-input"
+              [(ngModel)]="revenueForm.other_revenue"
+              type="number"
+              min="0"
+              step="0.01"
+            />
+          </div>
+          <div class="form-group">
+            <label>Occupancy Rate (%)</label>
+            <input
+              class="form-input"
+              [(ngModel)]="revenueForm.occupancy_rate"
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+            />
+          </div>
+          <div class="form-group">
+            <label>Rooms Occupied</label>
+            <input
+              class="form-input"
+              [(ngModel)]="revenueForm.rooms_occupied"
+              type="number"
+              min="0"
+            />
+          </div>
+          <div class="form-group">
+            <label>Rooms Available</label>
+            <input
+              class="form-input"
+              [(ngModel)]="revenueForm.rooms_available"
+              type="number"
+              min="1"
+            />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" (click)="showRevenueForm = false">Cancel</button>
+          <button class="btn btn-primary" [disabled]="savingRevenue" (click)="saveRevenue()">
+            <span *ngIf="savingRevenue" class="spinner-sm"></span>
+            {{ savingRevenue ? 'Saving...' : '💾 Save Revenue' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="loadingRevenue" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading revenue...</p>
+      </div>
+      <div *ngIf="!loadingRevenue && dailyRevenue.length === 0" class="empty-state">
+        <div class="empty-icon">📈</div>
+        <p>No revenue entries for this period</p>
+      </div>
+      <div *ngIf="!loadingRevenue && dailyRevenue.length > 0" class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Department</th>
+              <th class="money-col">Room Rev</th>
+              <th class="money-col">F&B Rev</th>
+              <th class="money-col">Other</th>
+              <th class="money-col">Total</th>
+              <th>Occupancy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of dailyRevenue">
+              <td>{{ formatDate(r.revenue_date) }}</td>
+              <td>
+                <span class="dept-badge">{{ r.department }}</span>
+              </td>
+              <td class="money-col">{{ formatMoney(r.room_revenue) }}</td>
+              <td class="money-col">{{ formatMoney(r.fb_revenue) }}</td>
+              <td class="money-col">{{ formatMoney(r.other_revenue) }}</td>
+              <td class="money-col teal-val">
+                <strong>{{ formatMoney(r.total_revenue) }}</strong>
+              </td>
+              <td>
+                <div class="occ-bar-wrap">
+                  <div class="occ-bar" [style.width]="r.occupancy_rate + '%'"></div>
+                  <span>{{ r.occupancy_rate }}%</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- TAB: FINANCIALS                           -->
+    <!-- ══════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'financials'">
+      <div class="sub-tab-bar">
+        <button
+          class="sub-tab-btn"
+          [class.active]="financialsTab === 'pl'"
+          (click)="setFinancialsTab('pl')"
+        >
+          📊 P&L Report
+        </button>
+        <button
+          class="sub-tab-btn"
+          [class.active]="financialsTab === 'vat'"
+          (click)="setFinancialsTab('vat')"
+        >
+          🧮 VAT Return
+        </button>
+      </div>
+
+      <div class="close-period-bar" *ngIf="!periodClosed">
+        <div class="close-period-info">
+          <span>📅</span>
+          <span
+            >Close <strong>{{ monthName(vatMonth) }} {{ vatYear }}</strong> to lock all entries and
+            finalize VAT</span
+          >
+        </div>
+        <button class="btn btn-close-period" [disabled]="closingPeriod" (click)="closePeriod()">
+          <span *ngIf="closingPeriod" class="spinner-sm"></span>
+          {{ closingPeriod ? 'Closing...' : '🔒 Close Month' }}
+        </button>
+      </div>
+      <div class="close-period-bar closed-bar" *ngIf="periodClosed">
+        <span>🔒 {{ monthName(vatMonth) }} {{ vatYear }} is closed</span>
+        <span class="closed-chip">VAT Payable: {{ formatMoney(periodClosed.vat_payable) }}</span>
+      </div>
+      <!-- P&L REPORT -->
+      <div *ngIf="financialsTab === 'pl'">
+        <div class="section-toolbar">
+          <div class="date-range-group">
+            <input class="form-input sm-input" [(ngModel)]="plFrom" type="date" />
+            <span class="date-sep">to</span>
+            <input class="form-input sm-input" [(ngModel)]="plTo" type="date" />
+          </div>
+          <button class="btn btn-primary" (click)="loadPL()">🔄 Run Report</button>
+        </div>
+
+        <div *ngIf="loadingPL" class="loading-state">
+          <div class="spinner"></div>
+          <p>Generating P&L...</p>
+        </div>
+
+        <div *ngIf="!loadingPL && plReport">
+          <div class="summary-row mb-24">
+            <div class="summary-card income-card">
+              <div class="summary-label">Total Revenue</div>
+              <div class="summary-value income-val">{{ formatMoney(plReport.total_revenue) }}</div>
+            </div>
+            <div class="summary-card expense-card">
+              <div class="summary-label">Total Costs</div>
+              <div class="summary-value expense-val">{{ formatMoney(plReport.total_costs) }}</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Gross Profit</div>
+              <div
+                class="summary-value"
+                [class.income-val]="plReport.gross_profit >= 0"
+                [class.expense-val]="plReport.gross_profit < 0"
+              >
+                {{ formatMoney(plReport.gross_profit) }}
+              </div>
+            </div>
+            <div class="summary-card accent-card">
+              <div class="summary-label">Net Profit</div>
+              <div
+                class="summary-value"
+                [class.income-val]="plReport.net_profit >= 0"
+                [class.expense-val]="plReport.net_profit < 0"
+              >
+                {{ formatMoney(plReport.net_profit) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="pl-meta-row mb-24">
+            <div class="pl-meta-chip">
+              Profit Margin: <strong>{{ plReport.profit_margin.toFixed(1) }}%</strong>
+            </div>
+            <div class="pl-meta-chip">
+              Avg Occupancy: <strong>{{ plReport.avg_occupancy.toFixed(1) }}%</strong>
+            </div>
+          </div>
+
+          <div class="pl-layout">
+            <div class="card-panel">
+              <h3 class="panel-title income-title">📥 Revenue Breakdown</h3>
+              <div *ngFor="let r of plReport.revenue" class="pl-row">
+                <span>{{ r.department || r.category || r.name }}</span>
+                <span class="income-val">{{ formatMoney(r.amount || r.total) }}</span>
+              </div>
+              <div class="pl-row total-row">
+                <span><strong>Total Revenue</strong></span>
+                <span class="income-val"
+                  ><strong>{{ formatMoney(plReport.total_revenue) }}</strong></span
+                >
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <h3 class="panel-title expense-title">📤 Cost Breakdown</h3>
+              <div *ngFor="let c of plReport.costs" class="pl-row">
+                <span>{{ c.category || c.name }}</span>
+                <span class="expense-val">{{ formatMoney(c.amount || c.total) }}</span>
+              </div>
+              <div class="pl-row total-row">
+                <span><strong>Total Costs</strong></span>
+                <span class="expense-val"
+                  ><strong>{{ formatMoney(plReport.total_costs) }}</strong></span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loadingPL && !plReport" class="empty-state">
+          <div class="empty-icon">📊</div>
+          <p>Select a date range and click Run Report</p>
+        </div>
+      </div>
+
+      <!-- VAT RETURN -->
+      <div *ngIf="financialsTab === 'vat'">
+        <div class="section-toolbar">
+          <div class="vat-filter-group">
+            <select class="form-select sm-select" [(ngModel)]="vatMonth">
+              <option *ngFor="let m of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]" [value]="m">
+                {{ monthName(m) }}
+              </option>
+            </select>
+            <input
+              class="form-input sm-input"
+              [(ngModel)]="vatYear"
+              type="number"
+              min="2020"
+              max="2099"
+              style="width: 90px"
+            />
+          </div>
+          <button class="btn btn-primary" (click)="loadVAT()">🔄 Calculate VAT</button>
+        </div>
+
+        <div *ngIf="loadingVAT" class="loading-state">
+          <div class="spinner"></div>
+          <p>Calculating VAT...</p>
+        </div>
+
+        <div *ngIf="!loadingVAT && vatReturn">
+          <div class="summary-row mb-24">
+            <div class="summary-card income-card">
+              <div class="summary-label">Output VAT (collected)</div>
+              <div class="summary-value income-val">{{ formatMoney(vatReturn.output_vat) }}</div>
+              <div class="summary-sub">{{ vatReturn.output_transactions }} transactions</div>
+            </div>
+            <div class="summary-card expense-card">
+              <div class="summary-label">Input VAT (paid)</div>
+              <div class="summary-value expense-val">{{ formatMoney(vatReturn.input_vat) }}</div>
+              <div class="summary-sub">{{ vatReturn.input_transactions }} transactions</div>
+            </div>
+            <div
+              class="summary-card"
+              [class.accent-card]="vatReturn.vat_payable > 0"
+              [class.refund-card]="vatReturn.vat_payable < 0"
+            >
+              <div class="summary-label">
+                {{ vatReturn.vat_payable >= 0 ? 'VAT Payable to SARS' : 'VAT Refund Due' }}
+              </div>
+              <div
+                class="summary-value"
+                [class.expense-val]="vatReturn.vat_payable > 0"
+                [class.income-val]="vatReturn.vat_payable < 0"
+              >
+                {{ formatMoney(Math.abs(vatReturn.vat_payable)) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="vat-info-box">
+            <span>🧮</span>
+            <span
+              >VAT Period:
+              <strong
+                >{{ monthName(vatReturn.period?.month) }} {{ vatReturn.period?.year }}</strong
+              ></span
+            >
+            <span>Rate: <strong>15%</strong></span>
+            <span>Formula: Output VAT − Input VAT = {{ formatMoney(vatReturn.vat_payable) }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!loadingVAT && !vatReturn" class="empty-state">
+          <div class="empty-icon">🧮</div>
+          <p>Select a month and click Calculate VAT</p>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
