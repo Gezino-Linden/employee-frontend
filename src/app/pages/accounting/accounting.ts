@@ -1,10 +1,12 @@
 // File: src/app/pages/accounting/accounting.ts
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService, MeResponse } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface Account {
   id: number;
@@ -141,6 +143,8 @@ export interface VATReturn {
   styleUrls: ['./accounting.css'],
 })
 export class Accounting implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   me: MeResponse | null = null;
   activeTab:
     | 'accounts'
@@ -212,7 +216,6 @@ export class Accounting implements OnInit {
   savingSupplier = false;
   savingBill = false;
 
-  // Bill payment modal
   payBillModal: APBill | null = null;
   billPaymentAmount = 0;
   billPaymentMethod = 'bank_transfer';
@@ -221,7 +224,6 @@ export class Accounting implements OnInit {
   savingBillPayment = false;
   payingBill: string | null = null;
 
-  // Month-end close
   closingPeriod = false;
   periodClosed: any = null;
 
@@ -257,7 +259,9 @@ export class Accounting implements OnInit {
 
   errorMsg = '';
   successMsg = '';
-  private api = 'https://employee-api-xpno.onrender.com/api';
+
+  // ── Single source of truth for API base URL ──
+  private api = environment.apiUrl;
 
   constructor(
     private auth: AuthService,
@@ -267,13 +271,16 @@ export class Accounting implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.auth.getMe().subscribe({
-      next: (res) => {
-        this.me = res;
-        this.cdr.detectChanges();
-      },
-      error: () => this.router.navigateByUrl('/login'),
-    });
+    this.auth
+      .getMe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.me = res;
+          this.cdr.detectChanges();
+        },
+        error: () => this.router.navigateByUrl('/login'),
+      });
     this.loadAccounts();
     this.loadPeriods();
   }
@@ -297,17 +304,20 @@ export class Accounting implements OnInit {
 
   loadAccounts() {
     this.loadingAccounts = true;
-    this.http.get<any>(`${this.api}/accounting/accounts`).subscribe({
-      next: (res) => {
-        this.accounts = res.data || res || [];
-        this.loadingAccounts = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingAccounts = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<any>(`${this.api}/accounting/accounts`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.accounts = res.data || res || [];
+          this.loadingAccounts = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingAccounts = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   get filteredAccounts(): Account[] {
@@ -344,26 +354,33 @@ export class Accounting implements OnInit {
 
   loadPeriods() {
     this.loadingPeriods = true;
-    this.http.get<any>(`${this.api}/accounting/periods`).subscribe({
-      next: (res) => {
-        this.periods = res.data || res || [];
-        this.loadingPeriods = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.http.get<any>(`${this.api}/payroll/periods`).subscribe({
-          next: (res) => {
-            this.periods = res.data || res || [];
-            this.loadingPeriods = false;
-            this.cdr.detectChanges();
-          },
-          error: () => {
-            this.loadingPeriods = false;
-            this.cdr.detectChanges();
-          },
-        });
-      },
-    });
+    this.http
+      .get<any>(`${this.api}/accounting/periods`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.periods = res.data || res || [];
+          this.loadingPeriods = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          // Fallback to payroll/periods
+          this.http
+            .get<any>(`${this.api}/payroll/periods`)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (res) => {
+                this.periods = res.data || res || [];
+                this.loadingPeriods = false;
+                this.cdr.detectChanges();
+              },
+              error: () => {
+                this.loadingPeriods = false;
+                this.cdr.detectChanges();
+              },
+            });
+        },
+      });
   }
 
   generateJournal() {
@@ -379,19 +396,22 @@ export class Accounting implements OnInit {
       type: this.journalForm.type,
     };
     if (this.journalForm.property_id) body.property_id = parseInt(this.journalForm.property_id);
-    this.http.post<any>(`${this.api}/accounting/journal/generate`, body).subscribe({
-      next: (res) => {
-        this.journal = res.data || res;
-        this.generatingJournal = false;
-        this.showSuccess('Journal generated!');
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.errorMsg = err.error?.error || 'Failed to generate journal';
-        this.generatingJournal = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .post<any>(`${this.api}/accounting/journal/generate`, body)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.journal = res.data || res;
+          this.generatingJournal = false;
+          this.showSuccess('Journal generated!');
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.errorMsg = err.error?.error || 'Failed to generate journal';
+          this.generatingJournal = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   exportCSV() {
@@ -423,43 +443,52 @@ export class Accounting implements OnInit {
 
   loadMappings() {
     this.loadingMappings = true;
-    this.http.get<any>(`${this.api}/accounting/mappings`).subscribe({
-      next: (res) => {
-        this.mappings = res.data || res || [];
-        this.loadingMappings = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingMappings = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<any>(`${this.api}/accounting/mappings`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.mappings = res.data || res || [];
+          this.loadingMappings = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingMappings = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   loadInvoiceCategories() {
-    this.http.get<any>(`${this.api}/invoices/categories`).subscribe({
-      next: (res) => {
-        this.invoiceCategories = res.data || res || [];
-        this.cdr.detectChanges();
-      },
-      error: () => {},
-    });
+    this.http
+      .get<any>(`${this.api}/invoices/categories`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.invoiceCategories = res.data || res || [];
+          this.cdr.detectChanges();
+        },
+        error: () => {},
+      });
   }
 
   loadInvoices() {
     this.loadingInvoices = true;
     const params = this.invoiceStatusFilter ? `?status=${this.invoiceStatusFilter}` : '';
-    this.http.get<any>(`${this.api}/invoices${params}`).subscribe({
-      next: (res) => {
-        this.invoices = res.data || res || [];
-        this.loadingInvoices = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingInvoices = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<any>(`${this.api}/invoices${params}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.invoices = res.data || res || [];
+          this.loadingInvoices = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingInvoices = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   addInvoiceLine() {
@@ -483,6 +512,7 @@ export class Accounting implements OnInit {
         ...this.newInvoice,
         issue_date: new Date().toISOString().split('T')[0],
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.savingInvoice = false;
@@ -519,6 +549,7 @@ export class Accounting implements OnInit {
         payment_method: this.paymentMethod,
         payment_date: new Date().toISOString().split('T')[0],
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.recordingPayment = null;
@@ -546,32 +577,38 @@ export class Accounting implements OnInit {
 
   loadSuppliers() {
     this.loadingSuppliers = true;
-    this.http.get<any>(`${this.api}/ap/suppliers`).subscribe({
-      next: (res) => {
-        this.suppliers = res.data || res || [];
-        this.loadingSuppliers = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingSuppliers = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<any>(`${this.api}/ap/suppliers`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.suppliers = res.data || res || [];
+          this.loadingSuppliers = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingSuppliers = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   loadBills() {
     this.loadingBills = true;
-    this.http.get<any>(`${this.api}/ap/bills`).subscribe({
-      next: (res) => {
-        this.apBills = res.data || res || [];
-        this.loadingBills = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingBills = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<any>(`${this.api}/ap/bills`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.apBills = res.data || res || [];
+          this.loadingBills = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingBills = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   saveSupplier() {
@@ -580,27 +617,30 @@ export class Accounting implements OnInit {
       return;
     }
     this.savingSupplier = true;
-    this.http.post<any>(`${this.api}/ap/suppliers`, this.newSupplier).subscribe({
-      next: () => {
-        this.savingSupplier = false;
-        this.showSupplierForm = false;
-        this.newSupplier = {
-          name: '',
-          contact_name: '',
-          email: '',
-          phone: '',
-          vat_number: '',
-          payment_terms: 30,
-        };
-        this.showSuccess('Supplier added!');
-        this.loadSuppliers();
-      },
-      error: (err) => {
-        this.errorMsg = err.error?.error || 'Failed to add supplier';
-        this.savingSupplier = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .post<any>(`${this.api}/ap/suppliers`, this.newSupplier)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savingSupplier = false;
+          this.showSupplierForm = false;
+          this.newSupplier = {
+            name: '',
+            contact_name: '',
+            email: '',
+            phone: '',
+            vat_number: '',
+            payment_terms: 30,
+          };
+          this.showSuccess('Supplier added!');
+          this.loadSuppliers();
+        },
+        error: (err) => {
+          this.errorMsg = err.error?.error || 'Failed to add supplier';
+          this.savingSupplier = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   saveBill() {
@@ -609,32 +649,34 @@ export class Accounting implements OnInit {
       return;
     }
     this.savingBill = true;
-    this.http.post<any>(`${this.api}/ap/bills`, this.newBill).subscribe({
-      next: () => {
-        this.savingBill = false;
-        this.showBillForm = false;
-        this.newBill = {
-          supplier_id: '',
-          bill_number: '',
-          issue_date: '',
-          due_date: '',
-          subtotal: 0,
-          vat_amount: 0,
-          category: 'food_beverage',
-          description: '',
-        };
-        this.showSuccess('Bill added!');
-        this.loadBills();
-      },
-      error: (err) => {
-        this.errorMsg = err.error?.error || 'Failed to add bill';
-        this.savingBill = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .post<any>(`${this.api}/ap/bills`, this.newBill)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savingBill = false;
+          this.showBillForm = false;
+          this.newBill = {
+            supplier_id: '',
+            bill_number: '',
+            issue_date: '',
+            due_date: '',
+            subtotal: 0,
+            vat_amount: 0,
+            category: 'food_beverage',
+            description: '',
+          };
+          this.showSuccess('Bill added!');
+          this.loadBills();
+        },
+        error: (err) => {
+          this.errorMsg = err.error?.error || 'Failed to add bill';
+          this.savingBill = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // ── Bill Payment ─────────────────────────────────────────────
   startPayBill(bill: APBill) {
     this.payBillModal = bill;
     this.billPaymentAmount = Number(bill.balance_due) || 0;
@@ -647,7 +689,6 @@ export class Accounting implements OnInit {
     if (!this.payBillModal || !this.billPaymentAmount) return;
     this.savingBillPayment = true;
     this.payingBill = this.payBillModal.id;
-
     this.http
       .patch<any>(`${this.api}/ap/bills/${this.payBillModal.id}/pay`, {
         amount: this.billPaymentAmount,
@@ -655,6 +696,7 @@ export class Accounting implements OnInit {
         payment_date: this.billPaymentDate,
         payment_reference: this.billPaymentRef,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.savingBillPayment = false;
@@ -688,6 +730,7 @@ export class Accounting implements OnInit {
     this.loadingRevenue = true;
     this.http
       .get<any>(`${this.api}/revenue?from=${this.revenueFromDate}&to=${this.revenueToDate}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.dailyRevenue = res.data || res || [];
@@ -703,19 +746,22 @@ export class Accounting implements OnInit {
 
   saveRevenue() {
     this.savingRevenue = true;
-    this.http.post<any>(`${this.api}/revenue`, this.revenueForm).subscribe({
-      next: () => {
-        this.savingRevenue = false;
-        this.showRevenueForm = false;
-        this.showSuccess('Revenue saved!');
-        this.loadDailyRevenue();
-      },
-      error: (err) => {
-        this.errorMsg = err.error?.error || 'Failed to save revenue';
-        this.savingRevenue = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .post<any>(`${this.api}/revenue`, this.revenueForm)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savingRevenue = false;
+          this.showRevenueForm = false;
+          this.showSuccess('Revenue saved!');
+          this.loadDailyRevenue();
+        },
+        error: (err) => {
+          this.errorMsg = err.error?.error || 'Failed to save revenue';
+          this.savingRevenue = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   get revenueTotals() {
@@ -729,23 +775,27 @@ export class Accounting implements OnInit {
 
   loadPL() {
     this.loadingPL = true;
-    this.http.get<any>(`${this.api}/accounting/pl?from=${this.plFrom}&to=${this.plTo}`).subscribe({
-      next: (res) => {
-        this.plReport = res.data || res;
-        this.loadingPL = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingPL = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<any>(`${this.api}/accounting/pl?from=${this.plFrom}&to=${this.plTo}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.plReport = res.data || res;
+          this.loadingPL = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingPL = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   loadVAT() {
     this.loadingVAT = true;
     this.http
-      .get<any>(`${this.api}/accounting/vat/return?month=${this.vatMonth}&year=${this.vatYear}`)
+      .get<any>(`${this.api}/accounting/vat-return?month=${this.vatMonth}&year=${this.vatYear}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.vatReturn = res.data || res;
@@ -768,7 +818,6 @@ export class Accounting implements OnInit {
     }
   }
 
-  // ── Month-End Close ──────────────────────────────────────────
   closePeriod() {
     if (
       !confirm(
@@ -782,10 +831,11 @@ export class Accounting implements OnInit {
 
     this.closingPeriod = true;
     this.http
-      .post<any>(`${this.api}/accounting/period/close`, {
+      .post<any>(`${this.api}/accounting/close-period`, {
         month: this.vatMonth,
         year: this.vatYear,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.closingPeriod = false;
@@ -794,7 +844,6 @@ export class Accounting implements OnInit {
             `${this.monthName(this.vatMonth)} ${this.vatYear} closed! ` +
               `VAT payable: ${this.formatMoney(res.summary.vat_payable)}`
           );
-          // Refresh VAT return to show locked figures
           this.loadVAT();
           this.cdr.detectChanges();
         },
@@ -806,11 +855,11 @@ export class Accounting implements OnInit {
       });
   }
 
-  // Reset periodClosed when month/year changes so Close button re-appears
   checkPeriodStatus() {
     this.periodClosed = null;
     this.http
-      .get<any>(`${this.api}/accounting/period/close?month=${this.vatMonth}&year=${this.vatYear}`)
+      .get<any>(`${this.api}/accounting/period-status?month=${this.vatMonth}&year=${this.vatYear}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           if (res?.status === 'closed') this.periodClosed = res;

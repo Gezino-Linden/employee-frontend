@@ -1,6 +1,7 @@
 // File: src/app/services/employees.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export type Employee = {
   id: number;
@@ -34,7 +35,7 @@ export type CreateEmployeeDto = {
 
 @Injectable({ providedIn: 'root' })
 export class EmployeesService {
-  private baseUrl = 'https://employee-api-xpno.onrender.com/api';
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
