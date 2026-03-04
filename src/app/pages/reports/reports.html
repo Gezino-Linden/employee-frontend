@@ -1,248 +1,205 @@
 <!-- File: src/app/pages/reports/reports.html -->
-<div class="reports-app">
-  <div class="bg-mesh"></div>
+<div class="reports-page">
 
-  <!-- TOP NAV -->
-  <nav class="topnav">
-    <div class="topnav-brand">
-      <div class="brand-icon">📑</div>
-      <span class="brand-name">PeopleOS</span>
-      <span class="brand-sub">/ Reports</span>
+  <!-- Header -->
+  <nav class="reports-nav">
+    <div class="nav-left">
+      <span class="nav-icon">📄</span>
+      <span class="nav-title">/ Reports</span>
     </div>
-    <div class="topnav-right">
-      <button class="btn-ghost-sm" (click)="goToDashboard()">← Dashboard</button>
-      <div *ngIf="me" class="user-chip">
-        <div class="user-avatar-sm">{{ me.name[0] }}</div>
-        <span>{{ me.name }}</span>
-      </div>
-      <button class="btn-ghost-sm" (click)="logout()">Sign out</button>
+    <div class="nav-right">
+      <button class="btn-back" (click)="goToDashboard()">← Dashboard</button>
+      <span class="nav-user">{{ me?.name }}</span>
+      <button class="btn-signout" (click)="logout()">Sign out</button>
     </div>
   </nav>
 
-  <main class="main-content">
+  <div class="reports-layout">
 
-    <!-- PAGE HEADER -->
-    <div class="page-header">
-      <div>
-        <h1>Full HR <span class="title-accent">Report</span></h1>
-        <p class="page-subtitle">Export complete HR data — employees, payroll, leave, attendance &amp; SARS compliance</p>
-      </div>
-    </div>
+    <!-- Left sidebar — report type selector -->
+    <aside class="reports-sidebar">
+      <h2 class="sidebar-title">Report Types</h2>
 
-    <!-- FILTERS + EXPORT ACTIONS -->
-    <div class="controls-card">
-      <div class="controls-left">
-        <div class="control-group">
-          <label>Year</label>
-          <select class="form-select" [(ngModel)]="filterYear" (change)="loadPreview()">
-            <option [value]="filterYear - 1">{{ filterYear - 1 }}</option>
-            <option [value]="filterYear">{{ filterYear }}</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>Period</label>
-          <select class="form-select" [(ngModel)]="filterMonth" (change)="loadPreview()">
-            <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
-          </select>
-        </div>
-        <div class="period-badge">
-          📅 {{ getPeriodLabel() }}
-        </div>
-      </div>
-      <div class="controls-right">
-        <button class="btn btn-excel" [disabled]="excelLoading" (click)="exportExcel()">
-          <span *ngIf="excelLoading" class="spinner-sm"></span>
-          <span *ngIf="!excelLoading">📊</span>
-          {{ excelLoading ? 'Generating...' : 'Export Excel' }}
-        </button>
-        <button class="btn btn-pdf" [disabled]="pdfLoading" (click)="exportPDF()">
-          <span *ngIf="pdfLoading" class="spinner-sm"></span>
-          <span *ngIf="!pdfLoading">📄</span>
-          {{ pdfLoading ? 'Generating...' : 'Export PDF' }}
+      <div *ngFor="let category of reportCategories" class="report-category">
+        <div class="category-label">{{ category }}</div>
+        <button
+          *ngFor="let report of getReportsByCategory(category)"
+          class="report-btn"
+          [class.active]="selectedReportId === report.id"
+          (click)="selectReport(report.id)">
+          <span class="report-btn-icon">{{ report.icon }}</span>
+          <span class="report-btn-label">{{ report.label }}</span>
         </button>
       </div>
-    </div>
+    </aside>
 
-    <div *ngIf="errorMsg" class="alert alert-error">❌ {{ errorMsg }}</div>
+    <!-- Main content -->
+    <main class="reports-main">
 
-    <!-- PREVIEW LOADING -->
-    <div *ngIf="loadingPreview" class="loading-state">
-      <div class="spinner"></div><p>Loading report preview...</p>
-    </div>
-
-    <!-- REPORT PREVIEW -->
-    <div *ngIf="!loadingPreview && preview">
-
-      <div class="preview-label">📋 Report Preview — what will be included</div>
-
-      <!-- EMPLOYEES -->
-      <div class="report-section">
-        <div class="section-header">
-          <span class="section-icon">👥</span>
+      <!-- Report title & description -->
+      <div class="report-header">
+        <div class="report-title-row">
+          <span class="report-icon-lg">{{ selectedReport.icon }}</span>
           <div>
-            <h3>Employees</h3>
-            <p>Full employee register with salaries, departments &amp; tax numbers</p>
-          </div>
-          <div class="section-count">{{ preview.employee_count }} records</div>
-        </div>
-        <div class="section-stats">
-          <div class="stat-pill">
-            <span class="stat-value">{{ preview.employee_count }}</span>
-            <span class="stat-label">Total</span>
-          </div>
-          <div class="stat-pill stat-green">
-            <span class="stat-value">{{ preview.active_employees }}</span>
-            <span class="stat-label">Active</span>
-          </div>
-          <div class="stat-pill">
-            <span class="stat-value">{{ preview.employee_count - preview.active_employees }}</span>
-            <span class="stat-label">Inactive</span>
+            <h1 class="report-title">{{ selectedReport.label }}</h1>
+            <p class="report-desc">{{ selectedReport.description }}</p>
           </div>
         </div>
       </div>
 
-      <!-- PAYROLL -->
-      <div class="report-section">
-        <div class="section-header">
-          <span class="section-icon">💰</span>
-          <div>
-            <h3>Payroll</h3>
-            <p>All payroll records with gross, PAYE, UIF, net pay per employee</p>
+      <!-- Filters -->
+      <div class="filters-card">
+        <div class="filters-row">
+
+          <!-- Year (always shown) -->
+          <div class="filter-group">
+            <label>YEAR</label>
+            <select [(ngModel)]="filterYear" (change)="loadPreview()">
+              <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+            </select>
           </div>
-          <div class="section-count">{{ preview.payroll_records }} records</div>
-        </div>
-        <div class="section-stats">
-          <div class="stat-pill">
-            <span class="stat-value">{{ formatMoney(preview.total_gross) }}</span>
-            <span class="stat-label">Gross</span>
+
+          <!-- Month (only for month-based reports) -->
+          <div class="filter-group" *ngIf="selectedReport.requiresMonth">
+            <label>MONTH</label>
+            <select [(ngModel)]="filterMonth" (change)="loadPreview()">
+              <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+            </select>
           </div>
-          <div class="stat-pill">
-            <span class="stat-value">{{ formatMoney(preview.total_paye) }}</span>
-            <span class="stat-label">PAYE</span>
-          </div>
-          <div class="stat-pill">
-            <span class="stat-value">{{ formatMoney(preview.total_uif) }}</span>
-            <span class="stat-label">UIF</span>
-          </div>
-          <div class="stat-pill">
-            <span class="stat-value">{{ formatMoney(preview.total_net) }}</span>
-            <span class="stat-label">Net Pay</span>
+
+          <!-- Date range (only for range-based reports) -->
+          <ng-container *ngIf="selectedReport.requiresDateRange">
+            <div class="filter-group">
+              <label>FROM</label>
+              <input type="date" [(ngModel)]="filterStartDate" (change)="loadPreview()" />
+            </div>
+            <div class="filter-group">
+              <label>TO</label>
+              <input type="date" [(ngModel)]="filterEndDate" (change)="loadPreview()" />
+            </div>
+          </ng-container>
+
+          <div class="filter-period-badge">
+            {{ getPeriodLabel() }}
           </div>
         </div>
       </div>
 
-      <!-- LEAVE -->
-      <div class="report-section">
-        <div class="section-header">
-          <span class="section-icon">🏖️</span>
-          <div>
-            <h3>Leave</h3>
-            <p>All leave requests with dates, type, days and approval status</p>
-          </div>
-          <div class="section-count">{{ preview.leave_requests }} requests</div>
-        </div>
-        <div class="section-stats">
-          <div class="stat-pill">
-            <span class="stat-value">{{ preview.leave_requests }}</span>
-            <span class="stat-label">Total</span>
-          </div>
-          <div class="stat-pill stat-green">
-            <span class="stat-value">{{ preview.approved_leave }}</span>
-            <span class="stat-label">Approved</span>
-          </div>
-          <div class="stat-pill stat-yellow">
-            <span class="stat-value">{{ preview.leave_requests - preview.approved_leave }}</span>
-            <span class="stat-label">Other</span>
-          </div>
+      <!-- Messages -->
+      <div class="alert alert-error" *ngIf="errorMsg">⚠️ {{ errorMsg }}</div>
+      <div class="alert alert-success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+
+      <!-- Export buttons -->
+      <div class="export-card">
+        <h3 class="export-title">Export</h3>
+        <div class="export-buttons">
+          <button class="btn-excel" (click)="exportExcel()" [disabled]="isLoading('excel')">
+            <span *ngIf="!isLoading('excel')">📊 Export Excel</span>
+            <span *ngIf="isLoading('excel')">⏳ Generating...</span>
+          </button>
+          <button class="btn-pdf" (click)="exportPDF()" [disabled]="isLoading('pdf')">
+            <span *ngIf="!isLoading('pdf')">📄 Export PDF</span>
+            <span *ngIf="isLoading('pdf')">⏳ Generating...</span>
+          </button>
         </div>
       </div>
 
-      <!-- ATTENDANCE -->
-      <div class="report-section">
-        <div class="section-header">
-          <span class="section-icon">🕐</span>
-          <div>
-            <h3>Attendance</h3>
-            <p>Clock in/out records, hours worked and overtime</p>
+      <!-- Preview -->
+      <div class="preview-card" *ngIf="selectedReportId === 'full_hr'">
+        <h3 class="preview-title">📋 Report Preview — What Will Be Included</h3>
+
+        <div *ngIf="loadingPreview" class="preview-loading">Loading preview...</div>
+
+        <div *ngIf="!loadingPreview && preview" class="preview-sections">
+
+          <!-- Employees -->
+          <div class="preview-section">
+            <div class="preview-section-header">
+              <span class="preview-icon">👥</span>
+              <div>
+                <div class="preview-section-title">Employees</div>
+                <div class="preview-section-sub">Full employee register with salaries, departments & tax numbers</div>
+              </div>
+              <span class="preview-badge">{{ preview.employee_count }} records</span>
+            </div>
+            <div class="preview-stats">
+              <div class="preview-stat"><span>{{ preview.active_employees }}</span>ACTIVE</div>
+              <div class="preview-stat"><span>{{ preview.inactive_employees }}</span>INACTIVE</div>
+            </div>
           </div>
-          <div class="section-count">{{ preview.attendance_records }} records</div>
-        </div>
-        <div class="section-stats">
-          <div class="stat-pill">
-            <span class="stat-value">{{ preview.attendance_records }}</span>
-            <span class="stat-label">Records</span>
+
+          <!-- Payroll -->
+          <div class="preview-section">
+            <div class="preview-section-header">
+              <span class="preview-icon">💰</span>
+              <div>
+                <div class="preview-section-title">Payroll</div>
+                <div class="preview-section-sub">All payroll records with gross, PAYE, UIF, net pay per employee</div>
+              </div>
+              <span class="preview-badge">{{ preview.payroll_records }} records</span>
+            </div>
+            <div class="preview-stats">
+              <div class="preview-stat"><span>{{ formatMoney(preview.total_gross) }}</span>TOTAL GROSS</div>
+              <div class="preview-stat"><span>{{ formatMoney(preview.total_net) }}</span>TOTAL NET</div>
+              <div class="preview-stat"><span>{{ formatMoney(preview.total_paye) }}</span>TOTAL PAYE</div>
+            </div>
           </div>
+
+          <!-- Leave -->
+          <div class="preview-section">
+            <div class="preview-section-header">
+              <span class="preview-icon">🏖️</span>
+              <div>
+                <div class="preview-section-title">Leave</div>
+                <div class="preview-section-sub">Leave requests and current balances per employee</div>
+              </div>
+              <span class="preview-badge">{{ preview.leave_requests }} records</span>
+            </div>
+            <div class="preview-stats">
+              <div class="preview-stat"><span>{{ preview.approved_leave }}</span>APPROVED</div>
+            </div>
+          </div>
+
+          <!-- Attendance -->
+          <div class="preview-section">
+            <div class="preview-section-header">
+              <span class="preview-icon">🕐</span>
+              <div>
+                <div class="preview-section-title">Attendance</div>
+                <div class="preview-section-sub">Clock-in/out records, hours worked and overtime</div>
+              </div>
+              <span class="preview-badge">{{ preview.attendance_records }} records</span>
+            </div>
+          </div>
+
+          <!-- SARS -->
+          <div class="preview-section">
+            <div class="preview-section-header">
+              <span class="preview-icon">🏛️</span>
+              <div>
+                <div class="preview-section-title">SARS Compliance</div>
+                <div class="preview-section-sub">EMP201, UI-19 and IRP5 tax submission data</div>
+              </div>
+            </div>
+            <div class="preview-stats">
+              <div class="preview-stat"><span>{{ preview.emp201_count }}</span>EMP201s</div>
+              <div class="preview-stat"><span>{{ preview.ui19_count }}</span>UI-19s</div>
+              <div class="preview-stat"><span>{{ preview.irp5_count }}</span>IRP5s</div>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- SARS COMPLIANCE -->
-      <div class="report-section">
-        <div class="section-header">
-          <span class="section-icon">🏛️</span>
-          <div>
-            <h3>SARS Compliance</h3>
-            <p>EMP201 declarations, UI-19 submissions &amp; IRP5 certificates</p>
-          </div>
-          <div class="section-count">{{ preview.emp201_count + preview.ui19_count + preview.irp5_count }} total</div>
-        </div>
-        <div class="section-stats">
-          <div class="stat-pill">
-            <span class="stat-value">{{ preview.emp201_count }}</span>
-            <span class="stat-label">EMP201</span>
-          </div>
-          <div class="stat-pill">
-            <span class="stat-value">{{ preview.ui19_count }}</span>
-            <span class="stat-label">UI-19</span>
-          </div>
-          <div class="stat-pill">
-            <span class="stat-value">{{ preview.irp5_count }}</span>
-            <span class="stat-label">IRP5</span>
-          </div>
-        </div>
+      <!-- Info for other report types -->
+      <div class="preview-card info-card" *ngIf="selectedReportId !== 'full_hr'">
+        <div class="info-icon">{{ selectedReport.icon }}</div>
+        <h3>{{ selectedReport.label }}</h3>
+        <p>{{ selectedReport.description }}</p>
+        <p class="info-period">Period: <strong>{{ getPeriodLabel() }}</strong></p>
+        <p class="info-hint">Click Export Excel or Export PDF above to download this report.</p>
       </div>
 
-      <!-- WHAT'S INCLUDED -->
-      <div class="includes-card">
-        <h3>📦 What's included in your export</h3>
-        <div class="includes-grid">
-          <div class="include-col">
-            <div class="include-title">📊 Excel (.xlsx) — 7 Sheets</div>
-            <div class="include-item">✅ Summary KPIs sheet</div>
-            <div class="include-item">✅ Employee register</div>
-            <div class="include-item">✅ Payroll records with formulas</div>
-            <div class="include-item">✅ Leave report</div>
-            <div class="include-item">✅ Attendance log</div>
-            <div class="include-item">✅ SARS compliance (EMP201 + UI-19)</div>
-            <div class="include-item">✅ IRP5 certificates</div>
-          </div>
-          <div class="include-col">
-            <div class="include-title">📄 PDF — Print-Ready Report</div>
-            <div class="include-item">✅ Professional header &amp; branding</div>
-            <div class="include-item">✅ 8 KPI summary cards</div>
-            <div class="include-item">✅ All sections in one document</div>
-            <div class="include-item">✅ Formatted tables with totals</div>
-            <div class="include-item">✅ Status badges (approved/pending)</div>
-            <div class="include-item">✅ Print-optimised layout</div>
-            <div class="include-item">✅ Opens browser print dialog</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- EXPORT ACTIONS BOTTOM -->
-      <div class="export-actions">
-        <button class="btn btn-excel btn-lg" [disabled]="excelLoading" (click)="exportExcel()">
-          <span *ngIf="excelLoading" class="spinner-sm"></span>
-          <span *ngIf="!excelLoading">📊</span>
-          {{ excelLoading ? 'Generating Excel...' : 'Download Excel Report' }}
-        </button>
-        <button class="btn btn-pdf btn-lg" [disabled]="pdfLoading" (click)="exportPDF()">
-          <span *ngIf="pdfLoading" class="spinner-sm"></span>
-          <span *ngIf="!pdfLoading">📄</span>
-          {{ pdfLoading ? 'Generating PDF...' : 'Open PDF Report' }}
-        </button>
-      </div>
-
-    </div>
-
-  </main>
+    </main>
+  </div>
 </div>
