@@ -1,5 +1,13 @@
 // File: src/app/pages/employees/employees.ts
-import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -40,6 +48,8 @@ type EmployeeTab = 'list' | 'detail' | 'add' | 'edit' | 'salary';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Employees implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   me: MeResponse | null = null;
   activeTab: EmployeeTab = 'list';
 
@@ -59,7 +69,7 @@ export class Employees implements OnInit {
   departments: string[] = [];
   positions: string[] = [];
 
-  // Selected employee (for detail/edit/salary)
+  // Selected employee
   selectedEmployee: Employee | null = null;
 
   // Salary history
@@ -92,13 +102,16 @@ export class Employees implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.auth.getMe().subscribe({
-      next: (user: MeResponse) => {
-        this.me = user;
-        this.cdr.detectChanges();
-      },
-      error: () => {},
-    });
+    this.auth
+      .getMe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (user: MeResponse) => {
+          this.me = user;
+          this.cdr.detectChanges();
+        },
+        error: () => {},
+      });
     this.loadEmployees();
   }
 
@@ -114,9 +127,6 @@ export class Employees implements OnInit {
     };
   }
 
-  // =====================
-  // LOAD EMPLOYEES
-  // =====================
   loadEmployees() {
     this.listLoading = true;
     let url = `${this.apiUrl}?page=${this.currentPage}&limit=${this.pageLimit}&active=${this.filterActive}`;
@@ -124,20 +134,23 @@ export class Employees implements OnInit {
     if (this.filterDepartment) url += `&department=${encodeURIComponent(this.filterDepartment)}`;
     if (this.filterPosition) url += `&position=${encodeURIComponent(this.filterPosition)}`;
 
-    this.http.get<any>(url).subscribe({
-      next: (res) => {
-        this.employees = res.data || res || [];
-        this.totalEmployees = res.total || this.employees.length;
-        this.totalPages = res.totalPages || 1;
-        this.extractFilters();
-        this.listLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.listLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<any>(url)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.employees = res.data || res || [];
+          this.totalEmployees = res.total || this.employees.length;
+          this.totalPages = res.totalPages || 1;
+          this.extractFilters();
+          this.listLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.listLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   extractFilters() {
@@ -156,7 +169,6 @@ export class Employees implements OnInit {
     this.currentPage = 1;
     this.loadEmployees();
   }
-
   onFilterChange() {
     this.currentPage = 1;
     this.loadEmployees();
@@ -168,18 +180,12 @@ export class Employees implements OnInit {
     this.loadEmployees();
   }
 
-  // =====================
-  // VIEW DETAIL
-  // =====================
   viewEmployee(emp: Employee) {
     this.selectedEmployee = emp;
     this.activeTab = 'detail';
     this.cdr.detectChanges();
   }
 
-  // =====================
-  // ADD EMPLOYEE
-  // =====================
   openAdd() {
     this.form = this.emptyForm();
     this.formError = '';
@@ -192,30 +198,29 @@ export class Employees implements OnInit {
     this.formLoading = true;
     this.formError = '';
     this.formSuccess = '';
-
-    this.http.post<Employee>(this.apiUrl, this.form).subscribe({
-      next: (emp) => {
-        this.formLoading = false;
-        this.formSuccess = `✅ ${emp.first_name} ${emp.last_name} added successfully!`;
-        this.loadEmployees();
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.formSuccess = '';
-          this.activeTab = 'list';
+    this.http
+      .post<Employee>(this.apiUrl, this.form)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (emp) => {
+          this.formLoading = false;
+          this.formSuccess = `✅ ${emp.first_name} ${emp.last_name} added successfully!`;
+          this.loadEmployees();
           this.cdr.detectChanges();
-        }, 2000);
-      },
-      error: (err) => {
-        this.formLoading = false;
-        this.formError = err.error?.error || 'Failed to create employee';
-        this.cdr.detectChanges();
-      },
-    });
+          setTimeout(() => {
+            this.formSuccess = '';
+            this.activeTab = 'list';
+            this.cdr.detectChanges();
+          }, 2000);
+        },
+        error: (err) => {
+          this.formLoading = false;
+          this.formError = err.error?.error || 'Failed to create employee';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // =====================
-  // EDIT EMPLOYEE
-  // =====================
   openEdit(emp: Employee) {
     this.selectedEmployee = emp;
     this.form = {
@@ -237,36 +242,34 @@ export class Employees implements OnInit {
     if (!this.selectedEmployee) return;
     this.formLoading = true;
     this.formError = '';
-
-    this.http.put<Employee>(`${this.apiUrl}/${this.selectedEmployee.id}`, this.form).subscribe({
-      next: (emp) => {
-        this.formLoading = false;
-        this.formSuccess = '✅ Employee updated successfully!';
-        this.selectedEmployee = emp;
-        this.loadEmployees();
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.formSuccess = '';
-          this.activeTab = 'detail';
+    this.http
+      .put<Employee>(`${this.apiUrl}/${this.selectedEmployee.id}`, this.form)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (emp) => {
+          this.formLoading = false;
+          this.formSuccess = '✅ Employee updated successfully!';
+          this.selectedEmployee = emp;
+          this.loadEmployees();
           this.cdr.detectChanges();
-        }, 2000);
-      },
-      error: (err) => {
-        this.formLoading = false;
-        this.formError = err.error?.error || 'Failed to update employee';
-        this.cdr.detectChanges();
-      },
-    });
+          setTimeout(() => {
+            this.formSuccess = '';
+            this.activeTab = 'detail';
+            this.cdr.detectChanges();
+          }, 2000);
+        },
+        error: (err) => {
+          this.formLoading = false;
+          this.formError = err.error?.error || 'Failed to update employee';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // =====================
-  // DELETE EMPLOYEE
-  // =====================
   confirmDelete() {
     this.deleteConfirm = true;
     this.cdr.detectChanges();
   }
-
   cancelDelete() {
     this.deleteConfirm = false;
     this.cdr.detectChanges();
@@ -275,28 +278,27 @@ export class Employees implements OnInit {
   submitDelete() {
     if (!this.selectedEmployee) return;
     this.deleteLoading = true;
-
-    this.http.delete(`${this.apiUrl}/${this.selectedEmployee.id}`).subscribe({
-      next: () => {
-        this.deleteLoading = false;
-        this.deleteConfirm = false;
-        this.selectedEmployee = null;
-        this.activeTab = 'list';
-        this.loadEmployees();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.deleteLoading = false;
-        this.deleteConfirm = false;
-        this.formError = err.error?.error || 'Failed to deactivate employee';
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .delete(`${this.apiUrl}/${this.selectedEmployee.id}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.deleteLoading = false;
+          this.deleteConfirm = false;
+          this.selectedEmployee = null;
+          this.activeTab = 'list';
+          this.loadEmployees();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.deleteLoading = false;
+          this.deleteConfirm = false;
+          this.formError = err.error?.error || 'Failed to deactivate employee';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // =====================
-  // SALARY HISTORY
-  // =====================
   openSalaryHistory(emp: Employee) {
     this.selectedEmployee = emp;
     this.newSalary = emp.salary;
@@ -304,37 +306,38 @@ export class Employees implements OnInit {
     this.salaryHistoryLoading = true;
     this.activeTab = 'salary';
     this.cdr.detectChanges();
-
-    this.http.get<any>(`${this.apiUrl}/${emp.id}/salary-history`).subscribe({
-      next: (res) => {
-        this.salaryHistory = res.data || res || [];
-        this.salaryHistoryLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.salaryHistory = [];
-        this.salaryHistoryLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<any>(`${this.apiUrl}/${emp.id}/salary-history`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.salaryHistory = res.data || res || [];
+          this.salaryHistoryLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.salaryHistory = [];
+          this.salaryHistoryLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   submitSalaryUpdate() {
     if (!this.selectedEmployee) return;
     this.salaryLoading = true;
     this.salaryMessage = '';
-
     this.http
       .patch<Employee>(`${this.apiUrl}/${this.selectedEmployee.id}/salary`, {
         salary: this.newSalary,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (emp) => {
           this.salaryLoading = false;
           this.salaryMessage = '✅ Salary updated successfully!';
           this.selectedEmployee = emp;
           this.loadEmployees();
-          // Reload history
           this.openSalaryHistory(emp);
           this.cdr.detectChanges();
         },
@@ -346,9 +349,6 @@ export class Employees implements OnInit {
       });
   }
 
-  // =====================
-  // HELPERS
-  // =====================
   isAdmin(): boolean {
     return this.me?.role === 'admin' || this.me?.role === 'manager';
   }

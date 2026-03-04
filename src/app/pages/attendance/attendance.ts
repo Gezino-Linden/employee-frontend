@@ -5,7 +5,10 @@ import {
   OnDestroy,
   ChangeDetectorRef,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -30,26 +33,22 @@ type AttendanceTab = 'clock' | 'today' | 'monthly' | 'override';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Attendance implements OnInit, OnDestroy {
+  private destroyRef = inject(DestroyRef);
+
   me: MeResponse | null = null;
   activeTab: AttendanceTab = 'clock';
 
-  // Live clock
+  // Live clock — uses setInterval, cleaned up in ngOnDestroy (not takeUntilDestroyed)
   currentTime = new Date();
   clockInterval: any;
 
-  // Today's status
   todayRecord: AttendanceRecord | null = null;
   todayLoading = false;
-
-  // Summary
   summary: AttendanceSummary | null = null;
-
-  // Records
   records: AttendanceRecord[] = [];
   recordsLoading = false;
   selectedDate = new Date().toISOString().split('T')[0];
 
-  // Monthly report
   monthlyReport: MonthlyReport[] = [];
   reportMonth = new Date().getMonth() + 1;
   reportYear = new Date().getFullYear();
@@ -70,12 +69,10 @@ export class Attendance implements OnInit, OnDestroy {
     { value: 12, label: 'December' },
   ];
 
-  // Action states
   actionLoading = false;
   actionMessage = '';
   actionError = '';
 
-  // Override form
   overrideForm = {
     employee_id: 0,
     date: new Date().toISOString().split('T')[0],
@@ -86,8 +83,6 @@ export class Attendance implements OnInit, OnDestroy {
   };
   overrideLoading = false;
   overrideMessage = '';
-
-  // Employees list for override dropdown
   employees: any[] = [];
 
   constructor(
@@ -116,85 +111,102 @@ export class Attendance implements OnInit, OnDestroy {
   }
 
   loadProfile() {
-    this.auth.getMe().subscribe({
-      next: (user: MeResponse) => {
-        this.me = user;
-        this.cdr.detectChanges();
-        if (this.isAdmin()) {
-          this.loadSummary();
-          this.loadRecords();
-          this.loadEmployees();
-        }
-      },
-      error: () => {},
-    });
+    this.auth
+      .getMe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (user: MeResponse) => {
+          this.me = user;
+          this.cdr.detectChanges();
+          if (this.isAdmin()) {
+            this.loadSummary();
+            this.loadRecords();
+            this.loadEmployees();
+          }
+        },
+        error: () => {},
+      });
   }
 
   loadTodayStatus() {
     this.todayLoading = true;
-    this.attendanceService.getTodayStatus().subscribe({
-      next: (record: any) => {
-        this.todayRecord = record;
-        this.todayLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.todayRecord = null;
-        this.todayLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.attendanceService
+      .getTodayStatus()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (record: any) => {
+          this.todayRecord = record;
+          this.todayLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.todayRecord = null;
+          this.todayLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   loadSummary() {
-    this.attendanceService.getSummary(this.selectedDate).subscribe({
-      next: (s: AttendanceSummary) => {
-        this.summary = s;
-        this.cdr.detectChanges();
-      },
-      error: () => {},
-    });
+    this.attendanceService
+      .getSummary(this.selectedDate)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (s: AttendanceSummary) => {
+          this.summary = s;
+          this.cdr.detectChanges();
+        },
+        error: () => {},
+      });
   }
 
   loadRecords() {
     this.recordsLoading = true;
-    this.attendanceService.getRecords({ date: this.selectedDate }).subscribe({
-      next: (records: AttendanceRecord[]) => {
-        this.records = records;
-        this.recordsLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.recordsLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.attendanceService
+      .getRecords({ date: this.selectedDate })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (records: AttendanceRecord[]) => {
+          this.records = records;
+          this.recordsLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.recordsLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   loadMonthlyReport() {
     this.reportLoading = true;
-    this.attendanceService.getMonthlyReport(this.reportMonth, this.reportYear).subscribe({
-      next: (report: MonthlyReport[]) => {
-        this.monthlyReport = report;
-        this.reportLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.reportLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.attendanceService
+      .getMonthlyReport(this.reportMonth, this.reportYear)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (report: MonthlyReport[]) => {
+          this.monthlyReport = report;
+          this.reportLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.reportLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // ✅ FIXED: uses environment.apiUrl instead of window.env
   loadEmployees() {
-    this.http.get<any>(`${environment.apiUrl}/employees?page=1&limit=100`).subscribe({
-      next: (d: any) => {
-        this.employees = d.data || d || [];
-        this.cdr.detectChanges();
-      },
-      error: () => {},
-    });
+    this.http
+      .get<any>(`${environment.apiUrl}/employees?page=1&limit=100`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (d: any) => {
+          this.employees = d.data || d || [];
+          this.cdr.detectChanges();
+        },
+        error: () => {},
+      });
   }
 
   onDateChange() {
@@ -210,102 +222,110 @@ export class Attendance implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // =====================
-  // CLOCK ACTIONS
-  // =====================
   clockIn() {
     this.actionLoading = true;
     this.actionMessage = '';
     this.actionError = '';
-
-    this.attendanceService.clockIn().subscribe({
-      next: (record: AttendanceRecord) => {
-        this.todayRecord = record;
-        this.actionLoading = false;
-        this.actionMessage = '✅ Clocked in successfully!';
-        if (this.isAdmin()) {
-          this.loadSummary();
-          this.loadRecords();
-        }
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.actionMessage = '';
+    this.attendanceService
+      .clockIn()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (record: AttendanceRecord) => {
+          this.todayRecord = record;
+          this.actionLoading = false;
+          this.actionMessage = '✅ Clocked in successfully!';
+          if (this.isAdmin()) {
+            this.loadSummary();
+            this.loadRecords();
+          }
           this.cdr.detectChanges();
-        }, 3000);
-      },
-      error: (err: any) => {
-        this.actionLoading = false;
-        this.actionError = err.error?.error || 'Failed to clock in';
-        this.cdr.detectChanges();
-      },
-    });
+          setTimeout(() => {
+            this.actionMessage = '';
+            this.cdr.detectChanges();
+          }, 3000);
+        },
+        error: (err: any) => {
+          this.actionLoading = false;
+          this.actionError = err.error?.error || 'Failed to clock in';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   startBreak() {
     this.actionLoading = true;
-    this.attendanceService.startBreak().subscribe({
-      next: (record: AttendanceRecord) => {
-        this.todayRecord = record;
-        this.actionLoading = false;
-        this.actionMessage = '☕ Break started';
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.actionMessage = '';
+    this.attendanceService
+      .startBreak()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (record: AttendanceRecord) => {
+          this.todayRecord = record;
+          this.actionLoading = false;
+          this.actionMessage = '☕ Break started';
           this.cdr.detectChanges();
-        }, 3000);
-      },
-      error: (err: any) => {
-        this.actionLoading = false;
-        this.actionError = err.error?.error || 'Failed to start break';
-        this.cdr.detectChanges();
-      },
-    });
+          setTimeout(() => {
+            this.actionMessage = '';
+            this.cdr.detectChanges();
+          }, 3000);
+        },
+        error: (err: any) => {
+          this.actionLoading = false;
+          this.actionError = err.error?.error || 'Failed to start break';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   endBreak() {
     this.actionLoading = true;
-    this.attendanceService.endBreak().subscribe({
-      next: (record: AttendanceRecord) => {
-        this.todayRecord = record;
-        this.actionLoading = false;
-        this.actionMessage = '💪 Break ended, back to work!';
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.actionMessage = '';
+    this.attendanceService
+      .endBreak()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (record: AttendanceRecord) => {
+          this.todayRecord = record;
+          this.actionLoading = false;
+          this.actionMessage = '💪 Break ended, back to work!';
           this.cdr.detectChanges();
-        }, 3000);
-      },
-      error: (err: any) => {
-        this.actionLoading = false;
-        this.actionError = err.error?.error || 'Failed to end break';
-        this.cdr.detectChanges();
-      },
-    });
+          setTimeout(() => {
+            this.actionMessage = '';
+            this.cdr.detectChanges();
+          }, 3000);
+        },
+        error: (err: any) => {
+          this.actionLoading = false;
+          this.actionError = err.error?.error || 'Failed to end break';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   clockOut() {
     this.actionLoading = true;
-    this.attendanceService.clockOut().subscribe({
-      next: (record: AttendanceRecord) => {
-        this.todayRecord = record;
-        this.actionLoading = false;
-        this.actionMessage = '👋 Clocked out. Great work today!';
-        if (this.isAdmin()) {
-          this.loadSummary();
-          this.loadRecords();
-        }
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.actionMessage = '';
+    this.attendanceService
+      .clockOut()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (record: AttendanceRecord) => {
+          this.todayRecord = record;
+          this.actionLoading = false;
+          this.actionMessage = '👋 Clocked out. Great work today!';
+          if (this.isAdmin()) {
+            this.loadSummary();
+            this.loadRecords();
+          }
           this.cdr.detectChanges();
-        }, 4000);
-      },
-      error: (err: any) => {
-        this.actionLoading = false;
-        this.actionError = err.error?.error || 'Failed to clock out';
-        this.cdr.detectChanges();
-      },
-    });
+          setTimeout(() => {
+            this.actionMessage = '';
+            this.cdr.detectChanges();
+          }, 4000);
+        },
+        error: (err: any) => {
+          this.actionLoading = false;
+          this.actionError = err.error?.error || 'Failed to clock out';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   submitOverride() {
@@ -322,38 +342,35 @@ export class Attendance implements OnInit, OnDestroy {
       status: this.overrideForm.status,
       notes: this.overrideForm.notes,
     };
-
-    this.attendanceService.adminOverride(payload).subscribe({
-      next: () => {
-        this.overrideLoading = false;
-        this.overrideMessage = '✅ Attendance updated successfully';
-        this.loadRecords();
-        this.loadSummary();
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.overrideMessage = '';
+    this.attendanceService
+      .adminOverride(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.overrideLoading = false;
+          this.overrideMessage = '✅ Attendance updated successfully';
+          this.loadRecords();
+          this.loadSummary();
           this.cdr.detectChanges();
-        }, 4000);
-      },
-      error: (err: any) => {
-        this.overrideLoading = false;
-        this.overrideMessage = '❌ ' + (err.error?.error || 'Failed to override');
-        this.cdr.detectChanges();
-      },
-    });
+          setTimeout(() => {
+            this.overrideMessage = '';
+            this.cdr.detectChanges();
+          }, 4000);
+        },
+        error: (err: any) => {
+          this.overrideLoading = false;
+          this.overrideMessage = '❌ ' + (err.error?.error || 'Failed to override');
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // =====================
-  // HELPERS
-  // =====================
   isAdmin(): boolean {
     return this.me?.role === 'admin' || this.me?.role === 'manager';
   }
-
   isClockedIn(): boolean {
     return !!this.todayRecord?.clock_in && !this.todayRecord?.clock_out;
   }
-
   isOnBreak(): boolean {
     return (
       !!this.todayRecord?.break_start &&
@@ -361,17 +378,13 @@ export class Attendance implements OnInit, OnDestroy {
       !this.todayRecord?.clock_out
     );
   }
-
   isClockedOut(): boolean {
     return !!this.todayRecord?.clock_out;
   }
 
   formatTime(timestamp: string | null): string {
     if (!timestamp) return '--:--';
-    return new Date(timestamp).toLocaleTimeString('en-ZA', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return new Date(timestamp).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' });
   }
 
   formatHours(hours: number): string {
@@ -412,7 +425,6 @@ export class Attendance implements OnInit, OnDestroy {
   goToDashboard() {
     this.router.navigateByUrl('/dashboard');
   }
-
   logout() {
     this.auth.logout();
     this.router.navigateByUrl('/login');

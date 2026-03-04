@@ -1,5 +1,6 @@
 // File: src/app/pages/analytics/analytics.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
@@ -22,17 +23,16 @@ import {
   styleUrls: ['./analytics.component.css'],
 })
 export class AnalyticsComponent implements OnInit {
-  // Date filters
+  private destroyRef = inject(DestroyRef);
+
   currentYear = new Date().getFullYear();
   currentMonth = new Date().getMonth() + 1;
   selectedYear = this.currentYear;
   selectedMonth = this.currentMonth;
   years: number[] = [];
 
-  // Tab management
   activeTab: 'overview' | 'payroll' | 'leave' | 'attendance' | 'compliance' | 'hr' = 'overview';
 
-  // Data
   dashboardData: DashboardOverview | null = null;
   payrollData: PayrollAnalytics | null = null;
   leaveData: LeaveAnalytics | null = null;
@@ -40,21 +40,15 @@ export class AnalyticsComponent implements OnInit {
   complianceData: ComplianceAnalytics | null = null;
   hrData: HRInsights | null = null;
 
-  // Loading states
   loading = false;
   error: string | null = null;
 
-  // Chart configurations
   payrollChartData: ChartConfiguration['data'] | null = null;
   payrollChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { display: true, position: 'bottom' },
-    },
-    scales: {
-      y: { beginAtZero: true },
-    },
+    plugins: { legend: { display: true, position: 'bottom' } },
+    scales: { y: { beginAtZero: true } },
   };
   payrollChartType: ChartType = 'line';
 
@@ -62,9 +56,7 @@ export class AnalyticsComponent implements OnInit {
   departmentChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { display: true, position: 'bottom' },
-    },
+    plugins: { legend: { display: true, position: 'bottom' } },
   };
   departmentChartType: ChartType = 'pie';
 
@@ -72,108 +64,100 @@ export class AnalyticsComponent implements OnInit {
   leaveChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { display: true, position: 'bottom' },
-    },
-    scales: {
-      y: { beginAtZero: true },
-    },
+    plugins: { legend: { display: true, position: 'bottom' } },
+    scales: { y: { beginAtZero: true } },
   };
   leaveChartType: ChartType = 'bar';
 
   constructor(private analyticsService: AnalyticsService) {
-    // Generate year options (current year and 2 years back)
-    for (let i = 0; i < 3; i++) {
-      this.years.push(this.currentYear - i);
-    }
+    for (let i = 0; i < 3; i++) this.years.push(this.currentYear - i);
   }
 
   ngOnInit(): void {
     this.loadDashboardData();
   }
 
-  // Load main dashboard overview
   loadDashboardData(): void {
     this.loading = true;
     this.error = null;
-
-    this.analyticsService.getDashboardOverview(this.selectedYear, this.selectedMonth).subscribe({
-      next: (data) => {
-        this.dashboardData = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading dashboard:', err);
-        this.error = 'Failed to load dashboard data';
-        this.loading = false;
-      },
-    });
+    this.analyticsService
+      .getDashboardOverview(this.selectedYear, this.selectedMonth)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.dashboardData = data;
+          this.loading = false;
+        },
+        error: () => {
+          this.error = 'Failed to load dashboard data';
+          this.loading = false;
+        },
+      });
   }
 
-  // Load payroll analytics
   loadPayrollData(): void {
-    this.analyticsService.getPayrollAnalytics(this.selectedYear).subscribe({
-      next: (data) => {
-        this.payrollData = data;
-        this.setupPayrollChart(data);
-        this.setupDepartmentChart(data);
-      },
-      error: (err) => {
-        console.error('Error loading payroll analytics:', err);
-      },
-    });
+    this.analyticsService
+      .getPayrollAnalytics(this.selectedYear)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.payrollData = data;
+          this.setupPayrollChart(data);
+          this.setupDepartmentChart(data);
+        },
+        error: () => {},
+      });
   }
 
-  // Load leave analytics
   loadLeaveData(): void {
-    this.analyticsService.getLeaveAnalytics(this.selectedYear).subscribe({
-      next: (data) => {
-        this.leaveData = data;
-        this.setupLeaveChart(data);
-      },
-      error: (err) => {
-        console.error('Error loading leave analytics:', err);
-      },
-    });
+    this.analyticsService
+      .getLeaveAnalytics(this.selectedYear)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.leaveData = data;
+          this.setupLeaveChart(data);
+        },
+        error: () => {},
+      });
   }
 
-  // Load attendance analytics
   loadAttendanceData(): void {
-    this.analyticsService.getAttendanceAnalytics(this.selectedYear, this.selectedMonth).subscribe({
-      next: (data) => {
-        this.attendanceData = data;
-      },
-      error: (err) => {
-        console.error('Error loading attendance analytics:', err);
-      },
-    });
+    this.analyticsService
+      .getAttendanceAnalytics(this.selectedYear, this.selectedMonth)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.attendanceData = data;
+        },
+        error: () => {},
+      });
   }
 
-  // Load compliance analytics
   loadComplianceData(): void {
-    this.analyticsService.getComplianceAnalytics(this.selectedYear).subscribe({
-      next: (data) => {
-        this.complianceData = data;
-      },
-      error: (err) => {
-        console.error('Error loading compliance analytics:', err);
-      },
-    });
+    this.analyticsService
+      .getComplianceAnalytics(this.selectedYear)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.complianceData = data;
+        },
+        error: () => {},
+      });
   }
 
-  // Load HR insights
   loadHRData(): void {
-    this.analyticsService.getHRInsights().subscribe({
-      next: (data) => {
-        this.hrData = data;
-      },
-      error: (err) => {
-        console.error('Error loading HR insights:', err);
-      },
-    });
+    this.analyticsService
+      .getHRInsights()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.hrData = data;
+        },
+        error: () => {},
+      });
   }
 
-  // Setup payroll trend chart
   setupPayrollChart(data: PayrollAnalytics): void {
     const months = [
       'Jan',
@@ -189,30 +173,27 @@ export class AnalyticsComponent implements OnInit {
       'Nov',
       'Dec',
     ];
-    const labels = data.monthlyTrend.map((item) => months[item.month - 1]);
-
     this.payrollChartData = {
-      labels,
+      labels: data.monthlyTrend.map((item) => months[item.month - 1]),
       datasets: [
         {
           label: 'Gross Pay',
           data: data.monthlyTrend.map((item) => parseFloat(item.total_gross)),
           borderColor: '#6366f1',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          backgroundColor: 'rgba(99,102,241,0.1)',
           tension: 0.4,
         },
         {
           label: 'Net Pay',
           data: data.monthlyTrend.map((item) => parseFloat(item.total_net)),
           borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          backgroundColor: 'rgba(16,185,129,0.1)',
           tension: 0.4,
         },
       ],
     };
   }
 
-  // Setup department pie chart
   setupDepartmentChart(data: PayrollAnalytics): void {
     this.departmentChartData = {
       labels: data.departmentBreakdown.map((item) => item.department),
@@ -225,7 +206,6 @@ export class AnalyticsComponent implements OnInit {
     };
   }
 
-  // Setup leave bar chart
   setupLeaveChart(data: LeaveAnalytics): void {
     this.leaveChartData = {
       labels: data.leaveTypes.map((item) => item.leave_type),
@@ -244,11 +224,8 @@ export class AnalyticsComponent implements OnInit {
     };
   }
 
-  // Tab switching
   switchTab(tab: 'overview' | 'payroll' | 'leave' | 'attendance' | 'compliance' | 'hr'): void {
     this.activeTab = tab;
-
-    // Load data for the selected tab if not loaded
     switch (tab) {
       case 'payroll':
         if (!this.payrollData) this.loadPayrollData();
@@ -268,32 +245,19 @@ export class AnalyticsComponent implements OnInit {
     }
   }
 
-  // Year/month change handlers
   onYearChange(): void {
     this.loadDashboardData();
-    // Reload tab-specific data if needed
-    if (this.activeTab === 'payroll' && this.payrollData) {
-      this.loadPayrollData();
-    }
-    if (this.activeTab === 'leave' && this.leaveData) {
-      this.loadLeaveData();
-    }
-    if (this.activeTab === 'attendance' && this.attendanceData) {
-      this.loadAttendanceData();
-    }
-    if (this.activeTab === 'compliance' && this.complianceData) {
-      this.loadComplianceData();
-    }
+    if (this.activeTab === 'payroll' && this.payrollData) this.loadPayrollData();
+    if (this.activeTab === 'leave' && this.leaveData) this.loadLeaveData();
+    if (this.activeTab === 'attendance' && this.attendanceData) this.loadAttendanceData();
+    if (this.activeTab === 'compliance' && this.complianceData) this.loadComplianceData();
   }
 
   onMonthChange(): void {
     this.loadDashboardData();
-    if (this.activeTab === 'attendance' && this.attendanceData) {
-      this.loadAttendanceData();
-    }
+    if (this.activeTab === 'attendance' && this.attendanceData) this.loadAttendanceData();
   }
 
-  // Utility functions
   formatCurrency(value: string | number): string {
     const num = typeof value === 'string' ? parseFloat(value) : value;
     return (
@@ -307,7 +271,7 @@ export class AnalyticsComponent implements OnInit {
   }
 
   getMonthName(month: number): string {
-    const months = [
+    return [
       'January',
       'February',
       'March',
@@ -320,8 +284,7 @@ export class AnalyticsComponent implements OnInit {
       'October',
       'November',
       'December',
-    ];
-    return months[month - 1];
+    ][month - 1];
   }
 
   calculatePercentage(part: number, total: number): number {

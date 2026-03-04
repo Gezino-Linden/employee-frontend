@@ -26,6 +26,8 @@
     </div>
 
     <div class="nav-cards">
+
+      <!-- People -->
       <div class="nav-card indigo" (click)="goToEmployees()">
         <div class="nav-card-icon">👥</div>
         <div class="nav-card-body">
@@ -44,11 +46,11 @@
         <div class="nav-card-arrow">→</div>
       </div>
 
-      <div class="nav-card amber" (click)="goToPayroll()">
-        <div class="nav-card-icon">💰</div>
+      <div class="nav-card purple" (click)="goToShifts()">
+        <div class="nav-card-icon">🗓️</div>
         <div class="nav-card-body">
-          <h3>Payroll</h3>
-          <p>Process salaries, payslips &amp; PAYE</p>
+          <h3>Shifts</h3>
+          <p>Templates, assignments &amp; calendar</p>
         </div>
         <div class="nav-card-arrow">→</div>
       </div>
@@ -62,54 +64,16 @@
         <div class="nav-card-arrow">→</div>
       </div>
 
-      <div class="nav-card purple" (click)="goToEmp201()">
-        <div class="nav-card-icon">📋</div>
+      <!-- Finance -->
+      <div class="nav-card amber" (click)="goToPayroll()">
+        <div class="nav-card-icon">💰</div>
         <div class="nav-card-body">
-          <h3>EMP201</h3>
-          <p>SARS PAYE, SDL &amp; UIF submissions</p>
+          <h3>Payroll</h3>
+          <p>Process salaries, payslips &amp; PAYE</p>
         </div>
         <div class="nav-card-arrow">→</div>
       </div>
-      <div class="nav-card teal" (click)="goToUI19()">
-        <div class="nav-card-icon">🛡️</div>
-        <div class="nav-card-body">
-          <h3>UI-19</h3>
-          <p>Monthly UIF submissions — Dept of Labour</p>
-        </div>
-        <div class="nav-card-arrow">→</div>
-      </div>
-      <div class="nav-card gold" (click)="goToIrp5()">
-        <div class="nav-card-icon">📜</div>
-        <div class="nav-card-body">
-          <h3>IRP5</h3>
-          <p>Annual tax certificates &amp; IT3(a)</p>
-        </div>
-        <div class="nav-card-arrow">→</div>
-      </div>
-      <div class="nav-card violet" (click)="goToAnalytics()">
-        <div class="nav-card-icon">📊</div>
-        <div class="nav-card-body">
-          <h3>Analytics</h3>
-          <p>Charts, KPIs &amp; insights</p>
-        </div>
-        <div class="nav-card-arrow">→</div>
-      </div>
-      <div class="nav-card orange" (click)="goToReports()">
-        <div class="nav-card-icon">📑</div>
-        <div class="nav-card-body">
-          <h3>Reports</h3>
-          <p>Export PDF &amp; Excel HR reports</p>
-        </div>
-        <div class="nav-card-arrow">→</div>
-      </div>
-      <div class="nav-card purple" (click)="goToShifts()">
-        <div class="nav-card-icon">🗓️</div>
-        <div class="nav-card-body">
-          <h3>Shifts</h3>
-          <p>Templates, assignments &amp; calendar</p>
-        </div>
-        <div class="nav-card-arrow">→</div>
-      </div>
+
       <div class="nav-card teal" (click)="goToAccounting()">
         <div class="nav-card-icon">📒</div>
         <div class="nav-card-body">
@@ -118,6 +82,36 @@
         </div>
         <div class="nav-card-arrow">→</div>
       </div>
+
+      <!-- SARS Compliance — replaces EMP201 + UI-19 + IRP5 -->
+      <div class="nav-card sars" (click)="goToSars()">
+        <div class="nav-card-icon">🏛️</div>
+        <div class="nav-card-body">
+          <h3>SARS Compliance</h3>
+          <p>EMP201, UI-19 &amp; IRP5 tax submissions</p>
+        </div>
+        <div class="nav-card-arrow">→</div>
+      </div>
+
+      <!-- Insights -->
+      <div class="nav-card violet" (click)="goToAnalytics()">
+        <div class="nav-card-icon">📊</div>
+        <div class="nav-card-body">
+          <h3>Analytics</h3>
+          <p>Charts, KPIs &amp; insights</p>
+        </div>
+        <div class="nav-card-arrow">→</div>
+      </div>
+
+      <div class="nav-card orange" (click)="goToReports()">
+        <div class="nav-card-icon">📑</div>
+        <div class="nav-card-body">
+          <h3>Reports</h3>
+          <p>Export PDF &amp; Excel HR reports</p>
+        </div>
+        <div class="nav-card-arrow">→</div>
+      </div>
+
     </div>
   </main>
 </div>

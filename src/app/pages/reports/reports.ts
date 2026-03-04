@@ -1,10 +1,12 @@
 // File: src/app/pages/reports/reports.ts
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService, MeResponse } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface ReportPreview {
   employee_count: number;
@@ -30,10 +32,12 @@ export interface ReportPreview {
   styleUrls: ['./reports.css'],
 })
 export class Reports implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   me: MeResponse | null = null;
 
   filterYear = new Date().getFullYear();
-  filterMonth = 0; // 0 = full year
+  filterMonth = 0;
   preview: ReportPreview | null = null;
   loadingPreview = false;
 
@@ -57,7 +61,7 @@ export class Reports implements OnInit {
     { value: 12, label: 'December' },
   ];
 
-  private apiBase = 'https://employee-api-xpno.onrender.com/api/reports';
+  private apiBase = `${environment.apiUrl}/reports`;
 
   constructor(
     private auth: AuthService,
@@ -67,31 +71,36 @@ export class Reports implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.auth.getMe().subscribe({
-      next: (res) => {
-        this.me = res;
-        this.cdr.detectChanges();
-      },
-      error: () => this.router.navigateByUrl('/login'),
-    });
+    this.auth
+      .getMe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.me = res;
+          this.cdr.detectChanges();
+        },
+        error: () => this.router.navigateByUrl('/login'),
+      });
     this.loadPreview();
   }
 
   loadPreview() {
     this.loadingPreview = true;
     this.errorMsg = '';
-    const params = this.buildParams();
-    this.http.get<ReportPreview>(`${this.apiBase}/preview${params}`).subscribe({
-      next: (data) => {
-        this.preview = data;
-        this.loadingPreview = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingPreview = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .get<ReportPreview>(`${this.apiBase}/preview${this.buildParams()}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.preview = data;
+          this.loadingPreview = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingPreview = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   buildParams(): string {
@@ -104,24 +113,16 @@ export class Reports implements OnInit {
     this.excelLoading = true;
     this.errorMsg = '';
     const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
-    const params = this.buildParams();
-    fetch(`${this.apiBase}/export/excel${params}`, {
+    fetch(`${this.apiBase}/export/excel${this.buildParams()}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => {
-        if (!r.ok) throw new Error('Export failed');
+        if (!r.ok) throw new Error();
         return r.blob();
       })
       .then((blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
         const period = this.filterMonth > 0 ? `-${this.filterMonth}` : '';
-        a.href = url;
-        a.setAttribute('download', `HR-Report-${this.filterYear}${period}.xlsx`);
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        this.downloadBlob(blob, `HR-Report-${this.filterYear}${period}.xlsx`);
         this.excelLoading = false;
         this.cdr.detectChanges();
       })
@@ -136,12 +137,11 @@ export class Reports implements OnInit {
     this.pdfLoading = true;
     this.errorMsg = '';
     const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
-    const params = this.buildParams();
-    fetch(`${this.apiBase}/export/pdf${params}`, {
+    fetch(`${this.apiBase}/export/pdf${this.buildParams()}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => {
-        if (!r.ok) throw new Error('Export failed');
+        if (!r.ok) throw new Error();
         return r.text();
       })
       .then((html) => {
@@ -149,9 +149,7 @@ export class Reports implements OnInit {
         if (win) {
           win.document.write(html);
           win.document.close();
-          setTimeout(() => {
-            win.print();
-          }, 600);
+          setTimeout(() => win.print(), 600);
         }
         this.pdfLoading = false;
         this.cdr.detectChanges();
@@ -161,6 +159,17 @@ export class Reports implements OnInit {
         this.pdfLoading = false;
         this.cdr.detectChanges();
       });
+  }
+
+  private downloadBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.setAttribute('download', filename);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   getPeriodLabel(): string {

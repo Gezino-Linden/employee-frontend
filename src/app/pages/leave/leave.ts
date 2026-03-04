@@ -1,5 +1,6 @@
 // File: src/app/pages/leave/leave.ts
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -19,7 +20,6 @@ import {
 } from '../../services/leave.service';
 import { AuthService, MeResponse } from '../../services/auth.service';
 
-// ADD 'analytics' TO THE TYPE
 type ActiveTab = 'request' | 'my-requests' | 'approvals' | 'balance' | 'calendar' | 'analytics';
 
 @Component({
@@ -30,36 +30,30 @@ type ActiveTab = 'request' | 'my-requests' | 'approvals' | 'balance' | 'calendar
   styleUrls: ['./leave.css'],
 })
 export class Leave implements OnInit {
-  // ===== USER INFO =====
+  private destroyRef = inject(DestroyRef);
+
   me: MeResponse | null = null;
   loadingProfile = true;
-
-  // ===== TAB MANAGEMENT =====
   activeTab: ActiveTab = 'request';
   minDate = new Date().toISOString().split('T')[0];
 
-  // ===== LEAVE TYPES =====
   leaveTypes: LeaveType[] = [];
   loadingTypes = true;
 
-  // ===== LEAVE BALANCES =====
   balances: LeaveBalance[] = [];
   loadingBalances = true;
   balanceYear = new Date().getFullYear();
 
-  // ===== REQUEST FORM =====
   requestForm: FormGroup;
   submitLoading = false;
   submitError = '';
   submitSuccess = '';
 
-  // ===== MY REQUESTS =====
   myRequests: LeaveRequest[] = [];
   loadingMyRequests = true;
   myRequestsError = '';
   myRequestsFilter: string = '';
 
-  // ===== APPROVAL QUEUE (Admin/Manager) =====
   approvalRequests: LeaveRequest[] = [];
   loadingApprovals = true;
   approvalsError = '';
@@ -69,7 +63,6 @@ export class Leave implements OnInit {
   approvalTotalPages = 1;
   approvalsFilter: string = 'pending';
 
-  // ===== REVIEW MODAL =====
   showReviewModal = false;
   reviewRequest: LeaveRequest | null = null;
   reviewAction: 'approve' | 'reject' = 'approve';
@@ -77,15 +70,13 @@ export class Leave implements OnInit {
   reviewLoading = false;
   reviewError = '';
 
-  // ===== CANCEL CONFIRM =====
   showCancelConfirm = false;
   cancelTargetId: number | null = null;
   cancelLoading = false;
 
-  // ===== ANALYTICS DATA =====  ← MOVED INSIDE CLASS
   analyticsData: any = null;
   loadingAnalytics = false;
-  analyticsError: string = ''; // <-- ADD THIS
+  analyticsError: string = '';
   analyticsYear = new Date().getFullYear();
   chartData: any = null;
 
@@ -111,69 +102,67 @@ export class Leave implements OnInit {
     this.loadMyRequests();
   }
 
-  // ========================= PROFILE =========================
   loadProfile() {
     this.loadingProfile = true;
-    this.auth.getMe().subscribe({
-      next: (res: MeResponse) => {
-        this.me = res;
-        this.loadingProfile = false;
-        if (this.isAdmin() || this.isManager()) {
-          this.loadApprovals();
-        }
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingProfile = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.auth
+      .getMe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: MeResponse) => {
+          this.me = res;
+          this.loadingProfile = false;
+          if (this.isAdmin() || this.isManager()) this.loadApprovals();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingProfile = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // ========================= TAB MANAGEMENT =========================
   switchTab(tab: ActiveTab) {
     this.activeTab = tab;
     this.submitError = '';
     this.submitSuccess = '';
-
-    // Load analytics when switching to analytics tab
-    if (tab === 'analytics') {
-      this.loadAnalytics();
-    }
-
+    if (tab === 'analytics') this.loadAnalytics();
     this.cdr.detectChanges();
   }
 
-  // ========================= LEAVE TYPES =========================
   loadLeaveTypes() {
     this.loadingTypes = true;
-    this.leaveService.getLeaveTypes().subscribe({
-      next: (types) => {
-        this.leaveTypes = types;
-        this.loadingTypes = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingTypes = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.leaveService
+      .getLeaveTypes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (types) => {
+          this.leaveTypes = types;
+          this.loadingTypes = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingTypes = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // ========================= LEAVE BALANCES =========================
   loadBalances() {
     this.loadingBalances = true;
-    this.leaveService.getMyBalances(this.balanceYear).subscribe({
-      next: (balances) => {
-        this.balances = balances;
-        this.loadingBalances = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingBalances = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.leaveService
+      .getMyBalances(this.balanceYear)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (balances) => {
+          this.balances = balances;
+          this.loadingBalances = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingBalances = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   changeBalanceYear(year: number) {
@@ -181,55 +170,56 @@ export class Leave implements OnInit {
     this.loadBalances();
   }
 
-  // ========================= REQUEST LEAVE =========================
   submitRequest() {
     if (this.requestForm.invalid) {
       this.requestForm.markAllAsTouched();
       return;
     }
-
     this.submitLoading = true;
     this.submitError = '';
     this.submitSuccess = '';
-
     const data: CreateLeaveRequestDto = this.requestForm.value;
-
-    this.leaveService.createRequest(data).subscribe({
-      next: () => {
-        this.submitLoading = false;
-        this.submitSuccess = 'Leave request submitted successfully!';
-        this.requestForm.reset();
-        this.loadBalances();
-        this.loadMyRequests();
-        setTimeout(() => {
-          this.switchTab('my-requests');
-        }, 1500);
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        this.submitLoading = false;
-        this.submitError = err?.error?.error || 'Failed to submit request';
-        this.cdr.detectChanges();
-      },
-    });
+    this.leaveService
+      .createRequest(data)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.submitLoading = false;
+          this.submitSuccess = 'Leave request submitted successfully!';
+          this.requestForm.reset();
+          this.loadBalances();
+          this.loadMyRequests();
+          setTimeout(() => {
+            this.switchTab('my-requests');
+          }, 1500);
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          this.submitLoading = false;
+          this.submitError = err?.error?.error || 'Failed to submit request';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // ========================= MY REQUESTS =========================
   loadMyRequests() {
     this.loadingMyRequests = true;
     this.myRequestsError = '';
-    this.leaveService.getMyRequests(this.myRequestsFilter || undefined).subscribe({
-      next: (requests) => {
-        this.myRequests = requests;
-        this.loadingMyRequests = false;
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        this.myRequestsError = err?.error?.error || 'Failed to load requests';
-        this.loadingMyRequests = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.leaveService
+      .getMyRequests(this.myRequestsFilter || undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (requests) => {
+          this.myRequests = requests;
+          this.loadingMyRequests = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          this.myRequestsError = err?.error?.error || 'Failed to load requests';
+          this.loadingMyRequests = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   filterMyRequests(status: string) {
@@ -237,13 +227,11 @@ export class Leave implements OnInit {
     this.loadMyRequests();
   }
 
-  // ========================= CANCEL REQUEST =========================
   confirmCancel(id: number) {
     this.cancelTargetId = id;
     this.showCancelConfirm = true;
     this.cdr.detectChanges();
   }
-
   closeCancelConfirm() {
     this.cancelTargetId = null;
     this.showCancelConfirm = false;
@@ -253,30 +241,33 @@ export class Leave implements OnInit {
   executeCancel() {
     if (!this.cancelTargetId) return;
     this.cancelLoading = true;
-    this.leaveService.cancelRequest(this.cancelTargetId).subscribe({
-      next: () => {
-        this.cancelLoading = false;
-        this.showCancelConfirm = false;
-        this.cancelTargetId = null;
-        this.loadMyRequests();
-        this.loadBalances();
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        this.cancelLoading = false;
-        this.myRequestsError = err?.error?.error || 'Failed to cancel request';
-        this.showCancelConfirm = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.leaveService
+      .cancelRequest(this.cancelTargetId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.cancelLoading = false;
+          this.showCancelConfirm = false;
+          this.cancelTargetId = null;
+          this.loadMyRequests();
+          this.loadBalances();
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          this.cancelLoading = false;
+          this.myRequestsError = err?.error?.error || 'Failed to cancel request';
+          this.showCancelConfirm = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // ========================= APPROVAL QUEUE =========================
   loadApprovals() {
     this.loadingApprovals = true;
     this.approvalsError = '';
     this.leaveService
       .getAllRequests(this.approvalPage, this.approvalLimit, this.approvalsFilter || undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: LeaveRequestsResponse) => {
           this.approvalRequests = response.data;
@@ -300,20 +291,17 @@ export class Leave implements OnInit {
     this.approvalPage = 1;
     this.loadApprovals();
   }
-
   prevApprovalPage() {
     if (this.approvalPage <= 1) return;
     this.approvalPage--;
     this.loadApprovals();
   }
-
   nextApprovalPage() {
     if (this.approvalPage >= this.approvalTotalPages) return;
     this.approvalPage++;
     this.loadApprovals();
   }
 
-  // ========================= REVIEW MODAL =========================
   openReviewModal(request: LeaveRequest, action: 'approve' | 'reject') {
     this.reviewRequest = request;
     this.reviewAction = action;
@@ -333,16 +321,13 @@ export class Leave implements OnInit {
 
   submitReview() {
     if (!this.reviewRequest) return;
-
     this.reviewLoading = true;
     this.reviewError = '';
-
     const request$ =
       this.reviewAction === 'approve'
         ? this.leaveService.approveRequest(this.reviewRequest.id, this.reviewNotes)
         : this.leaveService.rejectRequest(this.reviewRequest.id, this.reviewNotes);
-
-    request$.subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.reviewLoading = false;
         this.closeReviewModal();
@@ -357,62 +342,39 @@ export class Leave implements OnInit {
     });
   }
 
-  // ========================= ANALYTICS =========================
-  // ========================= ANALYTICS =========================
   loadAnalytics() {
     this.loadingAnalytics = true;
-    this.analyticsError = ''; // Add this property if not exists
-
-    // Call the REAL API endpoint
-    this.leaveService.getAnalytics(this.analyticsYear).subscribe({
-      next: (data) => {
-        this.analyticsData = data;
-        this.prepareChartData(data.monthly_trends);
-        this.loadingAnalytics = false;
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        this.loadingAnalytics = false;
-        this.analyticsError = err?.error?.error || 'Failed to load analytics';
-        console.error('Analytics error:', err);
-        this.cdr.detectChanges();
-      },
-    });
+    this.analyticsError = '';
+    this.leaveService
+      .getAnalytics(this.analyticsYear)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.analyticsData = data;
+          this.prepareChartData(data.monthly_trends);
+          this.loadingAnalytics = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          this.loadingAnalytics = false;
+          this.analyticsError = err?.error?.error || 'Failed to load analytics';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  // Add this helper method for chart data
   prepareChartData(monthlyData: any[]) {
     if (!monthlyData) return;
-
-    // Find max value for scaling
     const maxRequests = Math.max(...monthlyData.map((m) => m.requests || 0), 1);
-
     this.chartData = {
       months: monthlyData,
       maxValue: maxRequests,
-      // Calculate heights as percentages
-      getBarHeight: (value: number) => {
-        return maxRequests > 0 ? (value / maxRequests) * 100 : 0;
-      },
+      getBarHeight: (value: number) => (maxRequests > 0 ? (value / maxRequests) * 100 : 0),
     };
-  }
-
-  // Remove or comment out these mock methods:
-  // - generateMonthlyTrends()
-  // - generateDeptStats()
-
-  generateDeptStats() {
-    return [
-      { dept: 'IT', total: 45, used: 38, avg: 4.2 },
-      { dept: 'HR', total: 30, used: 22, avg: 3.8 },
-      { dept: 'Sales', total: 52, used: 48, avg: 5.1 },
-      { dept: 'Marketing', total: 28, used: 20, avg: 3.5 },
-    ];
   }
 
   calculateUsageRates() {
     if (!this.balances.length) return [];
-
     return this.balances.map((b: LeaveBalance) => ({
       type: b.leave_type,
       total: b.total_days,
@@ -427,13 +389,11 @@ export class Leave implements OnInit {
     if (current < previous) return '↓';
     return '→';
   }
-
   getTrendColor(current: number, previous: number): string {
     if (current > previous) return 'var(--danger)';
     if (current < previous) return 'var(--success)';
     return 'var(--text-muted)';
   }
-
   getLeaveTypeColor(typeName: string): string {
     const colors: { [key: string]: string } = {
       'Annual Leave': '#8b5cf6',
@@ -445,7 +405,6 @@ export class Leave implements OnInit {
     return colors[typeName] || '#8b5cf6';
   }
 
-  // ========================= UI HELPERS =========================
   getLeaveTypeIcon(leaveType: string): string {
     const icons: { [key: string]: string } = {
       'Annual Leave': '🏖️',
@@ -460,7 +419,7 @@ export class Leave implements OnInit {
       'Study Leave': '📚',
       'Compassionate Leave': '💜',
       'Emergency Leave': '🚨',
-      'Marriage Leave': '💒',
+      'Marriage Leave': '💍',
       'Relocation Leave': '🚚',
     };
     return icons[leaveType] || '📅';
@@ -468,34 +427,26 @@ export class Leave implements OnInit {
 
   getRelativeTime(date: string | Date | undefined | null): string {
     if (!date) return 'recently';
-
-    const now = new Date();
-    const past = new Date(date);
-    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
-
+    const diffInSeconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
     if (diffInSeconds < 60) return 'just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
     if (diffInSeconds < 7200) return '1 hour ago';
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-
     const diffInDays = Math.floor(diffInSeconds / 86400);
     if (diffInDays === 1) return 'yesterday';
     if (diffInDays < 7) return `${diffInDays} days ago`;
     if (diffInDays < 14) return '1 week ago';
     if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
     if (diffInDays < 60) return '1 month ago';
-
     return `${Math.floor(diffInDays / 30)} months ago`;
   }
 
   getTotalAvailable(): number {
     return this.balances.reduce((sum, bal) => sum + (bal.remaining_days || 0), 0);
   }
-
   getTotalUsed(): number {
     return this.balances.reduce((sum, bal) => sum + (bal.used_days || 0), 0);
   }
-
   getTotalPending(): number {
     return this.balances.reduce((sum, bal) => sum + (bal.pending_days || 0), 0);
   }
@@ -503,7 +454,6 @@ export class Leave implements OnInit {
   isAdmin(): boolean {
     return this.me?.role === 'admin';
   }
-
   isManager(): boolean {
     return this.me?.role === 'manager' || this.me?.role === 'admin';
   }
@@ -517,14 +467,8 @@ export class Leave implements OnInit {
     };
     return map[status] || '';
   }
-
   getStatusIcon(status: string): string {
-    const map: any = {
-      pending: '⏳',
-      approved: '✓',
-      rejected: '✕',
-      cancelled: '🚫',
-    };
+    const map: any = { pending: '⏳', approved: '✔', rejected: '✕', cancelled: '🚫' };
     return map[status] || '•';
   }
 
@@ -540,11 +484,9 @@ export class Leave implements OnInit {
   getLeaveTypeName(id: number): string {
     return this.leaveTypes.find((t) => t.id === id)?.name || 'Unknown';
   }
-
   getBalanceByType(typeId: number): LeaveBalance | null {
     return this.balances.find((b) => b.leave_type_id === typeId) || null;
   }
-
   canCancelRequest(request: LeaveRequest): boolean {
     return request.status === 'pending';
   }
@@ -553,15 +495,12 @@ export class Leave implements OnInit {
     this.auth.logout();
     this.router.navigateByUrl('/login');
   }
-
   goToDashboard() {
     this.router.navigateByUrl('/dashboard');
   }
-
   fc(name: string) {
     return this.requestForm.get(name);
   }
-
   hasError(name: string, error: string) {
     const c = this.fc(name);
     return c?.hasError(error) && c?.touched;

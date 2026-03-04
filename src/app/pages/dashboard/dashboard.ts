@@ -49,25 +49,19 @@ export class Dashboard implements OnInit {
   goToLeave() {
     this.router.navigateByUrl('/leave');
   }
-  goToEmp201() {
-    this.router.navigateByUrl('/emp201');
+  goToShifts() {
+    this.router.navigateByUrl('/shifts');
   }
-  goToUI19() {
-    this.router.navigateByUrl('/ui19');
+  goToAccounting() {
+    this.router.navigateByUrl('/accounting');
   }
-  goToIrp5() {
-    this.router.navigateByUrl('/irp5');
+  goToSars() {
+    this.router.navigateByUrl('/sars');
   }
   goToAnalytics() {
     this.router.navigateByUrl('/analytics');
   }
   goToReports() {
     this.router.navigateByUrl('/reports');
-  }
-  goToShifts() {
-    this.router.navigateByUrl('/shifts');
-  }
-  goToAccounting() {
-    this.router.navigateByUrl('/accounting');
   }
 }

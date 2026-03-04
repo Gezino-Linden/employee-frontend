@@ -17,13 +17,8 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'leave',
-    loadComponent: () => import('./pages/leave/leave').then((m) => m.Leave),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'payroll',
-    loadComponent: () => import('./pages/payroll/payroll').then((m) => m.Payroll),
+    path: 'employees',
+    loadComponent: () => import('./pages/employees/employees').then((m) => m.Employees),
     canActivate: [authGuard],
   },
   {
@@ -32,29 +27,28 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'employees',
-    loadComponent: () => import('./pages/employees/employees').then((m) => m.Employees),
+    path: 'shifts',
+    loadComponent: () => import('./pages/shifts/shifts').then((m) => m.Shifts),
     canActivate: [authGuard],
   },
   {
-    path: 'emp201',
-    loadComponent: () => import('./pages/emp201/emp201').then((m) => m.EMP201),
+    path: 'payroll',
+    loadComponent: () => import('./pages/payroll/payroll').then((m) => m.Payroll),
     canActivate: [authGuard],
   },
   {
-    path: 'ui19',
-    loadComponent: () => import('./pages/ui19/ui19').then((m) => m.UI19),
+    path: 'leave',
+    loadComponent: () => import('./pages/leave/leave').then((m) => m.Leave),
     canActivate: [authGuard],
   },
   {
-    path: 'irp5',
-    loadComponent: () => import('./pages/irp5/irp5').then((m) => m.IRP5),
+    path: 'accounting',
+    loadComponent: () => import('./pages/accounting/accounting').then((m) => m.Accounting),
     canActivate: [authGuard],
   },
   {
-    path: 'analytics',
-    loadComponent: () =>
-      import('./pages/analytics/analytics.component').then((m) => m.AnalyticsComponent),
+    path: 'sars',
+    loadComponent: () => import('./pages/sars/sars').then((m) => m.Sars),
     canActivate: [authGuard],
   },
   {
@@ -63,15 +57,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'shifts',
-    loadComponent: () => import('./pages/shifts/shifts').then((m) => m.Shifts),
+    path: 'analytics',
+    loadComponent: () =>
+      import('./pages/analytics/analytics.component').then((m) => m.AnalyticsComponent),
     canActivate: [authGuard],
   },
-  {
-    path: 'accounting',
-    loadComponent: () => import('./pages/accounting/accounting').then((m) => m.Accounting),
-    canActivate: [authGuard],
-  },
-
-  { path: '**', redirectTo: 'login' }, // ← wildcard ALWAYS last
+  // Legacy redirects — old routes now point to /sars
+  { path: 'emp201', redirectTo: 'sars', pathMatch: 'full' },
+  { path: 'ui19', redirectTo: 'sars', pathMatch: 'full' },
+  { path: 'irp5', redirectTo: 'sars', pathMatch: 'full' },
+  { path: '**', redirectTo: 'login' },
 ];
