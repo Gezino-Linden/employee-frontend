@@ -2,6 +2,7 @@
 import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartType } from 'chart.js';
@@ -18,7 +19,7 @@ import {
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective, RouterLink],
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.css'],
 })
@@ -291,3 +292,5 @@ export class AnalyticsComponent implements OnInit {
     return total > 0 ? Math.round((part / total) * 100) : 0;
   }
 }
+
+
