@@ -215,3 +215,17 @@ input {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.signup-hint {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 11px;
+  color: #334155;
+
+  a {
+    color: #475569;
+    text-decoration: none;
+    transition: color 0.15s;
+    &:hover { color: #64748b; }
+  }
+}

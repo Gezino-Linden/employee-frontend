@@ -26,15 +26,8 @@
             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
           </svg>
         </span>
-        <input
-          id="email"
-          type="email"
-          [(ngModel)]="email"
-          name="email"
-          placeholder="you@hotel.co.za"
-          autocomplete="email"
-          [disabled]="loading"
-        />
+        <input id="email" type="email" [(ngModel)]="email" name="email"
+          placeholder="you@hotel.co.za" autocomplete="email" [disabled]="loading"/>
       </div>
     </div>
 
@@ -49,15 +42,9 @@
             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
           </svg>
         </span>
-        <input
-          id="password"
-          [type]="showPassword ? 'text' : 'password'"
-          [(ngModel)]="password"
-          name="password"
-          placeholder="Your password"
-          autocomplete="current-password"
-          [disabled]="loading"
-        />
+        <input id="password" [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="password" name="password" placeholder="Your password"
+          autocomplete="current-password" [disabled]="loading"/>
         <button type="button" class="toggle-pw" (click)="togglePassword()" tabindex="-1">
           <svg *ngIf="!showPassword" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
@@ -89,5 +76,9 @@
     </button>
 
   </form>
+
+  <div class="signup-hint">
+    New hotel? <a routerLink="/signup">Get started with a license key →</a>
+  </div>
 
 </div>

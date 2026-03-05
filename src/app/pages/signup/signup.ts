@@ -31,16 +31,21 @@ export class Signup implements OnInit {
   confirmPassword = '';
 
   // State
-  step = 1; // 1 = enter key, 2 = fill details
+  step = 1;
   loading = false;
   validating = false;
   error = '';
   showPassword = false;
   showConfirm = false;
-
   keyInfo: KeyInfo | null = null;
 
-  // Password strength
+  // Contact modal
+  showContact = false;
+  contactLoading = false;
+  contactSent = false;
+  contactError = '';
+  contact = { hotel: '', name: '', email: '', employees: '', plan: '', message: '' };
+
   get pwStrength(): { score: number; label: string; color: string } {
     const p = this.password;
     let score = 0;
@@ -66,7 +71,6 @@ export class Signup implements OnInit {
       this.error = 'Please enter a valid license key';
       return;
     }
-
     this.validating = true;
     this.http.post<KeyInfo>(`${environment.apiUrl}/auth/validate-key`, { key }).subscribe({
       next: (info) => {
@@ -105,7 +109,6 @@ export class Signup implements OnInit {
       this.error = 'Please choose a stronger password';
       return;
     }
-
     this.loading = true;
     this.http
       .post(`${environment.apiUrl}/auth/register`, {
@@ -118,7 +121,6 @@ export class Signup implements OnInit {
       .subscribe({
         next: () => {
           this.loading = false;
-          // Auto-login after registration
           this.auth.login({ email: this.email.trim(), password: this.password }).subscribe({
             next: () => this.router.navigateByUrl('/dashboard'),
             error: () => this.router.navigateByUrl('/login'),
@@ -135,5 +137,47 @@ export class Signup implements OnInit {
     this.step = 1;
     this.keyInfo = null;
     this.error = '';
+  }
+
+  closeContact(event: MouseEvent) {
+    if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
+      this.showContact = false;
+    }
+  }
+
+  sendContact() {
+    this.contactError = '';
+    if (!this.contact.hotel.trim()) {
+      this.contactError = 'Hotel name is required';
+      return;
+    }
+    if (!this.contact.name.trim()) {
+      this.contactError = 'Your name is required';
+      return;
+    }
+    if (!this.contact.email.trim()) {
+      this.contactError = 'Email is required';
+      return;
+    }
+
+    this.contactLoading = true;
+
+    // Send to backend contact endpoint or fallback to mailto
+    this.http.post(`${environment.apiUrl}/contact`, this.contact).subscribe({
+      next: () => {
+        this.contactLoading = false;
+        this.contactSent = true;
+      },
+      error: () => {
+        // Fallback — open mailto if endpoint not available
+        this.contactLoading = false;
+        const subject = encodeURIComponent(`License Key Request — ${this.contact.hotel}`);
+        const body = encodeURIComponent(
+          `Hotel: ${this.contact.hotel}\nName: ${this.contact.name}\nEmail: ${this.contact.email}\nEmployees: ${this.contact.employees}\nPlan: ${this.contact.plan}\n\n${this.contact.message}`
+        );
+        window.open(`mailto:sales@maeroll.co.za?subject=${subject}&body=${body}`);
+        this.contactSent = true;
+      },
+    });
   }
 }
