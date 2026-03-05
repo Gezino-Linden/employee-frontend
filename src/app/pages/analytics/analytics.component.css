@@ -359,3 +359,29 @@
   .cards-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
+/* -- Fix KPI card number overflow -- */
+.summary-card {
+  min-width: 0;
+  overflow: hidden;
+}
+.summary-value {
+  font-size: clamp(0.9rem, 2vw, 1.4rem) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.summary-label {
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.summary-detail {
+  font-size: 0.7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.summary-info {
+  min-width: 0;
+  overflow: hidden;
+}

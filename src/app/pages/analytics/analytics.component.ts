@@ -41,8 +41,16 @@ export class AnalyticsComponent implements OnInit {
   complianceData: ComplianceAnalytics | null = null;
   hrData: HRInsights | null = null;
 
+  // Global loading (dashboard overview)
   loading = false;
   error: string | null = null;
+
+  // Per-tab loading flags
+  payrollLoading = false;
+  leaveLoading = false;
+  attendanceLoading = false;
+  complianceLoading = false;
+  hrLoading = false;
 
   payrollChartData: ChartConfiguration['data'] | null = null;
   payrollChartOptions: ChartConfiguration['options'] = {
@@ -97,65 +105,85 @@ export class AnalyticsComponent implements OnInit {
   }
 
   loadPayrollData(): void {
+    this.payrollLoading = true;
     this.analyticsService
       .getPayrollAnalytics(this.selectedYear)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.payrollData = data;
+          this.payrollLoading = false;
           this.setupPayrollChart(data);
           this.setupDepartmentChart(data);
         },
-        error: () => {},
+        error: () => {
+          this.payrollLoading = false;
+        },
       });
   }
 
   loadLeaveData(): void {
+    this.leaveLoading = true;
     this.analyticsService
       .getLeaveAnalytics(this.selectedYear)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.leaveData = data;
+          this.leaveLoading = false;
           this.setupLeaveChart(data);
         },
-        error: () => {},
+        error: () => {
+          this.leaveLoading = false;
+        },
       });
   }
 
   loadAttendanceData(): void {
+    this.attendanceLoading = true;
     this.analyticsService
       .getAttendanceAnalytics(this.selectedYear, this.selectedMonth)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.attendanceData = data;
+          this.attendanceLoading = false;
         },
-        error: () => {},
+        error: () => {
+          this.attendanceLoading = false;
+        },
       });
   }
 
   loadComplianceData(): void {
+    this.complianceLoading = true;
     this.analyticsService
       .getComplianceAnalytics(this.selectedYear)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.complianceData = data;
+          this.complianceLoading = false;
         },
-        error: () => {},
+        error: () => {
+          this.complianceLoading = false;
+        },
       });
   }
 
   loadHRData(): void {
+    this.hrLoading = true;
     this.analyticsService
       .getHRInsights()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.hrData = data;
+          this.hrLoading = false;
         },
-        error: () => {},
+        error: () => {
+          this.hrLoading = false;
+        },
       });
   }
 
@@ -247,16 +275,21 @@ export class AnalyticsComponent implements OnInit {
   }
 
   onYearChange(): void {
+    this.payrollData = null;
+    this.leaveData = null;
+    this.attendanceData = null;
+    this.complianceData = null;
     this.loadDashboardData();
-    if (this.activeTab === 'payroll' && this.payrollData) this.loadPayrollData();
-    if (this.activeTab === 'leave' && this.leaveData) this.loadLeaveData();
-    if (this.activeTab === 'attendance' && this.attendanceData) this.loadAttendanceData();
-    if (this.activeTab === 'compliance' && this.complianceData) this.loadComplianceData();
+    if (this.activeTab === 'payroll') this.loadPayrollData();
+    if (this.activeTab === 'leave') this.loadLeaveData();
+    if (this.activeTab === 'attendance') this.loadAttendanceData();
+    if (this.activeTab === 'compliance') this.loadComplianceData();
   }
 
   onMonthChange(): void {
+    this.attendanceData = null;
     this.loadDashboardData();
-    if (this.activeTab === 'attendance' && this.attendanceData) this.loadAttendanceData();
+    if (this.activeTab === 'attendance') this.loadAttendanceData();
   }
 
   formatCurrency(value: string | number): string {
@@ -292,5 +325,3 @@ export class AnalyticsComponent implements OnInit {
     return total > 0 ? Math.round((part / total) * 100) : 0;
   }
 }
-
-
