@@ -53,7 +53,6 @@ export class Employees implements OnInit {
   me: MeResponse | null = null;
   activeTab: EmployeeTab = 'list';
 
-  // List
   employees: Employee[] = [];
   listLoading = false;
   totalEmployees = 0;
@@ -61,7 +60,6 @@ export class Employees implements OnInit {
   currentPage = 1;
   pageLimit = 10;
 
-  // Filters
   searchQuery = '';
   filterDepartment = '';
   filterPosition = '';
@@ -69,25 +67,19 @@ export class Employees implements OnInit {
   departments: string[] = [];
   positions: string[] = [];
 
-  // Selected employee
   selectedEmployee: Employee | null = null;
-
-  // Salary history
   salaryHistory: SalaryAudit[] = [];
   salaryHistoryLoading = false;
 
-  // Add/Edit form
   form = this.emptyForm();
   formLoading = false;
   formError = '';
   formSuccess = '';
 
-  // Salary update
   newSalary = 0;
   salaryLoading = false;
   salaryMessage = '';
 
-  // Delete confirm
   deleteConfirm = false;
   deleteLoading = false;
 
@@ -113,6 +105,7 @@ export class Employees implements OnInit {
         error: () => {},
       });
     this.loadEmployees();
+    this.loadDepartments();
   }
 
   emptyForm() {
@@ -125,6 +118,19 @@ export class Employees implements OnInit {
       salary: 0,
       age: null as number | null,
     };
+  }
+
+  loadDepartments() {
+    this.http
+      .get<any>(`${environment.apiUrl}/employees/departments`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.departments = (res.data || []).filter(Boolean).sort();
+          this.cdr.detectChanges();
+        },
+        error: () => {},
+      });
   }
 
   loadEmployees() {
@@ -142,7 +148,8 @@ export class Employees implements OnInit {
           this.employees = res.data || res || [];
           this.totalEmployees = res.total || this.employees.length;
           this.totalPages = res.totalPages || 1;
-          this.extractFilters();
+          const positions = [...new Set(this.employees.map((e) => e.position).filter(Boolean))];
+          if (positions.length > this.positions.length) this.positions = positions;
           this.listLoading = false;
           this.cdr.detectChanges();
         },
@@ -151,13 +158,6 @@ export class Employees implements OnInit {
           this.cdr.detectChanges();
         },
       });
-  }
-
-  extractFilters() {
-    const depts = [...new Set(this.employees.map((e) => e.department).filter(Boolean))];
-    const positions = [...new Set(this.employees.map((e) => e.position).filter(Boolean))];
-    if (depts.length > this.departments.length) this.departments = depts;
-    if (positions.length > this.positions.length) this.positions = positions;
   }
 
   onNewDepartment(event: Event) {
@@ -204,8 +204,9 @@ export class Employees implements OnInit {
       .subscribe({
         next: (emp) => {
           this.formLoading = false;
-          this.formSuccess = `✅ ${emp.first_name} ${emp.last_name} added successfully!`;
+          this.formSuccess = `${emp.first_name} ${emp.last_name} added successfully!`;
           this.loadEmployees();
+          this.loadDepartments();
           this.cdr.detectChanges();
           setTimeout(() => {
             this.formSuccess = '';
@@ -248,7 +249,7 @@ export class Employees implements OnInit {
       .subscribe({
         next: (emp) => {
           this.formLoading = false;
-          this.formSuccess = '✅ Employee updated successfully!';
+          this.formSuccess = 'Employee updated successfully!';
           this.selectedEmployee = emp;
           this.loadEmployees();
           this.cdr.detectChanges();
@@ -335,7 +336,7 @@ export class Employees implements OnInit {
       .subscribe({
         next: (emp) => {
           this.salaryLoading = false;
-          this.salaryMessage = '✅ Salary updated successfully!';
+          this.salaryMessage = 'Salary updated successfully!';
           this.selectedEmployee = emp;
           this.loadEmployees();
           this.openSalaryHistory(emp);
@@ -343,7 +344,7 @@ export class Employees implements OnInit {
         },
         error: (err) => {
           this.salaryLoading = false;
-          this.salaryMessage = '❌ ' + (err.error?.error || 'Failed to update salary');
+          this.salaryMessage = err.error?.error || 'Failed to update salary';
           this.cdr.detectChanges();
         },
       });
@@ -358,7 +359,7 @@ export class Employees implements OnInit {
   }
 
   formatDate(date: string): string {
-    if (!date) return '—';
+    if (!date) return '-';
     return new Date(date).toLocaleDateString('en-ZA', {
       day: '2-digit',
       month: 'short',
@@ -371,7 +372,7 @@ export class Employees implements OnInit {
   }
 
   getAgeGroup(age: number | null): string {
-    if (!age) return '—';
+    if (!age) return '-';
     if (age < 65) return `${age} (Primary rebate)`;
     if (age < 75) return `${age} (Secondary rebate)`;
     return `${age} (Tertiary rebate)`;
