@@ -257,19 +257,19 @@ export class AnalyticsComponent implements OnInit {
     this.activeTab = tab;
     switch (tab) {
       case 'payroll':
-        this.loadPayrollData();
+        if (!this.payrollData) this.loadPayrollData();
         break;
       case 'leave':
-        this.loadLeaveData();
+        if (!this.leaveData) this.loadLeaveData();
         break;
       case 'attendance':
-        this.loadAttendanceData();
+        if (!this.attendanceData) this.loadAttendanceData();
         break;
       case 'compliance':
-        this.loadComplianceData();
+        if (!this.complianceData) this.loadComplianceData();
         break;
       case 'hr':
-        this.loadHRData();
+        if (!this.hrData) this.loadHRData();
         break;
     }
   }

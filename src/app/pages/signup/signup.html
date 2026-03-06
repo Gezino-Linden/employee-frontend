@@ -173,9 +173,13 @@
         <label>Plan Interest</label>
         <select [(ngModel)]="contact.plan" [disabled]="contactLoading">
           <option value="">Select a plan...</option>
-          <option value="starter">Starter — up to 25 employees · R45 PEPM</option>
-          <option value="professional">Professional — up to 100 employees · R35 PEPM</option>
-          <option value="enterprise">Enterprise — up to 500 employees · R25 PEPM</option>
+          <option value="Tier 1">Tier 1 — (1-25 emp)    : R100 PEPM</option>
+          <option value="Tier 2">Tier 2 — (26-50 emp)   : R90 PEPM</option>
+          <option value="Tier 3">Tier 4 — (51-100 emp)  : R80 PEPM</option>
+          <option value="Tier 4">Tier 5 — (101-200 emp) : R70 PEPM</option>
+          <option value="Tier 5">Tier 6 — (201-350 emp) : R60 PEPM</option>
+          <option value="Tier 6">Tier 6 — (351-500 emp) : R50 PEPM</option>
+          <option value="Tier 7">Tier 7 — (501+ emp)    : Custom quote</option>
         </select>
       </div>
       <div class="modal-field">
