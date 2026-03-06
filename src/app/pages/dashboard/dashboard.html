@@ -26,7 +26,6 @@
     </div>
 
     <div class="nav-cards">
-
       <!-- People -->
       <div class="nav-card indigo" (click)="goToEmployees()">
         <div class="nav-card-icon">👥</div>
@@ -111,7 +110,14 @@
         </div>
         <div class="nav-card-arrow">→</div>
       </div>
-
+      <div class="nav-card slate" (click)="goToAuditLog()">
+        <div class="nav-card-icon">🔍</div>
+        <div class="nav-card-body">
+          <h3>Audit Log</h3>
+          <p>Track changes, approvals &amp; actions</p>
+        </div>
+        <div class="nav-card-arrow">→</div>
+      </div>
     </div>
   </main>
 </div>

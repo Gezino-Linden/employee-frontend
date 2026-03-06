@@ -1322,3 +1322,13 @@ body {
   background: rgba(99, 102, 241, 0.09);
   box-shadow: 0 12px 32px rgba(99, 102, 241, 0.2);
 }
+.nav-card.slate {
+  border-color: rgba(100, 116, 139, 0.3);
+}
+.nav-card.slate:hover {
+  border-color: #64748b;
+  box-shadow: 0 8px 32px rgba(100, 116, 139, 0.2);
+}
+.nav-card.slate .nav-card-icon {
+  background: rgba(100, 116, 139, 0.15);
+}

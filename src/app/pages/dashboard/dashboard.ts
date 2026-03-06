@@ -64,4 +64,7 @@ export class Dashboard implements OnInit {
   goToReports() {
     this.router.navigateByUrl('/reports');
   }
+  goToAuditLog() {
+    this.router.navigateByUrl('/audit-log');
+  }
 }

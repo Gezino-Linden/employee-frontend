@@ -1,0 +1,168 @@
+<!-- File: src/app/pages/audit-log/audit-log.html -->
+<div class="hr-app">
+  <div class="bg-mesh"></div>
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">HR</div>
+      <span class="brand-name">MaeRoll</span>
+    </div>
+    <div class="topnav-right">
+      <div *ngIf="me" class="user-chip">
+        <div class="user-avatar-sm">{{ me.name[0] }}</div>
+        <span>{{ me.name }}</span>
+        <span class="role-badge">{{ me.role }}</span>
+      </div>
+      <button class="btn-ghost" (click)="goBack()">← Dashboard</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">🔍 Audit Log</h1>
+        <p class="page-subtitle">Track every change made in your system</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-refresh" (click)="loadLogs()">↺ Refresh</button>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards" *ngIf="summary">
+      <div class="summary-card">
+        <div class="summary-icon">👤</div>
+        <div class="summary-info">
+          <div class="summary-value">{{ getCount('CREATE', 'employee') }}</div>
+          <div class="summary-label">Employees Added</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">✏️</div>
+        <div class="summary-info">
+          <div class="summary-value">{{ getCount('UPDATE', 'employee') }}</div>
+          <div class="summary-label">Records Updated</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">💰</div>
+        <div class="summary-info">
+          <div class="summary-value">{{ getCount('PROCESS', 'payroll') }}</div>
+          <div class="summary-label">Payrolls Processed</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">✅</div>
+        <div class="summary-info">
+          <div class="summary-value">{{ getCount('APPROVE', 'leave') }}</div>
+          <div class="summary-label">Leave Approved</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <select class="filter-select" [(ngModel)]="filterEntity" (change)="applyFilters()">
+        <option value="">All Types</option>
+        <option value="employee">Employee</option>
+        <option value="payroll">Payroll</option>
+        <option value="leave">Leave</option>
+        <option value="salary">Salary</option>
+        <option value="attendance">Attendance</option>
+        <option value="user">User</option>
+        <option value="shift">Shift</option>
+        <option value="sars">SARS</option>
+      </select>
+      <select class="filter-select" [(ngModel)]="filterAction" (change)="applyFilters()">
+        <option value="">All Actions</option>
+        <option value="CREATE">Create</option>
+        <option value="UPDATE">Update</option>
+        <option value="DELETE">Delete</option>
+        <option value="APPROVE">Approve</option>
+        <option value="REJECT">Reject</option>
+        <option value="PROCESS">Process</option>
+        <option value="MARK_PAID">Mark Paid</option>
+        <option value="SALARY_UPDATE">Salary Update</option>
+        <option value="RESTORE">Restore</option>
+        <option value="ROLE_CHANGE">Role Change</option>
+      </select>
+      <button class="btn-clear" (click)="clearFilters()" *ngIf="filterEntity || filterAction">✕ Clear</button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading audit logs...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-state" *ngIf="!loading && error">
+      <p>⚠️ {{ error }}</p>
+      <button class="btn-retry" (click)="loadLogs()">Retry</button>
+    </div>
+
+    <!-- Audit Log Table -->
+    <div class="table-card" *ngIf="!loading && !error">
+      <div class="table-empty" *ngIf="logs.length === 0">
+        <div class="empty-icon">📋</div>
+        <p>No audit logs found</p>
+      </div>
+
+      <table class="audit-table" *ngIf="logs.length > 0">
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Who</th>
+            <th>Role</th>
+            <th>Action</th>
+            <th>Type</th>
+            <th>Record</th>
+            <th>Changes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of logs" (click)="toggleExpand(log)" [class.expanded]="log.expanded">
+            <td class="td-time">
+              <div class="time-main">{{ formatDate(log.created_at) }}</div>
+              <div class="time-sub">{{ formatTime(log.created_at) }}</div>
+            </td>
+            <td class="td-user">
+              <div class="user-avatar-sm">{{ (log.performed_by_name || '?')[0] }}</div>
+              <span>{{ log.performed_by_name || 'System' }}</span>
+            </td>
+            <td><span class="role-pill" [class]="'role-' + (log.performed_by_role || 'unknown')">{{ log.performed_by_role || '—' }}</span></td>
+            <td><span class="action-badge" [class]="'action-' + log.action?.toLowerCase()">{{ log.action }}</span></td>
+            <td><span class="entity-badge">{{ log.entity_type }}</span></td>
+            <td class="td-entity">{{ log.entity_name || '—' }}</td>
+            <td class="td-changes">
+              <span *ngIf="log.changes" class="changes-indicator" (click)="toggleExpand(log); $event.stopPropagation()">
+                {{ countChanges(log.changes) }} field(s) changed
+              </span>
+              <span *ngIf="!log.changes" class="no-changes">—</span>
+            </td>
+          </tr>
+          <!-- Expanded row for changes -->
+          <tr *ngFor="let log of logs" class="changes-row" [class.visible]="log.expanded">
+            <td colspan="7" *ngIf="log.expanded && log.changes">
+              <div class="changes-detail">
+                <div class="change-item" *ngFor="let change of getChanges(log.changes)">
+                  <span class="change-field">{{ change.field }}</span>
+                  <span class="change-old">{{ change.old }}</span>
+                  <span class="change-arrow">→</span>
+                  <span class="change-new">{{ change.new }}</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">‹</button>
+        <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">›</button>
+      </div>
+    </div>
+
+  </main>
+</div>
