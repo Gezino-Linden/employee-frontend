@@ -11,7 +11,7 @@
       <div *ngIf="me" class="user-chip">
         <div class="user-avatar-sm">{{ me.name[0] }}</div>
         <span>{{ me.name }}</span>
-        <span class="role-badge">{{ me.role }}</span>
+        <span class="role-badge">{{ roleLabel }}</span>
       </div>
       <button class="btn-ghost" (click)="logout()">Sign out</button>
     </div>
@@ -26,8 +26,9 @@
     </div>
 
     <div class="nav-cards">
+
       <!-- People -->
-      <div class="nav-card indigo" (click)="goToEmployees()">
+      <div class="nav-card indigo" (click)="goToEmployees()" *ngIf="can('employees')">
         <div class="nav-card-icon">👥</div>
         <div class="nav-card-body">
           <h3>Employees</h3>
@@ -36,7 +37,7 @@
         <div class="nav-card-arrow">→</div>
       </div>
 
-      <div class="nav-card green" (click)="goToAttendance()">
+      <div class="nav-card green" (click)="goToAttendance()" *ngIf="can('attendance')">
         <div class="nav-card-icon">🕐</div>
         <div class="nav-card-body">
           <h3>Attendance</h3>
@@ -45,7 +46,7 @@
         <div class="nav-card-arrow">→</div>
       </div>
 
-      <div class="nav-card purple" (click)="goToShifts()">
+      <div class="nav-card purple" (click)="goToShifts()" *ngIf="can('shifts')">
         <div class="nav-card-icon">🗓️</div>
         <div class="nav-card-body">
           <h3>Shifts</h3>
@@ -54,7 +55,7 @@
         <div class="nav-card-arrow">→</div>
       </div>
 
-      <div class="nav-card blue" (click)="goToLeave()">
+      <div class="nav-card blue" (click)="goToLeave()" *ngIf="can('leave')">
         <div class="nav-card-icon">🏖️</div>
         <div class="nav-card-body">
           <h3>Leave</h3>
@@ -64,7 +65,7 @@
       </div>
 
       <!-- Finance -->
-      <div class="nav-card amber" (click)="goToPayroll()">
+      <div class="nav-card amber" (click)="goToPayroll()" *ngIf="can('payroll')">
         <div class="nav-card-icon">💰</div>
         <div class="nav-card-body">
           <h3>Payroll</h3>
@@ -73,7 +74,7 @@
         <div class="nav-card-arrow">→</div>
       </div>
 
-      <div class="nav-card teal" (click)="goToAccounting()">
+      <div class="nav-card teal" (click)="goToAccounting()" *ngIf="can('accounting')">
         <div class="nav-card-icon">📒</div>
         <div class="nav-card-body">
           <h3>Accounting</h3>
@@ -82,8 +83,8 @@
         <div class="nav-card-arrow">→</div>
       </div>
 
-      <!-- SARS Compliance — replaces EMP201 + UI-19 + IRP5 -->
-      <div class="nav-card sars" (click)="goToSars()">
+      <!-- SARS Compliance -->
+      <div class="nav-card sars" (click)="goToSars()" *ngIf="can('sars')">
         <div class="nav-card-icon">🏛️</div>
         <div class="nav-card-body">
           <h3>SARS Compliance</h3>
@@ -93,7 +94,7 @@
       </div>
 
       <!-- Insights -->
-      <div class="nav-card violet" (click)="goToAnalytics()">
+      <div class="nav-card violet" (click)="goToAnalytics()" *ngIf="can('analytics')">
         <div class="nav-card-icon">📊</div>
         <div class="nav-card-body">
           <h3>Analytics</h3>
@@ -102,15 +103,17 @@
         <div class="nav-card-arrow">→</div>
       </div>
 
-      <div class="nav-card orange" (click)="goToReports()">
-        <div class="nav-card-icon">📑</div>
+      <div class="nav-card orange" (click)="goToReports()" *ngIf="can('reports')">
+        <div class="nav-card-icon">📋</div>
         <div class="nav-card-body">
           <h3>Reports</h3>
           <p>Export PDF &amp; Excel HR reports</p>
         </div>
         <div class="nav-card-arrow">→</div>
       </div>
-      <div class="nav-card slate" (click)="goToAuditLog()">
+
+      <!-- Audit — owner, admin, GM, HR manager only -->
+      <div class="nav-card slate" (click)="goToAuditLog()" *ngIf="can('audit')">
         <div class="nav-card-icon">🔍</div>
         <div class="nav-card-body">
           <h3>Audit Log</h3>
@@ -118,6 +121,14 @@
         </div>
         <div class="nav-card-arrow">→</div>
       </div>
+
     </div>
+
+    <!-- Access notice for restricted roles -->
+    <div class="access-notice" *ngIf="me && (me.role === 'supervisor' || me.role === 'front_office_manager')">
+      <span class="notice-icon">ℹ️</span>
+      <span>You have access to the modules assigned to your role. Contact your manager for additional access.</span>
+    </div>
+
   </main>
 </div>

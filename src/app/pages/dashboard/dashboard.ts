@@ -4,6 +4,62 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, MeResponse } from '../../services/auth.service';
 
+// Role-based access map — what each role can see on the dashboard
+const ROLE_ACCESS: Record<string, string[]> = {
+  owner: [
+    'employees',
+    'attendance',
+    'shifts',
+    'leave',
+    'payroll',
+    'accounting',
+    'sars',
+    'analytics',
+    'reports',
+    'audit',
+  ],
+  admin: [
+    'employees',
+    'attendance',
+    'shifts',
+    'leave',
+    'payroll',
+    'accounting',
+    'sars',
+    'analytics',
+    'reports',
+    'audit',
+  ],
+  general_manager: [
+    'employees',
+    'attendance',
+    'shifts',
+    'leave',
+    'payroll',
+    'accounting',
+    'sars',
+    'analytics',
+    'reports',
+    'audit',
+  ],
+  manager: [
+    'employees',
+    'attendance',
+    'shifts',
+    'leave',
+    'payroll',
+    'accounting',
+    'sars',
+    'analytics',
+    'reports',
+    'audit',
+  ],
+  hr_manager: ['employees', 'attendance', 'leave', 'shifts', 'payroll', 'reports'],
+  accountant: ['payroll', 'accounting', 'sars', 'reports'],
+  front_office_manager: ['attendance', 'shifts', 'leave', 'reports'],
+  supervisor: ['attendance', 'shifts', 'leave'],
+};
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -22,14 +78,29 @@ export class Dashboard implements OnInit {
         this.me = res;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.router.navigateByUrl('/login');
-      },
+      error: () => this.router.navigateByUrl('/login'),
     });
   }
 
-  isAdmin(): boolean {
-    return this.me?.role === 'admin' || this.me?.role === 'manager';
+  can(feature: string): boolean {
+    if (!this.me?.role) return false;
+    const access = ROLE_ACCESS[this.me.role];
+    if (!access) return false;
+    return access.includes(feature);
+  }
+
+  get roleLabel(): string {
+    const labels: Record<string, string> = {
+      owner: 'Owner',
+      admin: 'Admin',
+      general_manager: 'General Manager',
+      manager: 'Manager',
+      hr_manager: 'HR Manager',
+      accountant: 'Accountant',
+      front_office_manager: 'Front Office Manager',
+      supervisor: 'Supervisor',
+    };
+    return labels[this.me?.role || ''] || this.me?.role || '';
   }
 
   logout() {
