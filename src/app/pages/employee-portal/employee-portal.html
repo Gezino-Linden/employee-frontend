@@ -1,4 +1,4 @@
-<!-- File: src/app/pages/employee-portal/employee-portal.html -->
+﻿<!-- File: src/app/pages/employee-portal/employee-portal.html -->
 <div class="portal-app">
   <div class="portal-bg"></div>
 
@@ -24,7 +24,7 @@
     <!-- Welcome -->
     <div class="welcome-bar">
       <div>
-        <h1>Good {{ timeOfDay }}, {{ me?.name?.split(' ')?.[0] }} 👋</h1>
+        <h1>Good {{ timeOfDay }}, {{ me?.name?.split(' ')?.[0] }} ðŸ‘‹</h1>
         <p>{{ todayDate }}</p>
       </div>
       <div class="work-status-badge" [class]="clockedIn ? 'status-in' : 'status-out'">
@@ -35,14 +35,14 @@
 
     <!-- Tab Nav -->
     <div class="tab-nav">
-      <button class="tab-btn" [class.active]="activeTab === 'clock'" (click)="activeTab = 'clock'">⏱ Attendance</button>
-      <button class="tab-btn" [class.active]="activeTab === 'leave'" (click)="activeTab = 'leave'; loadLeave()">🏖 Leave</button>
-      <button class="tab-btn" [class.active]="activeTab === 'shifts'" (click)="activeTab = 'shifts'; loadShifts()">🗓 Shifts</button>
-      <button class="tab-btn" [class.active]="activeTab === 'payslips'" (click)="activeTab = 'payslips'; loadPayslips()">💰 Payslips</button>
-      <button class="tab-btn" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">👤 Profile</button>
+      <button class="tab-btn" [class.active]="activeTab === 'clock'" (click)="activeTab = 'clock'">â± Attendance</button>
+      <button class="tab-btn" [class.active]="activeTab === 'leave'" (click)="activeTab = 'leave'; loadLeave()">ðŸ– Leave</button>
+      <button class="tab-btn" [class.active]="activeTab === 'shifts'" (click)="activeTab = 'shifts'; loadShifts()">ðŸ—“ Shifts</button>
+      <button class="tab-btn" [class.active]="activeTab === 'payslips'" (click)="activeTab = 'payslips'; loadPayslips()">ðŸ’° Payslips</button>
+      <button class="tab-btn" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">ðŸ‘¤ Profile</button>
     </div>
 
-    <!-- ── ATTENDANCE TAB ── -->
+    <!-- â”€â”€ ATTENDANCE TAB â”€â”€ -->
     <div class="tab-content" *ngIf="activeTab === 'clock'">
       <div class="clock-layout">
 
@@ -54,7 +54,7 @@
           <div class="qr-wrapper" *ngIf="qrDataUrl">
             <img [src]="qrDataUrl" class="qr-image" alt="QR Code" />
             <div class="qr-label">Your personal attendance QR</div>
-            <div class="qr-expires" *ngIf="qrExpiry">Refreshes in {{ qrCountdown }}s</div>
+            <div class="qr-expires" *ngIf="qrDataUrl">Refreshes in {{ qrCountdown }}s</div>
           </div>
           <div class="qr-loading" *ngIf="!qrDataUrl">
             <div class="spinner"></div>
@@ -63,13 +63,13 @@
 
           <div class="clock-actions">
             <button class="clock-btn clock-in" (click)="clockIn()" [disabled]="clockLoading || clockedIn">
-              {{ clockLoading && clockAction === 'in' ? 'Clocking in...' : '▶ Clock In' }}
+              {{ clockLoading && clockAction === 'in' ? 'Clocking in...' : 'â–¶ Clock In' }}
             </button>
             <button class="clock-btn break" (click)="toggleBreak()" [disabled]="clockLoading || !clockedIn">
-              {{ onBreak ? '⏸ End Break' : '☕ Start Break' }}
+              {{ onBreak ? 'â¸ End Break' : 'â˜• Start Break' }}
             </button>
             <button class="clock-btn clock-out" (click)="clockOut()" [disabled]="clockLoading || !clockedIn">
-              {{ clockLoading && clockAction === 'out' ? 'Clocking out...' : '⏹ Clock Out' }}
+              {{ clockLoading && clockAction === 'out' ? 'Clocking out...' : 'â¹ Clock Out' }}
             </button>
           </div>
 
@@ -84,11 +84,11 @@
           <div class="today-stats" *ngIf="!todayLoading && todayStatus">
             <div class="today-stat">
               <span class="ts-label">Clock In</span>
-              <span class="ts-value">{{ todayStatus.clock_in ? formatTime(todayStatus.clock_in) : '—' }}</span>
+              <span class="ts-value">{{ todayStatus.clock_in ? formatTime(todayStatus.clock_in) : 'â€”' }}</span>
             </div>
             <div class="today-stat">
               <span class="ts-label">Clock Out</span>
-              <span class="ts-value">{{ todayStatus.clock_out ? formatTime(todayStatus.clock_out) : '—' }}</span>
+              <span class="ts-value">{{ todayStatus.clock_out ? formatTime(todayStatus.clock_out) : 'â€”' }}</span>
             </div>
             <div class="today-stat">
               <span class="ts-label">Hours Worked</span>
@@ -114,7 +114,7 @@
       </div>
     </div>
 
-    <!-- ── LEAVE TAB ── -->
+    <!-- â”€â”€ LEAVE TAB â”€â”€ -->
     <div class="tab-content" *ngIf="activeTab === 'leave'">
       <div class="leave-layout">
 
@@ -175,7 +175,7 @@
           <div class="requests-list" *ngIf="!leaveLoading">
             <div class="request-row" *ngFor="let r of leaveRequests">
               <div class="req-type">{{ r.leave_type_name }}</div>
-              <div class="req-dates">{{ formatDate(r.start_date) }} → {{ formatDate(r.end_date) }}</div>
+              <div class="req-dates">{{ formatDate(r.start_date) }} â†’ {{ formatDate(r.end_date) }}</div>
               <div class="req-days">{{ r.total_days }} day(s)</div>
               <span class="status-pill" [class]="'pill-' + r.status">{{ r.status }}</span>
               <button class="btn-cancel-req" (click)="cancelLeave(r.id)"
@@ -187,7 +187,7 @@
       </div>
     </div>
 
-    <!-- ── SHIFTS TAB ── -->
+    <!-- â”€â”€ SHIFTS TAB â”€â”€ -->
     <div class="tab-content" *ngIf="activeTab === 'shifts'">
       <div class="portal-card">
         <h2 class="card-title">My Shift Schedule</h2>
@@ -196,7 +196,7 @@
           <div class="shift-row" *ngFor="let s of myShifts">
             <div class="shift-date">{{ formatDate(s.shift_date) }}</div>
             <div class="shift-name">{{ s.template_name || s.shift_name }}</div>
-            <div class="shift-time">{{ s.start_time }} — {{ s.end_time }}</div>
+            <div class="shift-time">{{ s.start_time }} â€” {{ s.end_time }}</div>
             <span class="shift-badge" [class]="isToday(s.shift_date) ? 'badge-today' : 'badge-upcoming'">
               {{ isToday(s.shift_date) ? 'Today' : 'Upcoming' }}
             </span>
@@ -206,7 +206,7 @@
       </div>
     </div>
 
-    <!-- ── PAYSLIPS TAB ── -->
+    <!-- â”€â”€ PAYSLIPS TAB â”€â”€ -->
     <div class="tab-content" *ngIf="activeTab === 'payslips'">
       <div class="portal-card">
         <h2 class="card-title">My Payslips</h2>
@@ -217,14 +217,14 @@
             <div class="payslip-gross">Gross: R{{ p.gross_salary | number:'1.2-2' }}</div>
             <div class="payslip-net">Net: <strong>R{{ p.net_salary | number:'1.2-2' }}</strong></div>
             <span class="status-pill" [class]="'pill-' + p.status">{{ p.status }}</span>
-            <button class="btn-download" (click)="downloadPayslip(p.id)">⬇ Download</button>
+            <button class="btn-download" (click)="downloadPayslip(p.id)">â¬‡ Download</button>
           </div>
           <div class="empty-sm" *ngIf="myPayslips.length === 0"><p>No payslips available yet</p></div>
         </div>
       </div>
     </div>
 
-    <!-- ── PROFILE TAB ── -->
+    <!-- â”€â”€ PROFILE TAB â”€â”€ -->
     <div class="tab-content" *ngIf="activeTab === 'profile'">
       <div class="portal-card profile-card">
         <div class="profile-avatar">{{ me?.name?.[0] }}</div>
@@ -237,7 +237,7 @@
         </div>
         <div class="form-group">
           <label>Email Address</label>
-          <input type="email" [(ngModel)]="profileForm.email" class="form-input" />
+          <input type="email" [value]="me?.email" readonly class="form-input" />
         </div>
         <div class="section-divider">Change Password</div>
         <div class="form-group">
@@ -258,3 +258,5 @@
 
   </main>
 </div>
+
+
