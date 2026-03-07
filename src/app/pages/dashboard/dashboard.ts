@@ -17,6 +17,7 @@ const ROLE_ACCESS: Record<string, string[]> = {
     'analytics',
     'reports',
     'audit',
+    'users',
   ],
   admin: [
     'employees',
@@ -29,6 +30,7 @@ const ROLE_ACCESS: Record<string, string[]> = {
     'analytics',
     'reports',
     'audit',
+    'users',
   ],
   general_manager: [
     'employees',
@@ -41,6 +43,7 @@ const ROLE_ACCESS: Record<string, string[]> = {
     'analytics',
     'reports',
     'audit',
+    'users',
   ],
   manager: [
     'employees',
@@ -53,8 +56,9 @@ const ROLE_ACCESS: Record<string, string[]> = {
     'analytics',
     'reports',
     'audit',
+    'users',
   ],
-  hr_manager: ['employees', 'attendance', 'leave', 'shifts', 'payroll', 'reports'],
+  hr_manager: ['employees', 'attendance', 'leave', 'shifts', 'payroll', 'reports', 'audit'],
   accountant: ['payroll', 'accounting', 'sars', 'reports'],
   front_office_manager: ['attendance', 'shifts', 'leave', 'reports'],
   supervisor: ['attendance', 'shifts', 'leave'],
@@ -137,5 +141,8 @@ export class Dashboard implements OnInit {
   }
   goToAuditLog() {
     this.router.navigateByUrl('/audit-log');
+  }
+  goToUsers() {
+    this.router.navigateByUrl('/users');
   }
 }

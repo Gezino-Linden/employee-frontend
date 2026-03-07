@@ -26,7 +26,6 @@
     </div>
 
     <div class="nav-cards">
-
       <!-- People -->
       <div class="nav-card indigo" (click)="goToEmployees()" *ngIf="can('employees')">
         <div class="nav-card-icon">👥</div>
@@ -121,14 +120,26 @@
         </div>
         <div class="nav-card-arrow">→</div>
       </div>
-
+      <div class="nav-card rose" (click)="goToUsers()" *ngIf="can('users')">
+        <div class="nav-card-icon">🔐</div>
+        <div class="nav-card-body">
+          <h3>Users</h3>
+          <p>Manage staff access &amp; roles</p>
+        </div>
+        <div class="nav-card-arrow">→</div>
+      </div>
     </div>
 
     <!-- Access notice for restricted roles -->
-    <div class="access-notice" *ngIf="me && (me.role === 'supervisor' || me.role === 'front_office_manager')">
+    <div
+      class="access-notice"
+      *ngIf="me && (me.role === 'supervisor' || me.role === 'front_office_manager')"
+    >
       <span class="notice-icon">ℹ️</span>
-      <span>You have access to the modules assigned to your role. Contact your manager for additional access.</span>
+      <span
+        >You have access to the modules assigned to your role. Contact your manager for additional
+        access.</span
+      >
     </div>
-
   </main>
 </div>

@@ -1347,9 +1347,28 @@ body {
   color: var(--text-secondary);
   font-size: 0.875rem;
 }
-.notice-icon { font-size: 1.1rem; }
+.notice-icon {
+  font-size: 1.1rem;
+}
 
 /* Slate card */
-.nav-card.slate { border-color: rgba(100, 116, 139, 0.3); }
-.nav-card.slate:hover { border-color: #64748b; box-shadow: 0 8px 32px rgba(100,116,139,0.2); }
-.nav-card.slate .nav-card-icon { background: rgba(100,116,139,0.15); }
+.nav-card.slate {
+  border-color: rgba(100, 116, 139, 0.3);
+}
+.nav-card.slate:hover {
+  border-color: #64748b;
+  box-shadow: 0 8px 32px rgba(100, 116, 139, 0.2);
+}
+.nav-card.slate .nav-card-icon {
+  background: rgba(100, 116, 139, 0.15);
+}
+.nav-card.rose {
+  border-color: rgba(244, 63, 94, 0.3);
+}
+.nav-card.rose:hover {
+  border-color: #f43f5e;
+  box-shadow: 0 8px 32px rgba(244, 63, 94, 0.2);
+}
+.nav-card.rose .nav-card-icon {
+  background: rgba(244, 63, 94, 0.15);
+}
