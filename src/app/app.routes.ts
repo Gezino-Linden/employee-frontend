@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
-import { AuditLogComponent } from './pages/audit-log/audit-log';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -67,6 +66,10 @@ export const routes: Routes = [
   { path: 'emp201', redirectTo: 'sars', pathMatch: 'full' },
   { path: 'ui19', redirectTo: 'sars', pathMatch: 'full' },
   { path: 'irp5', redirectTo: 'sars', pathMatch: 'full' },
-  { path: 'audit-log', component: AuditLogComponent },
+  {
+    path: 'audit-log',
+    loadComponent: () => import('./pages/audit-log/audit-log').then((m) => m.AuditLogComponent),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: 'login' },
 ];
