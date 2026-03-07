@@ -1372,3 +1372,13 @@ body {
 .nav-card.rose .nav-card-icon {
   background: rgba(244, 63, 94, 0.15);
 }
+.nav-card.emerald {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+.nav-card.emerald:hover {
+  border-color: #10b981;
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2);
+}
+.nav-card.emerald .nav-card-icon {
+  background: rgba(16, 185, 129, 0.15);
+}

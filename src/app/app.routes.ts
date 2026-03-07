@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
@@ -62,7 +62,7 @@ export const routes: Routes = [
       import('./pages/analytics/analytics.component').then((m) => m.AnalyticsComponent),
     canActivate: [authGuard],
   },
-  // Legacy redirects — old routes now point to /sars
+  // Legacy redirects â€” old routes now point to /sars
   { path: 'emp201', redirectTo: 'sars', pathMatch: 'full' },
   { path: 'ui19', redirectTo: 'sars', pathMatch: 'full' },
   { path: 'irp5', redirectTo: 'sars', pathMatch: 'full' },
@@ -86,5 +86,16 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/reset-password/reset-password').then((m) => m.ResetPasswordComponent),
   },
+  {
+    path: 'employee-login',
+    loadComponent: () =>
+      import('./pages/employee-login/employee-login').then((m) => m.EmployeeLoginComponent),
+  },
+  {
+    path: 'employee-portal',
+    loadComponent: () =>
+      import('./pages/employee-portal/employee-portal').then((m) => m.EmployeePortalComponent),
+  },
   { path: '**', redirectTo: 'login' },
 ];
+

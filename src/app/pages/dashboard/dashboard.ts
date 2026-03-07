@@ -145,4 +145,7 @@ export class Dashboard implements OnInit {
   goToUsers() {
     this.router.navigateByUrl('/users');
   }
+  goToPortal() {
+    this.router.navigateByUrl('/portal');
+  }
 }

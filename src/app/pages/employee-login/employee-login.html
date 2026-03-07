@@ -1,0 +1,52 @@
+<!-- File: src/app/pages/employee-login/employee-login.html -->
+<div class="login-wrap">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-icon">MR</div>
+      <div class="brand-text">
+        <span class="brand-name">MaeRoll</span>
+        <span class="brand-sub">Employee Portal</span>
+      </div>
+    </div>
+
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to view your schedule, payslips & more</p>
+
+    <div class="form-group">
+      <label>Work Email</label>
+      <div class="input-wrap">
+        <span class="input-icon">✉</span>
+        <input type="email" [(ngModel)]="email" class="form-input"
+          placeholder="you@hotel.co.za" (keyup.enter)="login()" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="password"
+          class="form-input" placeholder="Your password"
+          (keyup.enter)="login()" />
+        <button class="toggle-pass" (click)="showPass = !showPass" type="button">
+          {{ showPass ? '👁' : '👁‍🗨' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+    <button class="btn-login" (click)="login()" [disabled]="loading">
+      <span *ngIf="!loading">Sign In →</span>
+      <span *ngIf="loading" class="spinner-inline"></span>
+    </button>
+
+    <div class="help-text">
+      Forgot your password? Contact your HR manager to reset it.
+    </div>
+
+    <div class="divider"></div>
+    <a routerLink="/login" class="manager-link">← Manager / HR login</a>
+  </div>
+</div>
