@@ -2,7 +2,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 const API = 'https://employee-api-xpno.onrender.com/api';
@@ -10,7 +10,7 @@ const API = 'https://employee-api-xpno.onrender.com/api';
 @Component({
   selector: 'app-employee-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './employee-portal.html',
   styleUrls: ['./employee-portal.css'],
 })
@@ -205,8 +205,7 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
 
   downloadPayslip(id: number): void {
     const token = localStorage.getItem('employee_token') || '';
-    window.open(`https://employee-api-xpno.onrender.com/api/employee-portal/payslips/${id}/download?token=${token}`, '_blank');
-  }/payroll/payslip/${id}?token=${token}`, '_blank');
+    window.open(`${API}/employee-portal/payslips/${id}/download?token=${token}`, '_blank');
   }
 
   saveProfile(): void {
@@ -233,4 +232,3 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/employee-login');
   }
 }
-
