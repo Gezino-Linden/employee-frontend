@@ -1,4 +1,4 @@
-// File: src/app/pages/employee-portal/employee-portal.ts
+﻿// File: src/app/pages/employee-portal/employee-portal.ts
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -205,7 +205,8 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
 
   downloadPayslip(id: number): void {
     const token = localStorage.getItem('employee_token') || '';
-    window.open(`${API}/payroll/payslip/${id}?token=${token}`, '_blank');
+    window.open(`https://employee-api-xpno.onrender.com/api/employee-portal/payslips/${id}/download?token=${token}`, '_blank');
+  }/payroll/payslip/${id}?token=${token}`, '_blank');
   }
 
   saveProfile(): void {
@@ -232,3 +233,4 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/employee-login');
   }
 }
+
