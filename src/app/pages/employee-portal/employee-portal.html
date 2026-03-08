@@ -1,262 +1,262 @@
 <!-- File: src/app/pages/employee-portal/employee-portal.html -->
 <div class="portal-app">
-  <div class="portal-bg"></div>
+ <div class="portal-bg"></div>
 
-  <!-- Header -->
-  <nav class="portal-nav">
-    <div class="nav-brand">
-      <div class="brand-icon">HR</div>
-      <span>MaeRoll</span>
-    </div>
-    <div class="nav-right">
-      <div class="emp-chip" *ngIf="me">
-        <div class="emp-avatar">{{ me.name[0] }}</div>
-        <div class="emp-info">
-          <span class="emp-name">{{ me.name }}</span>
-          <span class="emp-role">{{ me.role }}</span>
-        </div>
-      </div>
-      <button class="btn-signout" (click)="logout()">Sign out</button>
-    </div>
-  </nav>
+ <!-- Header -->
+ <nav class="portal-nav">
+ <div class="nav-brand">
+ <div class="brand-icon">HR</div>
+ <span>MaeRoll</span>
+ </div>
+ <div class="nav-right">
+ <div class="emp-chip" *ngIf="me">
+ <div class="emp-avatar">{{ me.name[0] }}</div>
+ <div class="emp-info">
+ <span class="emp-name">{{ me.name }}</span>
+ <span class="emp-role">{{ me.role }}</span>
+ </div>
+ </div>
+ <button class="btn-signout" (click)="logout()">Sign out</button>
+ </div>
+ </nav>
 
-  <main class="portal-main">
-    <!-- Welcome -->
-    <div class="welcome-bar">
-      <div>
-        <h1>Good {{ timeOfDay }}, {{ me?.name?.split(' ')?.[0] }} Ã°Å¸â€˜â€¹</h1>
-        <p>{{ todayDate }}</p>
-      </div>
-      <div class="work-status-badge" [class]="clockedIn ? 'status-in' : 'status-out'">
-        <span class="status-dot"></span>
-        {{ clockedIn ? 'Clocked In' : 'Not Clocked In' }}
-      </div>
-    </div>
+ <main class="portal-main">
+ <!-- Welcome -->
+ <div class="welcome-bar">
+ <div>
+ <h1>Good {{ timeOfDay }}, {{ me?.name?.split(' ')?.[0] }} </h1>
+ <p>{{ todayDate }}</p>
+ </div>
+ <div class="work-status-badge" [class]="clockedIn ? 'status-in' : 'status-out'">
+ <span class="status-dot"></span>
+ {{ clockedIn ? 'Clocked In' : 'Not Clocked In' }}
+ </div>
+ </div>
 
-    <!-- Tab Nav -->
-    <div class="tab-nav">
-      <button class="tab-btn" [class.active]="activeTab === 'clock'" (click)="activeTab = 'clock'">Attendance</button>
-      <button class="tab-btn" [class.active]="activeTab === 'leave'" (click)="activeTab = 'leave'; loadLeave()">Leave</button>
-      <button class="tab-btn" [class.active]="activeTab === 'shifts'" (click)="activeTab = 'shifts'; loadShifts()">Shifts</button>
-      <button class="tab-btn" [class.active]="activeTab === 'payslips'" (click)="activeTab = 'payslips'; loadPayslips()">Payslips</button>
-      <button class="tab-btn" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">Profile</button>
-    </div>
+ <!-- Tab Nav -->
+ <div class="tab-nav">
+ <button class="tab-btn" [class.active]="activeTab === 'clock'" (click)="activeTab = 'clock'">Attendance</button>
+ <button class="tab-btn" [class.active]="activeTab === 'leave'" (click)="activeTab = 'leave'; loadLeave()">Leave</button>
+ <button class="tab-btn" [class.active]="activeTab === 'shifts'" (click)="activeTab = 'shifts'; loadShifts()">Shifts</button>
+ <button class="tab-btn" [class.active]="activeTab === 'payslips'" (click)="activeTab = 'payslips'; loadPayslips()">Payslips</button>
+ <button class="tab-btn" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">Profile</button>
+ </div>
 
-    <!-- ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ ATTENDANCE TAB ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ -->
-    <div class="tab-content" *ngIf="activeTab === 'clock'">
-      <div class="clock-layout">
+ <!-- ATTENDANCE TAB -->
+ <div class="tab-content" *ngIf="activeTab === 'clock'">
+ <div class="clock-layout">
 
-        <!-- QR Clock Card -->
-        <div class="portal-card qr-card">
-          <h2 class="card-title">Clock In / Out</h2>
-          <p class="card-subtitle">Scan the QR code at the entrance terminal or use the buttons below</p>
+ <!-- QR Clock Card -->
+ <div class="portal-card qr-card">
+ <h2 class="card-title">Clock In / Out</h2>
+ <p class="card-subtitle">Scan the QR code at the entrance terminal or use the buttons below</p>
 
-          <div class="qr-wrapper" *ngIf="qrDataUrl">
-            <img [src]="qrDataUrl" class="qr-image" alt="QR Code" />
-            <div class="qr-label">Your personal attendance QR</div>
-            <div class="qr-expires" *ngIf="qrDataUrl">Refreshes in {{ qrCountdown }}s</div>
-          </div>
-          <div class="qr-loading" *ngIf="!qrDataUrl">
-            <div class="spinner"></div>
-            <p>Generating QR code...</p>
-          </div>
+ <div class="qr-wrapper" *ngIf="qrDataUrl">
+ <img [src]="qrDataUrl" class="qr-image" alt="QR Code" />
+ <div class="qr-label">Your personal attendance QR</div>
+ <div class="qr-expires" *ngIf="qrDataUrl">Refreshes in {{ qrCountdown }}s</div>
+ </div>
+ <div class="qr-loading" *ngIf="!qrDataUrl">
+ <div class="spinner"></div>
+ <p>Generating QR code...</p>
+ </div>
 
-          <div class="clock-actions">
-            <button class="clock-btn clock-in" (click)="clockIn()" [disabled]="clockLoading || clockedIn">
-              {{ clockLoading && clockAction === 'in' ? 'Clocking in...' : 'Clock In' }}
-            </button>
-            <button class="clock-btn break" (click)="toggleBreak()" [disabled]="clockLoading || !clockedIn">
-              {{ onBreak ? 'End Break' : 'Start Break' }}
-            </button>
-            <button class="clock-btn clock-out" (click)="clockOut()" [disabled]="clockLoading || !clockedIn">
-              {{ clockLoading && clockAction === 'out' ? 'Clocking out...' : 'Clock Out' }}
-            </button>
-          </div>
+ <div class="clock-actions">
+ <button class="clock-btn clock-in" (click)="clockIn()" [disabled]="clockLoading || clockedIn">
+ {{ clockLoading && clockAction === 'in' ? 'Clocking in...' : 'Clock In' }}
+ </button>
+ <button class="clock-btn break" (click)="toggleBreak()" [disabled]="clockLoading || !clockedIn">
+ {{ onBreak ? 'End Break' : 'Start Break' }}
+ </button>
+ <button class="clock-btn clock-out" (click)="clockOut()" [disabled]="clockLoading || !clockedIn">
+ {{ clockLoading && clockAction === 'out' ? 'Clocking out...' : 'Clock Out' }}
+ </button>
+ </div>
 
-          <div class="clock-message success" *ngIf="clockMessage">{{ clockMessage }}</div>
-          <div class="clock-message error" *ngIf="clockError">{{ clockError }}</div>
-        </div>
+ <div class="clock-message success" *ngIf="clockMessage">{{ clockMessage }}</div>
+ <div class="clock-message error" *ngIf="clockError">{{ clockError }}</div>
+ </div>
 
-        <!-- Today Status Card -->
-        <div class="portal-card today-card">
-          <h2 class="card-title">Today's Summary</h2>
-          <div class="loading-sm" *ngIf="todayLoading"><div class="spinner-sm"></div></div>
-          <div class="today-stats" *ngIf="!todayLoading && todayStatus">
-            <div class="today-stat">
-              <span class="ts-label">Clock In</span>
-              <span class="ts-value">{{ todayStatus.clock_in ? formatTime(todayStatus.clock_in) : 'ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â' }}</span>
-            </div>
-            <div class="today-stat">
-              <span class="ts-label">Clock Out</span>
-              <span class="ts-value">{{ todayStatus.clock_out ? formatTime(todayStatus.clock_out) : 'ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â' }}</span>
-            </div>
-            <div class="today-stat">
-              <span class="ts-label">Hours Worked</span>
-              <span class="ts-value accent">{{ todayStatus.total_hours || '0.0' }}h</span>
-            </div>
-            <div class="today-stat">
-              <span class="ts-label">Break Time</span>
-              <span class="ts-value">{{ todayStatus.total_break_minutes || 0 }}min</span>
-            </div>
-            <div class="today-stat">
-              <span class="ts-label">Status</span>
-              <span class="ts-value">
-                <span class="status-pill" [class]="'pill-' + (todayStatus.status || 'absent')">
-                  {{ todayStatus.status || 'Absent' }}
-                </span>
-              </span>
-            </div>
-          </div>
-          <div class="empty-sm" *ngIf="!todayLoading && !todayStatus">
-            <p>No attendance recorded today</p>
-          </div>
-        </div>
-      </div>
-    </div>
+ <!-- Today Status Card -->
+ <div class="portal-card today-card">
+ <h2 class="card-title">Today's Summary</h2>
+ <div class="loading-sm" *ngIf="todayLoading"><div class="spinner-sm"></div></div>
+ <div class="today-stats" *ngIf="!todayLoading && todayStatus">
+ <div class="today-stat">
+ <span class="ts-label">Clock In</span>
+ <span class="ts-value">{{ todayStatus.clock_in ? formatTime(todayStatus.clock_in) : ' ' }}</span>
+ </div>
+ <div class="today-stat">
+ <span class="ts-label">Clock Out</span>
+ <span class="ts-value">{{ todayStatus.clock_out ? formatTime(todayStatus.clock_out) : ' ' }}</span>
+ </div>
+ <div class="today-stat">
+ <span class="ts-label">Hours Worked</span>
+ <span class="ts-value accent">{{ todayStatus.total_hours || '0.0' }}h</span>
+ </div>
+ <div class="today-stat">
+ <span class="ts-label">Break Time</span>
+ <span class="ts-value">{{ todayStatus.total_break_minutes || 0 }}min</span>
+ </div>
+ <div class="today-stat">
+ <span class="ts-label">Status</span>
+ <span class="ts-value">
+ <span class="status-pill" [class]="'pill-' + (todayStatus.status || 'absent')">
+ {{ todayStatus.status || 'Absent' }}
+ </span>
+ </span>
+ </div>
+ </div>
+ <div class="empty-sm" *ngIf="!todayLoading && !todayStatus">
+ <p>No attendance recorded today</p>
+ </div>
+ </div>
+ </div>
+ </div>
 
-    <!-- ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ LEAVE TAB ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ -->
-    <div class="tab-content" *ngIf="activeTab === 'leave'">
-      <div class="leave-layout">
+ <!-- LEAVE TAB -->
+ <div class="tab-content" *ngIf="activeTab === 'leave'">
+ <div class="leave-layout">
 
-        <!-- Balances -->
-        <div class="portal-card">
-          <h2 class="card-title">Leave Balances</h2>
-          <div class="loading-sm" *ngIf="leaveLoading"><div class="spinner-sm"></div></div>
-          <div class="balance-grid" *ngIf="!leaveLoading">
-            <div class="balance-item" *ngFor="let b of leaveBalances">
-              <div class="balance-type">{{ b.leave_type_name }}</div>
-              <div class="balance-bar-wrap">
-                <div class="balance-bar" [style.width]="getBalancePct(b) + '%'"></div>
-              </div>
-              <div class="balance-nums">
-                <span class="balance-used">{{ b.used_days }} used</span>
-                <span class="balance-avail">{{ b.remaining_days }} left</span>
-              </div>
-            </div>
-            <div class="empty-sm" *ngIf="leaveBalances.length === 0"><p>No leave balances found</p></div>
-          </div>
-        </div>
+ <!-- Balances -->
+ <div class="portal-card">
+ <h2 class="card-title">Leave Balances</h2>
+ <div class="loading-sm" *ngIf="leaveLoading"><div class="spinner-sm"></div></div>
+ <div class="balance-grid" *ngIf="!leaveLoading">
+ <div class="balance-item" *ngFor="let b of leaveBalances">
+ <div class="balance-type">{{ b.leave_type_name }}</div>
+ <div class="balance-bar-wrap">
+ <div class="balance-bar" [style.width]="getBalancePct(b) + '%'"></div>
+ </div>
+ <div class="balance-nums">
+ <span class="balance-used">{{ b.used_days }} used</span>
+ <span class="balance-avail">{{ b.remaining_days }} left</span>
+ </div>
+ </div>
+ <div class="empty-sm" *ngIf="leaveBalances.length === 0"><p>No leave balances found</p></div>
+ </div>
+ </div>
 
-        <!-- Request Leave -->
-        <div class="portal-card">
-          <h2 class="card-title">ÃƒÂ°Ã…Â¸Ã‚ÂÃ¢â‚¬â€œ Leave</h2>
-          <div class="form-group">
-            <label>Leave Type</label>
-            <select [(ngModel)]="leaveForm.leave_type_id" class="form-input">
-              <option value="">Select type...</option>
-              <option *ngFor="let t of leaveTypes" [value]="t.id">{{ t.name }}</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Start Date</label>
-              <input type="date" [(ngModel)]="leaveForm.start_date" class="form-input" />
-            </div>
-            <div class="form-group">
-              <label>End Date</label>
-              <input type="date" [(ngModel)]="leaveForm.end_date" class="form-input" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Reason (optional)</label>
-            <textarea [(ngModel)]="leaveForm.reason" class="form-input" rows="3" placeholder="Brief reason for leave..."></textarea>
-          </div>
-          <div class="form-error" *ngIf="leaveError">{{ leaveError }}</div>
-          <div class="form-success" *ngIf="leaveSuccess">{{ leaveSuccess }}</div>
-          <button class="btn-submit" (click)="submitLeave()" [disabled]="leaveSaving">
-            {{ leaveSaving ? 'Submitting...' : 'Submit Request' }}
-          </button>
-        </div>
+ <!-- Request Leave -->
+ <div class="portal-card">
+ <h2 class="card-title"> Leave</h2>
+ <div class="form-group">
+ <label>Leave Type</label>
+ <select [(ngModel)]="leaveForm.leave_type_id" class="form-input">
+ <option value="">Select type...</option>
+ <option *ngFor="let t of leaveTypes" [value]="t.id">{{ t.name }}</option>
+ </select>
+ </div>
+ <div class="form-row">
+ <div class="form-group">
+ <label>Start Date</label>
+ <input type="date" [(ngModel)]="leaveForm.start_date" class="form-input" />
+ </div>
+ <div class="form-group">
+ <label>End Date</label>
+ <input type="date" [(ngModel)]="leaveForm.end_date" class="form-input" />
+ </div>
+ </div>
+ <div class="form-group">
+ <label>Reason (optional)</label>
+ <textarea [(ngModel)]="leaveForm.reason" class="form-input" rows="3" placeholder="Brief reason for leave..."></textarea>
+ </div>
+ <div class="form-error" *ngIf="leaveError">{{ leaveError }}</div>
+ <div class="form-success" *ngIf="leaveSuccess">{{ leaveSuccess }}</div>
+ <button class="btn-submit" (click)="submitLeave()" [disabled]="leaveSaving">
+ {{ leaveSaving ? 'Submitting...' : 'Submit Request' }}
+ </button>
+ </div>
 
-        <!-- My Requests -->
-        <div class="portal-card full-width">
-          <h2 class="card-title">My Leave Requests</h2>
-          <div class="loading-sm" *ngIf="leaveLoading"><div class="spinner-sm"></div></div>
-          <div class="requests-list" *ngIf="!leaveLoading">
-            <div class="request-row" *ngFor="let r of leaveRequests">
-              <div class="req-type">{{ r.leave_type_name }}</div>
-              <div class="req-dates">{{ formatDate(r.start_date) }} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ {{ formatDate(r.end_date) }}</div>
-              <div class="req-days">{{ r.total_days }} day(s)</div>
-              <span class="status-pill" [class]="'pill-' + r.status">{{ r.status }}</span>
-              <button class="btn-cancel-req" (click)="cancelLeave(r.id)"
-                *ngIf="r.status === 'pending'" [disabled]="leaveSaving">Cancel</button>
-            </div>
-            <div class="empty-sm" *ngIf="leaveRequests.length === 0"><p>No leave requests yet</p></div>
-          </div>
-        </div>
-      </div>
-    </div>
+ <!-- My Requests -->
+ <div class="portal-card full-width">
+ <h2 class="card-title">My Leave Requests</h2>
+ <div class="loading-sm" *ngIf="leaveLoading"><div class="spinner-sm"></div></div>
+ <div class="requests-list" *ngIf="!leaveLoading">
+ <div class="request-row" *ngFor="let r of leaveRequests">
+ <div class="req-type">{{ r.leave_type_name }}</div>
+ <div class="req-dates">{{ formatDate(r.start_date) }} {{ formatDate(r.end_date) }}</div>
+ <div class="req-days">{{ r.total_days }} day(s)</div>
+ <span class="status-pill" [class]="'pill-' + r.status">{{ r.status }}</span>
+ <button class="btn-cancel-req" (click)="cancelLeave(r.id)"
+ *ngIf="r.status === 'pending'" [disabled]="leaveSaving">Cancel</button>
+ </div>
+ <div class="empty-sm" *ngIf="leaveRequests.length === 0"><p>No leave requests yet</p></div>
+ </div>
+ </div>
+ </div>
+ </div>
 
-    <!-- ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ SHIFTS TAB ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ -->
-    <div class="tab-content" *ngIf="activeTab === 'shifts'">
-      <div class="portal-card">
-        <h2 class="card-title">My Shift Schedule</h2>
-        <div class="loading-sm" *ngIf="shiftsLoading"><div class="spinner-sm"></div></div>
-        <div class="shifts-list" *ngIf="!shiftsLoading">
-          <div class="shift-row" *ngFor="let s of myShifts">
-            <div class="shift-date">{{ formatDate(s.shift_date) }}</div>
-            <div class="shift-name">{{ s.template_name || s.shift_name }}</div>
-            <div class="shift-time">{{ s.start_time }} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â {{ s.end_time }}</div>
-            <span class="shift-badge" [class]="isToday(s.shift_date) ? 'badge-today' : 'badge-upcoming'">
-              {{ isToday(s.shift_date) ? 'Today' : 'Upcoming' }}
-            </span>
-          </div>
-          <div class="empty-sm" *ngIf="myShifts.length === 0"><p>No upcoming shifts scheduled</p></div>
-        </div>
-      </div>
-    </div>
+ <!-- SHIFTS TAB -->
+ <div class="tab-content" *ngIf="activeTab === 'shifts'">
+ <div class="portal-card">
+ <h2 class="card-title">My Shift Schedule</h2>
+ <div class="loading-sm" *ngIf="shiftsLoading"><div class="spinner-sm"></div></div>
+ <div class="shifts-list" *ngIf="!shiftsLoading">
+ <div class="shift-row" *ngFor="let s of myShifts">
+ <div class="shift-date">{{ formatDate(s.shift_date) }}</div>
+ <div class="shift-name">{{ s.template_name || s.shift_name }}</div>
+ <div class="shift-time">{{ s.start_time }} {{ s.end_time }}</div>
+ <span class="shift-badge" [class]="isToday(s.shift_date) ? 'badge-today' : 'badge-upcoming'">
+ {{ isToday(s.shift_date) ? 'Today' : 'Upcoming' }}
+ </span>
+ </div>
+ <div class="empty-sm" *ngIf="myShifts.length === 0"><p>No upcoming shifts scheduled</p></div>
+ </div>
+ </div>
+ </div>
 
-    <!-- ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ PAYSLIPS TAB ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ -->
-    <div class="tab-content" *ngIf="activeTab === 'payslips'">
-      <div class="portal-card">
-        <h2 class="card-title">ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â° Payslips</h2>
-        <div class="loading-sm" *ngIf="payslipsLoading"><div class="spinner-sm"></div></div>
-        <div class="payslips-list" *ngIf="!payslipsLoading">
-          <div class="payslip-row" *ngFor="let p of myPayslips">
-            <div class="payslip-period">{{ p.month }}/{{ p.year }}</div>
-            <div class="payslip-gross">Gross: R{{ p.gross_pay | number:'1.2-2' }}</div>
-            <div class="payslip-net">Net: <strong>R{{ p.net_pay | number:'1.2-2' }}</strong></div>
-            <span class="status-pill" [class]="'pill-' + p.status">{{ p.status }}</span>
-            <button class="btn-download" (click)="downloadPayslip(p.id)">ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ Download</button>
-          </div>
-          <div class="empty-sm" *ngIf="myPayslips.length === 0"><p>No payslips available yet</p></div>
-        </div>
-      </div>
-    </div>
+ <!-- PAYSLIPS TAB -->
+ <div class="tab-content" *ngIf="activeTab === 'payslips'">
+ <div class="portal-card">
+ <h2 class="card-title"> Payslips</h2>
+ <div class="loading-sm" *ngIf="payslipsLoading"><div class="spinner-sm"></div></div>
+ <div class="payslips-list" *ngIf="!payslipsLoading">
+ <div class="payslip-row" *ngFor="let p of myPayslips">
+ <div class="payslip-period">{{ p.month }}/{{ p.year }}</div>
+ <div class="payslip-gross">Gross: R{{ p.gross_pay | number:'1.2-2' }}</div>
+ <div class="payslip-net">Net: <strong>R{{ p.net_pay | number:'1.2-2' }}</strong></div>
+ <span class="status-pill" [class]="'pill-' + p.status">{{ p.status }}</span>
+ <button class="btn-download" (click)="downloadPayslip(p.id)"> Download</button>
+ </div>
+ <div class="empty-sm" *ngIf="myPayslips.length === 0"><p>No payslips available yet</p></div>
+ </div>
+ </div>
+ </div>
 
-    <!-- ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ PROFILE TAB ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ -->
-    <div class="tab-content" *ngIf="activeTab === 'profile'">
-      <div class="portal-card profile-card">
-        <div class="profile-avatar">{{ me?.name?.[0] }}</div>
-        <h2 class="card-title" style="text-align:center">{{ me?.name }}</h2>
-        <p style="text-align:center;color:var(--muted);margin-bottom:2rem">{{ me?.email }}</p>
+ <!-- PROFILE TAB -->
+ <div class="tab-content" *ngIf="activeTab === 'profile'">
+ <div class="portal-card profile-card">
+ <div class="profile-avatar">{{ me?.name?.[0] }}</div>
+ <h2 class="card-title" style="text-align:center">{{ me?.name }}</h2>
+ <p style="text-align:center;color:var(--muted);margin-bottom:2rem">{{ me?.email }}</p>
 
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" [(ngModel)]="profileForm.name" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" [value]="me?.email" readonly class="form-input" />
-        </div>
-        <div class="section-divider">Change Password</div>
-        <div class="form-group">
-          <label>Current Password</label>
-          <input type="password" [(ngModel)]="profileForm.currentPassword" class="form-input" placeholder="Leave blank to keep current" />
-        </div>
-        <div class="form-group">
-          <label>New Password</label>
-          <input type="password" [(ngModel)]="profileForm.newPassword" class="form-input" placeholder="Min 8 chars, uppercase, number, symbol" />
-        </div>
-        <div class="form-error" *ngIf="profileError">{{ profileError }}</div>
-        <div class="form-success" *ngIf="profileSuccess">{{ profileSuccess }}</div>
-        <button class="btn-submit" (click)="saveProfile()" [disabled]="profileSaving">
-          {{ profileSaving ? 'Saving...' : 'Save Changes' }}
-        </button>
-      </div>
-    </div>
+ <div class="form-group">
+ <label>Full Name</label>
+ <input type="text" [(ngModel)]="profileForm.name" class="form-input" />
+ </div>
+ <div class="form-group">
+ <label>Email Address</label>
+ <input type="email" [value]="me?.email" readonly class="form-input" />
+ </div>
+ <div class="section-divider">Change Password</div>
+ <div class="form-group">
+ <label>Current Password</label>
+ <input type="password" [(ngModel)]="profileForm.currentPassword" class="form-input" placeholder="Leave blank to keep current" />
+ </div>
+ <div class="form-group">
+ <label>New Password</label>
+ <input type="password" [(ngModel)]="profileForm.newPassword" class="form-input" placeholder="Min 8 chars, uppercase, number, symbol" />
+ </div>
+ <div class="form-error" *ngIf="profileError">{{ profileError }}</div>
+ <div class="form-success" *ngIf="profileSuccess">{{ profileSuccess }}</div>
+ <button class="btn-submit" (click)="saveProfile()" [disabled]="profileSaving">
+ {{ profileSaving ? 'Saving...' : 'Save Changes' }}
+ </button>
+ </div>
+ </div>
 
-  </main>
+ </main>
 </div>
 
 
