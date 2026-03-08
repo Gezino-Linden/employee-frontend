@@ -214,8 +214,8 @@
         <div class="payslips-list" *ngIf="!payslipsLoading">
           <div class="payslip-row" *ngFor="let p of myPayslips">
             <div class="payslip-period">{{ p.month }}/{{ p.year }}</div>
-            <div class="payslip-gross">Gross: R{{ p.gross_salary | number:'1.2-2' }}</div>
-            <div class="payslip-net">Net: <strong>R{{ p.net_salary | number:'1.2-2' }}</strong></div>
+            <div class="payslip-gross">Gross: R{{ p.gross_pay | number:'1.2-2' }}</div>
+            <div class="payslip-net">Net: <strong>R{{ p.net_pay | number:'1.2-2' }}</strong></div>
             <span class="status-pill" [class]="'pill-' + p.status">{{ p.status }}</span>
             <button class="btn-download" (click)="downloadPayslip(p.id)">â¬‡ Download</button>
           </div>
@@ -258,5 +258,6 @@
 
   </main>
 </div>
+
 
 
