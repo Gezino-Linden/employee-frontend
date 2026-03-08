@@ -1,4 +1,4 @@
-// File: src/app/pages/employees/employees.ts
+﻿// File: src/app/pages/employees/employees.ts
 import {
   Component,
   OnInit,
@@ -399,3 +399,5 @@ export class Employees implements OnInit {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 }
+
+
