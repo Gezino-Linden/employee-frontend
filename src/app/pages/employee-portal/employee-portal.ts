@@ -111,7 +111,7 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
       next: (r) => {
         this.todayStatus = r.data;
         this.clockedIn = !!r.data?.clock_in && !r.data?.clock_out;
-        this.onBreak = r.data?.status === 'on_break';
+        this.onBreak = !!r.data?.break_start && !r.data?.clock_out;
         this.todayLoading = false; this.cdr.detectChanges();
       },
       error: () => { this.todayLoading = false; this.cdr.detectChanges(); },
@@ -300,4 +300,5 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/employee-login');
   }
 }
+
 
