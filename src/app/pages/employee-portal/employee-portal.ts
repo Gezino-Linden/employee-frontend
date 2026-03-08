@@ -205,7 +205,75 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
 
   downloadPayslip(id: number): void {
     const token = localStorage.getItem('employee_token') || '';
-    window.open(`${API}/employee-portal/payslips/${id}/download?token=${token}`, '_blank');
+    const emp = this.me;
+    this.http.get<any>(`${API}/employee-portal/payslips/${id}/download?token=${token}`).subscribe({
+      next: (r) => {
+        const p = r.data;
+        const months = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+        const fmt = (n: any) => Number(n || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Payslip ${months[p.month]} ${p.year}</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #1a1a2e; background: #fff; }
+  .header { background: linear-gradient(135deg, #6c63ff, #4a47a3); color: white; padding: 24px 32px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
+  .header .period { font-size: 18px; opacity: 0.9; margin-top: 4px; }
+  .header .badge { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 13px; }
+  .emp-info { background: #f8f9ff; border-radius: 10px; padding: 20px 32px; margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .emp-info .field label { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
+  .emp-info .field p { margin: 2px 0 0; font-weight: 600; font-size: 15px; }
+  .section { margin-bottom: 20px; }
+  .section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6c63ff; border-bottom: 2px solid #6c63ff; padding-bottom: 6px; margin-bottom: 12px; }
+  .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  .row.total { font-weight: 700; font-size: 16px; border-bottom: none; padding-top: 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+  .net { background: linear-gradient(135deg, #6c63ff, #4a47a3); color: white; padding: 20px 32px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .net .label { font-size: 14px; opacity: 0.9; }
+  .net .amount { font-size: 32px; font-weight: 700; }
+  .status { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: ${p.status==='paid' ? '#d4edda' : '#fff3cd'}; color: ${p.status==='paid' ? '#155724' : '#856404'}; }
+  .footer { margin-top: 24px; text-align: center; font-size: 11px; color: #aaa; }
+  .print-btn { display: block; margin: 20px auto; padding: 12px 32px; background: #6c63ff; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+  @media print { .print-btn { display: none; } body { padding: 0; } }
+</style></head><body>
+<div class="header">
+  <div><h1>MaeRoll</h1><div class="period">Payslip — ${months[p.month]} ${p.year}</div></div>
+  <span class="badge status">${p.status?.toUpperCase()}</span>
+</div>
+<div class="emp-info">
+  <div class="field"><label>Employee Name</label><p>${emp?.name || '—'}</p></div>
+  <div class="field"><label>Employee ID</label><p>#${emp?.id || '—'}</p></div>
+  <div class="field"><label>Email</label><p>${emp?.email || '—'}</p></div>
+  <div class="field"><label>Pay Period</label><p>${months[p.month]} ${p.year}</p></div>
+  ${p.payment_date ? `<div class="field"><label>Payment Date</label><p>${new Date(p.payment_date).toLocaleDateString('en-ZA')}</p></div>` : ''}
+  ${p.payment_method ? `<div class="field"><label>Payment Method</label><p>${p.payment_method}</p></div>` : ''}
+</div>
+<div class="grid">
+  <div class="section">
+    <h3>Earnings</h3>
+    <div class="row"><span>Basic Salary</span><span>R ${fmt(p.basic_salary)}</span></div>
+    ${Number(p.allowances)>0 ? `<div class="row"><span>Allowances</span><span>R ${fmt(p.allowances)}</span></div>` : ''}
+    ${Number(p.bonuses)>0 ? `<div class="row"><span>Bonuses</span><span>R ${fmt(p.bonuses)}</span></div>` : ''}
+    ${Number(p.overtime)>0 ? `<div class="row"><span>Overtime</span><span>R ${fmt(p.overtime)}</span></div>` : ''}
+    <div class="row total"><span>Gross Pay</span><span>R ${fmt(p.gross_pay)}</span></div>
+  </div>
+  <div class="section">
+    <h3>Deductions</h3>
+    ${Number(p.tax)>0 ? `<div class="row"><span>PAYE Tax</span><span>R ${fmt(p.tax)}</span></div>` : ''}
+    ${Number(p.uif)>0 ? `<div class="row"><span>UIF</span><span>R ${fmt(p.uif)}</span></div>` : ''}
+    ${Number(p.pension)>0 ? `<div class="row"><span>Pension</span><span>R ${fmt(p.pension)}</span></div>` : ''}
+    ${Number(p.medical_aid)>0 ? `<div class="row"><span>Medical Aid</span><span>R ${fmt(p.medical_aid)}</span></div>` : ''}
+    ${Number(p.other_deductions)>0 ? `<div class="row"><span>Other</span><span>R ${fmt(p.other_deductions)}</span></div>` : ''}
+    <div class="row total"><span>Total Deductions</span><span>R ${fmt(p.total_deductions)}</span></div>
+  </div>
+</div>
+<div class="net"><div><div class="label">Net Pay</div><div style="font-size:12px;opacity:0.8">${months[p.month]} ${p.year}</div></div><div class="amount">R ${fmt(p.net_pay)}</div></div>
+<div class="footer">This is a computer-generated payslip and does not require a signature. — MaeRoll HR System</div>
+<button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+</body></html>`;
+        const w = window.open('', '_blank');
+        if (w) { w.document.write(html); w.document.close(); }
+      },
+      error: () => alert('Failed to load payslip')
+    });
   }
 
   saveProfile(): void {
@@ -232,3 +300,4 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/employee-login');
   }
 }
+
