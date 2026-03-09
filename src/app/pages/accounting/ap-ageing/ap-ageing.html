@@ -5,12 +5,12 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
-      <div class="brand-icon">🔒</div>
+      <div class="brand-icon">&#128274;</div>
       <span class="brand-name">MaeRoll</span>
       <span class="brand-sub">/ Accounting / AP Ageing</span>
     </div>
     <div class="topnav-right">
-      <button class="btn-ghost-sm" (click)="goBack()">← Accounting</button>
+      <button class="btn-ghost-sm" (click)="goBack()">&#8592; Accounting</button>
     </div>
   </nav>
 
@@ -25,14 +25,25 @@
           <span *ngIf="report" class="as-of-badge">As of {{ report.as_of }}</span>
         </p>
       </div>
-      <button class="btn-primary" (click)="loadReport()" [disabled]="loading">
-        <span *ngIf="!loading">⟳ Refresh</span>
-        <span *ngIf="loading">Loading...</span>
-      </button>
+      <div class="header-actions">
+        <button class="btn-ghost-sm" (click)="loadReport()" [disabled]="loading">
+          <span *ngIf="!loading">&#8635; Refresh</span>
+          <span *ngIf="loading">Loading...</span>
+        </button>
+        <button class="btn-export btn-excel" (click)="exportExcel()" [disabled]="!hasData">
+          &#128196; Excel
+        </button>
+        <button class="btn-export btn-pdf" (click)="exportPDF()" [disabled]="!hasData">
+          &#128240; PDF
+        </button>
+        <button class="btn-alert-all" (click)="sendAllReminders()" [disabled]="!overdueSuppliers.length">
+          &#128276; Remind All Overdue
+        </button>
+      </div>
     </div>
 
     <!-- ERROR -->
-    <div *ngIf="errorMsg" class="alert alert-error">❌ {{ errorMsg }}</div>
+    <div *ngIf="errorMsg" class="alert alert-error">&#10060; {{ errorMsg }}</div>
 
     <!-- LOADING SKELETON -->
     <div *ngIf="loading" class="skeleton-wrap">
@@ -54,41 +65,59 @@
           <div class="card-sub">Due date not yet reached</div>
         </div>
         <div class="summary-card card-warn">
-          <div class="card-label">1 – 30 Days</div>
+          <div class="card-label">1 &ndash; 30 Days</div>
           <div class="card-value">{{ fmt(report.totals.days_1_30) }}</div>
           <div class="card-sub">Slightly overdue</div>
         </div>
         <div class="summary-card card-orange">
-          <div class="card-label">31 – 60 Days</div>
+          <div class="card-label">31 &ndash; 60 Days</div>
           <div class="card-value">{{ fmt(report.totals.days_31_60) }}</div>
           <div class="card-sub">Follow up required</div>
         </div>
         <div class="summary-card card-danger">
-          <div class="card-label">61 – 90 Days</div>
+          <div class="card-label">61 &ndash; 90 Days</div>
           <div class="card-value">{{ fmt(report.totals.days_61_90) }}</div>
           <div class="card-sub">Urgent attention needed</div>
         </div>
         <div class="summary-card card-critical">
           <div class="card-label">90+ Days</div>
           <div class="card-value">{{ fmt(report.totals.days_90_plus) }}</div>
-          <div class="card-sub">Critical — escalate now</div>
+          <div class="card-sub">Critical &mdash; escalate now</div>
         </div>
       </div>
 
-      <!-- OVERDUE ALERT BANNER -->
-      <div *ngIf="totalOverdue > 0" class="overdue-banner">
-        ⚠️ <strong>{{ fmt(totalOverdue) }}</strong> is overdue across {{ report.suppliers.length }} supplier{{ report.suppliers.length !== 1 ? 's' : '' }}
+      <!-- CRITICAL BANNER -->
+      <div *ngIf="criticalSuppliers.length > 0" class="critical-banner">
+        &#128308; <strong>{{ criticalSuppliers.length }} supplier{{ criticalSuppliers.length !== 1 ? 's' : '' }}</strong>
+        have balances over 90 days overdue totalling
+        <strong>{{ fmt(report.totals.days_90_plus) }}</strong> &mdash;
+        <button class="banner-action-btn" (click)="sendAllReminders()">Send Payment Reminders</button>
+      </div>
+
+      <div *ngIf="totalOverdue > 0 && criticalSuppliers.length === 0" class="overdue-banner">
+        &#9888; <strong>{{ fmt(totalOverdue) }}</strong> is overdue across
+        {{ overdueSuppliers.length }} supplier{{ overdueSuppliers.length !== 1 ? 's' : '' }}
+      </div>
+
+      <!-- TAB SWITCHER -->
+      <div class="tab-bar" *ngIf="hasData">
+        <button class="tab-btn" [class.active]="activeTab === 'table'" (click)="setTab('table')">
+          &#9776; Table View
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'charts'" (click)="setTab('charts')">
+          &#9636; Charts
+        </button>
       </div>
 
       <!-- EMPTY STATE -->
       <div *ngIf="!hasData" class="empty-state">
-        <div class="empty-icon">✅</div>
+        <div class="empty-icon">&#10003;</div>
         <h3>No outstanding balances</h3>
         <p>All supplier invoices are either paid or there are no open bills.</p>
       </div>
 
-      <!-- AGEING TABLE -->
-      <div *ngIf="hasData" class="table-card">
+      <!-- TABLE VIEW -->
+      <div *ngIf="hasData && activeTab === 'table'" class="table-card">
         <div class="table-header">
           <h2>Supplier Breakdown</h2>
           <span class="table-count">{{ report.suppliers.length }} supplier{{ report.suppliers.length !== 1 ? 's' : '' }}</span>
@@ -100,12 +129,13 @@
                 <th>Supplier</th>
                 <th class="num-col">Invoices</th>
                 <th class="num-col">Current</th>
-                <th class="num-col">1–30 Days</th>
-                <th class="num-col">31–60 Days</th>
-                <th class="num-col">61–90 Days</th>
+                <th class="num-col">1&ndash;30 Days</th>
+                <th class="num-col">31&ndash;60 Days</th>
+                <th class="num-col">61&ndash;90 Days</th>
                 <th class="num-col critical-col">90+ Days</th>
                 <th class="num-col total-col">Total</th>
                 <th class="num-col">Risk</th>
+                <th class="num-col">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -121,11 +151,23 @@
                 <td class="num-col">
                   <span class="risk-badge" [ngClass]="riskClass(s)">
                     <ng-container [ngSwitch]="riskClass(s)">
-                      <ng-container *ngSwitchCase="'risk-critical'">🔴 Critical</ng-container>
-                      <ng-container *ngSwitchCase="'risk-high'">🟠 High</ng-container>
-                      <ng-container *ngSwitchCase="'risk-medium'">🟡 Medium</ng-container>
-                      <ng-container *ngSwitchDefault>🟢 OK</ng-container>
+                      <ng-container *ngSwitchCase="'risk-critical'">&#128308; Critical</ng-container>
+                      <ng-container *ngSwitchCase="'risk-high'">&#128992; High</ng-container>
+                      <ng-container *ngSwitchCase="'risk-medium'">&#129000; Medium</ng-container>
+                      <ng-container *ngSwitchDefault>&#128994; OK</ng-container>
                     </ng-container>
+                  </span>
+                </td>
+                <td class="num-col">
+                  <button
+                    *ngIf="s.days_1_30 > 0 || s.days_31_60 > 0 || s.days_61_90 > 0 || s.days_90_plus > 0"
+                    class="btn-alert-row"
+                    (click)="openAlert(s)"
+                    title="Log payment reminder">
+                    &#128276;
+                  </button>
+                  <span *ngIf="s.days_1_30 === 0 && s.days_31_60 === 0 && s.days_61_90 === 0 && s.days_90_plus === 0" class="no-action">
+                    &mdash;
                   </span>
                 </td>
               </tr>
@@ -141,12 +183,77 @@
                 <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_90_plus) }}</strong></td>
                 <td class="num-col total-col"><strong>{{ fmt(report.totals.total_outstanding) }}</strong></td>
                 <td></td>
+                <td></td>
               </tr>
             </tfoot>
           </table>
         </div>
       </div>
 
+      <!-- CHARTS VIEW -->
+      <div *ngIf="hasData && activeTab === 'charts'" class="charts-section">
+        <div class="chart-row">
+          <div class="chart-card chart-large">
+            <div class="chart-title">Top Suppliers by Outstanding Balance</div>
+            <div class="chart-body">
+              <canvas #barCanvas></canvas>
+            </div>
+          </div>
+          <div class="chart-card chart-small">
+            <div class="chart-title">Balance by Age Bucket</div>
+            <div class="chart-body donut-body">
+              <canvas #donutCanvas></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </ng-container>
   </main>
+</div>
+
+<!-- PAYMENT REMINDER MODAL -->
+<div class="modal-overlay" *ngIf="showAlertModal" (click)="closeAlert()">
+  <div class="alert-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>&#128276; Payment Reminder</h3>
+      <button class="modal-close" (click)="closeAlert()">&#10005;</button>
+    </div>
+
+    <div *ngIf="!alertSent && alertSupplier">
+      <div class="alert-customer-info">
+        <div class="alert-customer-name">{{ alertSupplier.supplier_name }}</div>
+        <div class="alert-risk-row">
+          <span class="risk-badge" [ngClass]="riskClass(alertSupplier)">{{ riskLabel(alertSupplier) }}</span>
+          <span class="alert-total">Total: {{ fmt(alertSupplier.total_outstanding) }}</span>
+        </div>
+        <div class="alert-buckets">
+          <span *ngIf="alertSupplier.days_1_30 > 0" class="bucket-chip chip-warn">1-30d: {{ fmt(alertSupplier.days_1_30) }}</span>
+          <span *ngIf="alertSupplier.days_31_60 > 0" class="bucket-chip chip-orange">31-60d: {{ fmt(alertSupplier.days_31_60) }}</span>
+          <span *ngIf="alertSupplier.days_61_90 > 0" class="bucket-chip chip-danger">61-90d: {{ fmt(alertSupplier.days_61_90) }}</span>
+          <span *ngIf="alertSupplier.days_90_plus > 0" class="bucket-chip chip-critical">90+d: {{ fmt(alertSupplier.days_90_plus) }}</span>
+        </div>
+      </div>
+
+      <div class="modal-field">
+        <label>Reminder Note</label>
+        <textarea [(ngModel)]="alertNote" rows="7" class="alert-textarea"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeAlert()">Cancel</button>
+        <button class="btn-send-alert" (click)="sendAlert()" [disabled]="alertSending">
+          <span *ngIf="!alertSending">&#128276; Log Reminder</span>
+          <span *ngIf="alertSending">Sending...</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="alertSent" class="alert-success">
+      <div class="success-icon">&#10003;</div>
+      <h4>Reminder Logged</h4>
+      <p>{{ alertMsg }}</p>
+      <button class="btn-send-alert" (click)="closeAlert()">Done</button>
+    </div>
+  </div>
 </div>
