@@ -203,7 +203,7 @@
                 </td>
                 <td class="num-col">
                   <button *ngIf="c.days_61_90 > 0 || c.days_90_120 > 0 || c.days_120_150 > 0 || c.days_150_180 > 0 || c.days_180_210 > 0 || c.days_210_240 > 0 || c.days_240_270 > 0 || c.days_270_300 > 0 || c.days_300_330 > 0 || c.days_330_360 > 0 || c.days_360_plus > 0" class="btn-alert-row" (click)="openAlert(c)">&#128276;</button>
-                  <span *ngIf="!c.days_1_30 > 0 || c.days_31_60 > 0 || c.days_61_90 > 0 || c.days_90_120 > 0 || c.days_120_150 > 0 || c.days_150_180 > 0 || c.days_180_210 > 0 || c.days_210_240 > 0 || c.days_240_270 > 0 || c.days_270_300 > 0 || c.days_300_330 > 0 || c.days_330_360 > 0 || c.days_360_plus > 0" class="no-action">&mdash;</span>
+                  <span *ngIf="!(c.days_61_90 > 0 || c.days_90_120 > 0 || c.days_120_150 > 0 || c.days_150_180 > 0 || c.days_180_210 > 0 || c.days_210_240 > 0 || c.days_240_270 > 0 || c.days_270_300 > 0 || c.days_300_330 > 0 || c.days_330_360 > 0 || c.days_360_plus > 0)" class="no-action">&mdash;</span>
                 </td>
               </tr>
             </tbody>
@@ -296,4 +296,5 @@
     </div>
   </div>
 </div>
+
 
