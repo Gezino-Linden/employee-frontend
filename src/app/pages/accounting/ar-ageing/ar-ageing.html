@@ -1,8 +1,6 @@
 ﻿<!-- File: src/app/pages/accounting/ar-ageing/ar-ageing.html -->
 <div class="ageing-app">
   <div class="bg-mesh"></div>
-
-  <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
       <div class="brand-icon">&#128274;</div>
@@ -13,46 +11,30 @@
       <button class="btn-ghost-sm" (click)="goBack()">&#8592; Accounting</button>
     </div>
   </nav>
-
   <main class="main-content">
-
-    <!-- PAGE HEADER -->
     <div class="page-header">
       <div>
         <h1>AR Ageing <span class="title-accent">Report</span></h1>
-        <p class="page-subtitle">
-          Outstanding customer balances by overdue bucket
+        <p class="page-subtitle">Outstanding customer balances by overdue bucket
           <span *ngIf="report" class="as-of-badge">As of {{ report.as_of }}</span>
         </p>
       </div>
       <div class="header-actions">
         <button class="btn-ghost-sm" (click)="loadReport()" [disabled]="loading">
-          <span *ngIf="!loading">&#8635; Refresh</span>
-          <span *ngIf="loading">Loading...</span>
+          <span *ngIf="!loading">&#8635; Refresh</span><span *ngIf="loading">Loading...</span>
         </button>
-        <button class="btn-export btn-excel" (click)="exportExcel()" [disabled]="!hasData" title="Export to Excel">
-          &#128196; Excel
-        </button>
-        <button class="btn-export btn-pdf" (click)="exportPDF()" [disabled]="!hasData" title="Export to PDF">
-          &#128240; PDF
-        </button>
-        <button class="btn-alert-all" (click)="sendAllAlerts()" [disabled]="!overdueCustomers.length" title="Send alerts to all overdue customers">
-          &#128276; Alert All Overdue
-        </button>
+        <button class="btn-export btn-excel" (click)="exportExcel()" [disabled]="!hasData">&#128196; Excel</button>
+        <button class="btn-export btn-pdf" (click)="exportPDF()" [disabled]="!hasData">&#128240; PDF</button>
+        <button class="btn-alert-all" (click)="sendAllAlerts()" [disabled]="!overdueCustomers.length">&#128276; Alert All Overdue</button>
       </div>
     </div>
 
-    <!-- ERROR -->
     <div *ngIf="errorMsg" class="alert alert-error">&#10060; {{ errorMsg }}</div>
-
-    <!-- LOADING SKELETON -->
     <div *ngIf="loading" class="skeleton-wrap">
       <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
     </div>
 
     <ng-container *ngIf="!loading && report">
-
-      <!-- SUMMARY CARDS -->
       <div class="cards-grid">
         <div class="summary-card card-total">
           <div class="card-label">Total Outstanding</div>
@@ -81,35 +63,28 @@
         </div>
         <div class="summary-card card-critical">
           <div class="card-label">90+ Days</div>
-          <div class="card-value">{{ fmt(report.totals.days_90_plus) }}</div>
+          <div class="card-value">{{ fmt(report.totals.days_90_120 + report.totals.days_120_150 + report.totals.days_150_180 + report.totals.days_180_210 + report.totals.days_210_240 + report.totals.days_240_270 + report.totals.days_270_300 + report.totals.days_300_330 + report.totals.days_330_360 + report.totals.days_360_plus) }}</div>
           <div class="card-sub">Consider legal action</div>
         </div>
       </div>
 
-      <!-- CRITICAL ALERT BANNER -->
       <div *ngIf="criticalCustomers.length > 0" class="critical-banner">
         &#128308; <strong>{{ criticalCustomers.length }} customer{{ criticalCustomers.length !== 1 ? 's' : '' }}</strong>
-        have balances over 90 days overdue totalling
-        <strong>{{ fmt(report.totals.days_90_plus) }}</strong> &mdash;
+        have balances over 90 days overdue &mdash;
         <button class="banner-action-btn" (click)="sendAllAlerts()">Send Collection Alerts</button>
       </div>
-
       <div *ngIf="totalOverdue > 0 && criticalCustomers.length === 0" class="overdue-banner">
-        &#9888; <strong>{{ fmt(totalOverdue) }}</strong> is overdue across
-        {{ overdueCustomers.length }} customer{{ overdueCustomers.length !== 1 ? 's' : '' }}
+        &#9888; <strong>{{ fmt(totalOverdue) }}</strong> is overdue across {{ overdueCustomers.length }} customer{{ overdueCustomers.length !== 1 ? 's' : '' }}
       </div>
 
-      <!-- TAB SWITCHER -->
       <div class="tab-bar" *ngIf="hasData">
-        <button class="tab-btn" [class.active]="activeTab === 'table'" (click)="setTab('table')">
-          &#9776; Table View
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'charts'" (click)="setTab('charts')">
-          &#9636; Charts
+        <button class="tab-btn" [class.active]="activeTab === 'table'" (click)="setTab('table')">&#9776; Table View</button>
+        <button class="tab-btn" [class.active]="activeTab === 'charts'" (click)="setTab('charts')">&#9636; Charts</button>
+        <button *ngIf="activeTab === 'table'" class="tab-btn extended-toggle" [class.active]="showExtended" (click)="toggleExtended()">
+          {{ showExtended ? '&#9650; Hide 120–360+ Buckets' : '&#9660; Show 120–360+ Buckets' }}
         </button>
       </div>
 
-      <!-- EMPTY STATE -->
       <div *ngIf="!hasData" class="empty-state">
         <div class="empty-icon">&#10003;</div>
         <h3>No outstanding balances</h3>
@@ -127,18 +102,25 @@
             <thead>
               <tr>
                 <th>Customer</th>
-                <th class="num-col">Invoices</th>
+                <th class="num-col">Inv</th>
+                <th class="num-col ob-col">Opening Bal</th>
                 <th class="num-col">Current</th>
-                <th class="num-col">1&ndash;30 Days</th>
-                <th class="num-col">31&ndash;60 Days</th>
-                <th class="num-col">61&ndash;90 Days</th>
-                <th class="num-col critical-col">90+ Days</th>
-                <th class="num-col running-col">Opening Bal</th>
-                <th class="num-col running-col">Run: 90+</th>
-                <th class="num-col running-col">Run: 61-90</th>
-                <th class="num-col running-col">Run: 31-60</th>
-                <th class="num-col running-col">Run: 1-30</th>
-                <th class="num-col running-col">Run: Current</th>
+                <th class="num-col">1&ndash;30</th>
+                <th class="num-col">31&ndash;60</th>
+                <th class="num-col">61&ndash;90</th>
+                <th class="num-col critical-col">90&ndash;120 &#9888;</th>
+                <ng-container *ngIf="showExtended">
+                  <th class="num-col critical-col">120&ndash;150</th>
+                  <th class="num-col critical-col">150&ndash;180</th>
+                  <th class="num-col critical-col">180&ndash;210</th>
+                  <th class="num-col critical-col">210&ndash;240</th>
+                  <th class="num-col critical-col">240&ndash;270</th>
+                  <th class="num-col critical-col">270&ndash;300</th>
+                  <th class="num-col critical-col">300&ndash;330</th>
+                  <th class="num-col critical-col">330&ndash;360</th>
+                  <th class="num-col critical-col">360+</th>
+                </ng-container>
+                <th class="num-col balance-col" title="Running balance = opening balance + all buckets from oldest to this column">Balance &#9432;</th>
                 <th class="num-col total-col">Total</th>
                 <th class="num-col">Risk</th>
                 <th class="num-col">Action</th>
@@ -148,17 +130,66 @@
               <tr *ngFor="let c of report.customers" [class]="riskClass(c)">
                 <td class="customer-name">{{ c.customer_name }}</td>
                 <td class="num-col">{{ c.invoice_count }}</td>
-                <td class="num-col amt-current">{{ fmt(c.current_due) }}</td>
-                <td class="num-col" [class.amt-warn]="c.days_1_30 > 0">{{ fmt(c.days_1_30) }}</td>
-                <td class="num-col" [class.amt-orange]="c.days_31_60 > 0">{{ fmt(c.days_31_60) }}</td>
-                <td class="num-col" [class.amt-danger]="c.days_61_90 > 0">{{ fmt(c.days_61_90) }}</td>
-                <td class="num-col critical-col" [class.amt-critical]="c.days_90_plus > 0">{{ fmt(c.days_90_plus) }}</td>
-                <td class="num-col running-col ob-col">{{ fmt(c.opening_balance) }}</td>
-                <td class="num-col running-col">{{ fmt(c.running_90plus) }}</td>
-                <td class="num-col running-col">{{ fmt(c.running_61_90) }}</td>
-                <td class="num-col running-col">{{ fmt(c.running_31_60) }}</td>
-                <td class="num-col running-col">{{ fmt(c.running_1_30) }}</td>
-                <td class="num-col running-col">{{ fmt(c.running_current) }}</td>
+                <td class="num-col ob-col">{{ fmt(c.opening_balance) }}</td>
+                <td class="num-col amt-current">
+                  <div class="cell-amount">{{ fmt(c.current_due) }}</div>
+                  <div class="cell-balance">{{ fmt(c.balance_current) }}</div>
+                </td>
+                <td class="num-col" [class.amt-warn]="c.days_1_30 > 0">
+                  <div class="cell-amount">{{ fmt(c.days_1_30) }}</div>
+                  <div class="cell-balance" *ngIf="c.days_1_30 > 0">{{ fmt(c.balance_1_30) }}</div>
+                </td>
+                <td class="num-col" [class.amt-orange]="c.days_31_60 > 0">
+                  <div class="cell-amount">{{ fmt(c.days_31_60) }}</div>
+                  <div class="cell-balance" *ngIf="c.days_31_60 > 0">{{ fmt(c.balance_31_60) }}</div>
+                </td>
+                <td class="num-col" [class.amt-danger]="c.days_61_90 > 0">
+                  <div class="cell-amount">{{ fmt(c.days_61_90) }}</div>
+                  <div class="cell-balance" *ngIf="c.days_61_90 > 0">{{ fmt(c.balance_61_90) }}</div>
+                </td>
+                <td class="num-col critical-col" [class.amt-critical]="c.days_90_120 > 0">
+                  <div class="cell-amount">{{ fmt(c.days_90_120) }}</div>
+                  <div class="cell-balance" *ngIf="c.days_90_120 > 0">{{ fmt(c.balance_90_120) }}</div>
+                </td>
+                <ng-container *ngIf="showExtended">
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_120_150 > 0">
+                    <div class="cell-amount">{{ fmt(c.days_120_150) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_120_150 > 0">{{ fmt(c.balance_120_150) }}</div>
+                  </td>
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_150_180 > 0">
+                    <div class="cell-amount">{{ fmt(c.days_150_180) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_150_180 > 0">{{ fmt(c.balance_150_180) }}</div>
+                  </td>
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_180_210 > 0">
+                    <div class="cell-amount">{{ fmt(c.days_180_210) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_180_210 > 0">{{ fmt(c.balance_180_210) }}</div>
+                  </td>
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_210_240 > 0">
+                    <div class="cell-amount">{{ fmt(c.days_210_240) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_210_240 > 0">{{ fmt(c.balance_210_240) }}</div>
+                  </td>
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_240_270 > 0">
+                    <div class="cell-amount">{{ fmt(c.days_240_270) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_240_270 > 0">{{ fmt(c.balance_240_270) }}</div>
+                  </td>
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_270_300 > 0">
+                    <div class="cell-amount">{{ fmt(c.days_270_300) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_270_300 > 0">{{ fmt(c.balance_270_300) }}</div>
+                  </td>
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_300_330 > 0">
+                    <div class="cell-amount">{{ fmt(c.days_300_330) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_300_330 > 0">{{ fmt(c.balance_300_330) }}</div>
+                  </td>
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_330_360 > 0">
+                    <div class="cell-amount">{{ fmt(c.days_330_360) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_330_360 > 0">{{ fmt(c.balance_330_360) }}</div>
+                  </td>
+                  <td class="num-col critical-col" [class.amt-critical]="c.days_360_plus > 0">
+                    <div class="cell-amount">{{ fmt(c.days_360_plus) }}</div>
+                    <div class="cell-balance" *ngIf="c.days_360_plus > 0">{{ fmt(c.balance_360plus) }}</div>
+                  </td>
+                </ng-container>
+                <td class="num-col balance-col">{{ fmt(c.balance_current) }}</td>
                 <td class="num-col total-col">{{ fmt(c.total_outstanding) }}</td>
                 <td class="num-col">
                   <span class="risk-badge" [ngClass]="riskClass(c)">
@@ -171,16 +202,8 @@
                   </span>
                 </td>
                 <td class="num-col">
-                  <button
-                    *ngIf="c.days_1_30 > 0 || c.days_31_60 > 0 || c.days_61_90 > 0 || c.days_90_plus > 0"
-                    class="btn-alert-row"
-                    (click)="openAlert(c)"
-                    title="Send collection alert">
-                    &#128276;
-                  </button>
-                  <span *ngIf="c.days_1_30 === 0 && c.days_31_60 === 0 && c.days_61_90 === 0 && c.days_90_plus === 0" class="no-action">
-                    &mdash;
-                  </span>
+                  <button *ngIf="c.days_1_30 > 0 || c.days_31_60 > 0 || c.days_61_90 > 0 || c.days_90_120 > 0 || c.days_120_150 > 0 || c.days_150_180 > 0 || c.days_180_210 > 0 || c.days_210_240 > 0 || c.days_240_270 > 0 || c.days_270_300 > 0 || c.days_300_330 > 0 || c.days_330_360 > 0 || c.days_360_plus > 0" class="btn-alert-row" (click)="openAlert(c)">&#128276;</button>
+                  <span *ngIf="!c.days_1_30 > 0 || c.days_31_60 > 0 || c.days_61_90 > 0 || c.days_90_120 > 0 || c.days_120_150 > 0 || c.days_150_180 > 0 || c.days_180_210 > 0 || c.days_210_240 > 0 || c.days_240_270 > 0 || c.days_270_300 > 0 || c.days_300_330 > 0 || c.days_330_360 > 0 || c.days_360_plus > 0" class="no-action">&mdash;</span>
                 </td>
               </tr>
             </tbody>
@@ -188,38 +211,45 @@
               <tr class="totals-row">
                 <td><strong>TOTALS</strong></td>
                 <td class="num-col"><strong>{{ report.totals.invoice_count }}</strong></td>
+                <td class="num-col ob-col"><strong>{{ fmt(report.totals.opening_balance) }}</strong></td>
                 <td class="num-col"><strong>{{ fmt(report.totals.current_due) }}</strong></td>
                 <td class="num-col"><strong>{{ fmt(report.totals.days_1_30) }}</strong></td>
                 <td class="num-col"><strong>{{ fmt(report.totals.days_31_60) }}</strong></td>
                 <td class="num-col"><strong>{{ fmt(report.totals.days_61_90) }}</strong></td>
-                <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_90_plus) }}</strong></td>
+                <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_90_120) }}</strong></td>
+                <ng-container *ngIf="showExtended">
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_120_150) }}</strong></td>
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_150_180) }}</strong></td>
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_180_210) }}</strong></td>
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_210_240) }}</strong></td>
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_240_270) }}</strong></td>
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_270_300) }}</strong></td>
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_300_330) }}</strong></td>
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_330_360) }}</strong></td>
+                  <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_360_plus) }}</strong></td>
+                </ng-container>
+                <td class="num-col balance-col"><strong>{{ fmt(report.totals.balance_current) }}</strong></td>
                 <td class="num-col total-col"><strong>{{ fmt(report.totals.total_outstanding) }}</strong></td>
-                <td></td>
-                <td></td>
+                <td></td><td></td>
               </tr>
             </tfoot>
           </table>
         </div>
       </div>
 
-      <!-- CHARTS VIEW -->
+      <!-- CHARTS -->
       <div *ngIf="hasData && activeTab === 'charts'" class="charts-section">
         <div class="chart-row">
           <div class="chart-card chart-large">
             <div class="chart-title">Top Customers by Outstanding Balance</div>
-            <div class="chart-body">
-              <canvas #barCanvas></canvas>
-            </div>
+            <div class="chart-body"><canvas #barCanvas></canvas></div>
           </div>
           <div class="chart-card chart-small">
             <div class="chart-title">Balance by Age Bucket</div>
-            <div class="chart-body donut-body">
-              <canvas #donutCanvas></canvas>
-            </div>
+            <div class="chart-body donut-body"><canvas #donutCanvas></canvas></div>
           </div>
         </div>
       </div>
-
     </ng-container>
   </main>
 </div>
@@ -231,7 +261,6 @@
       <h3>&#128276; Collection Alert</h3>
       <button class="modal-close" (click)="closeAlert()">&#10005;</button>
     </div>
-
     <div *ngIf="!alertSent && alertCustomer">
       <div class="alert-customer-info">
         <div class="alert-customer-name">{{ alertCustomer.customer_name }}</div>
@@ -240,18 +269,17 @@
           <span class="alert-total">Total: {{ fmt(alertCustomer.total_outstanding) }}</span>
         </div>
         <div class="alert-buckets">
-          <span *ngIf="alertCustomer.days_1_30 > 0" class="bucket-chip chip-warn">1-30d: {{ fmt(alertCustomer.days_1_30) }}</span>
-          <span *ngIf="alertCustomer.days_31_60 > 0" class="bucket-chip chip-orange">31-60d: {{ fmt(alertCustomer.days_31_60) }}</span>
-          <span *ngIf="alertCustomer.days_61_90 > 0" class="bucket-chip chip-danger">61-90d: {{ fmt(alertCustomer.days_61_90) }}</span>
-          <span *ngIf="alertCustomer.days_90_plus > 0" class="bucket-chip chip-critical">90+d: {{ fmt(alertCustomer.days_90_plus) }}</span>
+          <span *ngIf="alertCustomer.days_1_30 > 0"   class="bucket-chip chip-warn">1-30d: {{ fmt(alertCustomer.days_1_30) }}</span>
+          <span *ngIf="alertCustomer.days_31_60 > 0"  class="bucket-chip chip-orange">31-60d: {{ fmt(alertCustomer.days_31_60) }}</span>
+          <span *ngIf="alertCustomer.days_61_90 > 0"  class="bucket-chip chip-danger">61-90d: {{ fmt(alertCustomer.days_61_90) }}</span>
+          <span *ngIf="alertCustomer.days_90_120 > 0" class="bucket-chip chip-critical">90-120d: {{ fmt(alertCustomer.days_90_120) }}</span>
+          <span *ngIf="alertCustomer.days_120_150+alertCustomer.days_150_180+alertCustomer.days_180_210+alertCustomer.days_210_240+alertCustomer.days_240_270+alertCustomer.days_270_300+alertCustomer.days_300_330+alertCustomer.days_330_360+alertCustomer.days_360_plus > 0" class="bucket-chip chip-critical">120+d: {{ fmt(alertCustomer.days_120_150+alertCustomer.days_150_180+alertCustomer.days_180_210+alertCustomer.days_210_240+alertCustomer.days_240_270+alertCustomer.days_270_300+alertCustomer.days_300_330+alertCustomer.days_330_360+alertCustomer.days_360_plus) }}</span>
         </div>
       </div>
-
       <div class="modal-field">
         <label>Alert Message</label>
         <textarea [(ngModel)]="alertNote" rows="7" class="alert-textarea"></textarea>
       </div>
-
       <div class="modal-actions">
         <button class="btn-cancel" (click)="closeAlert()">Cancel</button>
         <button class="btn-send-alert" (click)="sendAlert()" [disabled]="alertSending">
@@ -260,7 +288,6 @@
         </button>
       </div>
     </div>
-
     <div *ngIf="alertSent" class="alert-success">
       <div class="success-icon">&#10003;</div>
       <h4>Alert Logged</h4>
@@ -269,4 +296,3 @@
     </div>
   </div>
 </div>
-

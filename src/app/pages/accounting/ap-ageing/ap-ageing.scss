@@ -574,3 +574,12 @@ table {
   p { color: #94a3b8; font-size: 0.875rem; margin-bottom: 1.25rem; }
 }
 
+/* Ageing enhancements — append to both ar-ageing.scss and ap-ageing.scss */
+
+.ob-col { color: #f59e0b !important; font-weight: 600; border-right: 1px solid #334155; }
+.balance-col { color: #a78bfa !important; font-weight: 700; border-left: 1px solid #334155; background: rgba(99,102,241,0.05); }
+.cell-amount { font-size: 0.85rem; font-weight: 600; }
+.cell-balance { font-size: 0.7rem; color: #a78bfa; margin-top: 2px; opacity: 0.85; }
+.extended-toggle { margin-left: auto; background: rgba(99,102,241,0.1) !important; border-color: #6366f1 !important; color: #a78bfa !important; font-size: 0.8rem; }
+.extended-toggle.active { background: rgba(99,102,241,0.25) !important; }
+.critical-col { border-left: 1px solid rgba(239,68,68,0.2); }
