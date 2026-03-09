@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -58,7 +58,7 @@ export class Signup implements OnInit {
     return { score, label: p ? labels[score] : '', color: p ? colors[score] : '' };
   }
 
-  constructor(private router: Router, private http: HttpClient, private auth: AuthService) {}
+  constructor(private router: Router, private http: HttpClient, private auth: AuthService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     if (this.auth.isLoggedIn()) this.router.navigateByUrl('/dashboard');
@@ -78,7 +78,7 @@ export class Signup implements OnInit {
         this.keyInfo = info;
         this.licenseKey = key;
         if (info.hotelName) this.hotelName = info.hotelName;
-        this.step = 2;
+        this.step = 2; this.cdr.detectChanges();
       },
       error: (err) => {
         this.validating = false;
@@ -169,9 +169,9 @@ export class Signup implements OnInit {
         this.contactSent = true;
       },
       error: () => {
-        // Fallback — open mailto if endpoint not available
+        // Fallback â€” open mailto if endpoint not available
         this.contactLoading = false;
-        const subject = encodeURIComponent(`License Key Request — ${this.contact.hotel}`);
+        const subject = encodeURIComponent(`License Key Request â€” ${this.contact.hotel}`);
         const body = encodeURIComponent(
           `Hotel: ${this.contact.hotel}\nName: ${this.contact.name}\nEmail: ${this.contact.email}\nEmployees: ${this.contact.employees}\nPlan: ${this.contact.plan}\n\n${this.contact.message}`
         );
@@ -181,3 +181,4 @@ export class Signup implements OnInit {
     });
   }
 }
+
