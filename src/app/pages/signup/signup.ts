@@ -113,7 +113,7 @@ export class Signup implements OnInit {
     this.http
       .post(`${environment.apiUrl}/auth/register`, {
         name: this.adminName.trim(),
-        email: this.email.trim(),
+        email: this.email.trim().replace(/\s+/g, '').trim(),
         password: this.password,
         companyName: this.hotelName.trim(),
         licenseKey: this.licenseKey,
@@ -121,7 +121,7 @@ export class Signup implements OnInit {
       .subscribe({
         next: () => {
           this.loading = false;
-          this.auth.login({ email: this.email.trim(), password: this.password }).subscribe({
+          this.auth.login({ email: this.email.trim().replace(/\s+/g, '').trim(), password: this.password }).subscribe({
             next: () => this.router.navigateByUrl('/dashboard'),
             error: () => this.router.navigateByUrl('/login'),
           });
@@ -181,4 +181,5 @@ export class Signup implements OnInit {
     });
   }
 }
+
 

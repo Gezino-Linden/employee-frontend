@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <!-- ── STEP 1: License Key ── -->
+  <!-- STEP 1: License Key -->
   <div *ngIf="step === 1">
     <h2>Enter your license key</h2>
     <p class="subtitle">Contact MaeRoll to get a license key for your hotel</p>
@@ -52,14 +52,40 @@
     </button>
 
     <div class="footer">Already have an account? <a routerLink="/login">Sign in</a></div>
-    <div class="contact-note">Don't have a key? <button class="contact-btn" (click)="showContact = true">Contact us →</button></div>
+    <div class="contact-note">Don't have a key? <button class="contact-btn" (click)="showContact = true">Contact us &rarr;</button></div>
   </div>
 
-  <!-- ── STEP 2: Account Details ── -->
+  <!-- STEP 2: Account Details -->
   <div *ngIf="step === 2">
+
+    <!-- Plan badge: shows volume pricing for Intelligence/Performance, flat for Operations/Enterprise -->
     <div class="plan-badge" *ngIf="keyInfo">
       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-      {{ keyInfo.plan }} Plan · Up to {{ keyInfo.maxEmployees }} employees · R{{ keyInfo.pepmRate }} PEPM
+
+      <!-- Operations: flat rate, up to 100 -->
+      <ng-container *ngIf="keyInfo.plan === 'Operations'">
+        Operations Plan &middot; Up to 100 employees &middot; R95/employee/month
+      </ng-container>
+
+      <!-- Intelligence: volume-based -->
+      <ng-container *ngIf="keyInfo.plan === 'Intelligence'">
+        Intelligence Plan &#11088; &middot; From R135/employee/month (volume discounts apply) &middot; 15% off annually
+      </ng-container>
+
+      <!-- Performance: volume-based -->
+      <ng-container *ngIf="keyInfo.plan === 'Performance'">
+        Performance Plan &middot; From R175/employee/month (volume discounts apply)
+      </ng-container>
+
+      <!-- Enterprise -->
+      <ng-container *ngIf="keyInfo.plan === 'Enterprise'">
+        Enterprise Plan &middot; Custom pricing &middot; 501+ employees
+      </ng-container>
+
+      <!-- Fallback for any other plan name -->
+      <ng-container *ngIf="keyInfo.plan !== 'Operations' && keyInfo.plan !== 'Intelligence' && keyInfo.plan !== 'Performance' && keyInfo.plan !== 'Enterprise'">
+        {{ keyInfo.plan }} Plan &middot; R{{ keyInfo.pepmRate }}/employee/month
+      </ng-container>
     </div>
 
     <h2>Set up your account</h2>
@@ -102,8 +128,8 @@
           <svg *ngIf="showConfirm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"/><path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.064 7 9.542 7 .847 0 1.669-.105 2.454-.303z"/></svg>
         </button>
       </div>
-      <div class="match-ok" *ngIf="confirmPassword && password === confirmPassword">✓ Passwords match</div>
-      <div class="match-err" *ngIf="confirmPassword && password !== confirmPassword">✗ Passwords do not match</div>
+      <div class="match-ok" *ngIf="confirmPassword && password === confirmPassword">&#10003; Passwords match</div>
+      <div class="match-err" *ngIf="confirmPassword && password !== confirmPassword">&#10007; Passwords do not match</div>
     </div>
 
     <div class="error-box" *ngIf="error">
@@ -115,12 +141,12 @@
       <span *ngIf="!loading">Create Account</span>
       <span *ngIf="loading" class="loading-state"><span class="spinner"></span> Creating account...</span>
     </button>
-    <button class="back-btn" (click)="back()" [disabled]="loading">← Back</button>
+    <button class="back-btn" (click)="back()" [disabled]="loading">&larr; Back</button>
   </div>
 
 </div>
 
-<!-- ── CONTACT MODAL ── -->
+<!-- CONTACT MODAL -->
 <div class="modal-overlay" *ngIf="showContact" (click)="closeContact($event)">
   <div class="modal-card">
 
@@ -173,13 +199,23 @@
         <label>Plan Interest</label>
         <select [(ngModel)]="contact.plan" [disabled]="contactLoading">
           <option value="">Select a plan...</option>
-          <option value="Tier 1">Tier 1 — (1-25 emp)    : R100 PEPM</option>
-          <option value="Tier 2">Tier 2 — (26-50 emp)   : R90 PEPM</option>
-          <option value="Tier 3">Tier 4 — (51-100 emp)  : R80 PEPM</option>
-          <option value="Tier 4">Tier 5 — (101-200 emp) : R70 PEPM</option>
-          <option value="Tier 5">Tier 6 — (201-350 emp) : R60 PEPM</option>
-          <option value="Tier 6">Tier 6 — (351-500 emp) : R50 PEPM</option>
-          <option value="Tier 7">Tier 7 — (501+ emp)    : Custom quote</option>
+          <optgroup label="Operations &mdash; R95/employee/month (up to 100 employees)">
+            <option value="Operations">Operations &mdash; R95/emp/month</option>
+          </optgroup>
+          <optgroup label="Intelligence &#11088; Most Popular &mdash; Volume pricing">
+            <option value="Intelligence-100">Intelligence: 1&ndash;100 employees &mdash; R135/emp/month</option>
+            <option value="Intelligence-200">Intelligence: 101&ndash;200 employees &mdash; R120/emp/month</option>
+            <option value="Intelligence-350">Intelligence: 201&ndash;350 employees &mdash; R105/emp/month</option>
+            <option value="Intelligence-500">Intelligence: 351&ndash;500 employees &mdash; R90/emp/month</option>
+          </optgroup>
+          <optgroup label="Performance &mdash; Volume pricing">
+            <option value="Performance-200">Performance: 1&ndash;200 employees &mdash; R175/emp/month</option>
+            <option value="Performance-350">Performance: 201&ndash;350 employees &mdash; R155/emp/month</option>
+            <option value="Performance-500">Performance: 351&ndash;500 employees &mdash; R135/emp/month</option>
+          </optgroup>
+          <optgroup label="Enterprise &mdash; 501+ employees">
+            <option value="Enterprise">Enterprise (501+ employees) &mdash; Custom pricing</option>
+          </optgroup>
         </select>
       </div>
       <div class="modal-field">
