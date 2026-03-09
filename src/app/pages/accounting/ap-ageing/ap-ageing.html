@@ -1,4 +1,4 @@
-<!-- File: src/app/pages/accounting/ap-ageing/ap-ageing.html -->
+﻿<!-- File: src/app/pages/accounting/ap-ageing/ap-ageing.html -->
 <div class="ageing-app">
   <div class="bg-mesh"></div>
 
@@ -133,6 +133,12 @@
                 <th class="num-col">31&ndash;60 Days</th>
                 <th class="num-col">61&ndash;90 Days</th>
                 <th class="num-col critical-col">90+ Days</th>
+                <th class="num-col running-col">Opening Bal</th>
+                <th class="num-col running-col">Run: 90+</th>
+                <th class="num-col running-col">Run: 61-90</th>
+                <th class="num-col running-col">Run: 31-60</th>
+                <th class="num-col running-col">Run: 1-30</th>
+                <th class="num-col running-col">Run: Current</th>
                 <th class="num-col total-col">Total</th>
                 <th class="num-col">Risk</th>
                 <th class="num-col">Action</th>
@@ -147,6 +153,12 @@
                 <td class="num-col" [class.amt-orange]="s.days_31_60 > 0">{{ fmt(s.days_31_60) }}</td>
                 <td class="num-col" [class.amt-danger]="s.days_61_90 > 0">{{ fmt(s.days_61_90) }}</td>
                 <td class="num-col critical-col" [class.amt-critical]="s.days_90_plus > 0">{{ fmt(s.days_90_plus) }}</td>
+                <td class="num-col running-col ob-col">{{ fmt(s.opening_balance) }}</td>
+                <td class="num-col running-col">{{ fmt(s.running_90plus) }}</td>
+                <td class="num-col running-col">{{ fmt(s.running_61_90) }}</td>
+                <td class="num-col running-col">{{ fmt(s.running_31_60) }}</td>
+                <td class="num-col running-col">{{ fmt(s.running_1_30) }}</td>
+                <td class="num-col running-col">{{ fmt(s.running_current) }}</td>
                 <td class="num-col total-col">{{ fmt(s.total_outstanding) }}</td>
                 <td class="num-col">
                   <span class="risk-badge" [ngClass]="riskClass(s)">
@@ -257,3 +269,4 @@
     </div>
   </div>
 </div>
+

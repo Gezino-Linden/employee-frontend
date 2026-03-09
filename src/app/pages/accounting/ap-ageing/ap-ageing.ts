@@ -1,4 +1,4 @@
-// File: src/app/pages/accounting/ap-ageing/ap-ageing.ts
+﻿// File: src/app/pages/accounting/ap-ageing/ap-ageing.ts
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,22 +9,34 @@ import { environment } from '../../../../environments/environment';
 export interface AgeingSupplier {
   supplier_name: string;
   invoice_count: number;
+  opening_balance: number;
   current_due: number;
   days_1_30: number;
   days_31_60: number;
   days_61_90: number;
   days_90_plus: number;
   total_outstanding: number;
+  running_90plus: number;
+  running_61_90: number;
+  running_31_60: number;
+  running_1_30: number;
+  running_current: number;
 }
 
 export interface AgeingTotals {
   invoice_count: number;
+  opening_balance: number;
   current_due: number;
   days_1_30: number;
   days_31_60: number;
   days_61_90: number;
   days_90_plus: number;
   total_outstanding: number;
+  running_90plus: number;
+  running_61_90: number;
+  running_31_60: number;
+  running_1_30: number;
+  running_current: number;
 }
 
 export interface AgeingReport {
@@ -112,7 +124,7 @@ export class ApAgeingComponent implements OnInit, AfterViewInit {
       this.barChart = new win.Chart(this.barCanvas.nativeElement, {
         type: 'bar',
         data: {
-          labels: top.map(s => s.supplier_name.length > 16 ? s.supplier_name.slice(0, 16) + '…' : s.supplier_name),
+          labels: top.map(s => s.supplier_name.length > 16 ? s.supplier_name.slice(0, 16) + 'â€¦' : s.supplier_name),
           datasets: [
             { label: 'Current', data: top.map(s => s.current_due), backgroundColor: '#22c55e' },
             { label: '1-30 Days', data: top.map(s => s.days_1_30), backgroundColor: '#f59e0b' },
@@ -152,7 +164,7 @@ export class ApAgeingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ── EXPORT ────────────────────────────────────────────────────────────────
+  // â”€â”€ EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   exportExcel() {
     if (!this.report) return;
@@ -194,7 +206,7 @@ export class ApAgeingComponent implements OnInit, AfterViewInit {
     doc.setTextColor(245, 158, 11);
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text('MaeRoll — AP Ageing Report', 14, 14);
+    doc.text('MaeRoll â€” AP Ageing Report', 14, 14);
     doc.setTextColor(148, 163, 184);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -254,7 +266,7 @@ export class ApAgeingComponent implements OnInit, AfterViewInit {
     doc.save(`AP_Ageing_${this.report.as_of}.pdf`);
   }
 
-  // ── PAYMENT REMINDERS ─────────────────────────────────────────────────────
+  // â”€â”€ PAYMENT REMINDERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   openAlert(supplier: AgeingSupplier) {
     this.alertSupplier = supplier;
@@ -274,8 +286,8 @@ export class ApAgeingComponent implements OnInit, AfterViewInit {
 
   defaultAlertNote(s: AgeingSupplier): string {
     const risk = this.riskLabel(s);
-    if (risk === 'Critical') return `Payment Reminder — ${s.supplier_name}\n\nWe acknowledge an outstanding balance of ${this.fmt(s.total_outstanding)}, of which ${this.fmt(s.days_90_plus)} is more than 90 days overdue.\n\nPlease advise on payment arrangement to avoid supply interruption.\n\nAccounts Payable`;
-    return `Payment Reminder — ${s.supplier_name}\n\nThis is a reminder that we have an outstanding payable of ${this.fmt(s.total_outstanding)}.\n\nWe will arrange payment shortly. Please confirm your banking details are up to date.\n\nAccounts Payable`;
+    if (risk === 'Critical') return `Payment Reminder â€” ${s.supplier_name}\n\nWe acknowledge an outstanding balance of ${this.fmt(s.total_outstanding)}, of which ${this.fmt(s.days_90_plus)} is more than 90 days overdue.\n\nPlease advise on payment arrangement to avoid supply interruption.\n\nAccounts Payable`;
+    return `Payment Reminder â€” ${s.supplier_name}\n\nThis is a reminder that we have an outstanding payable of ${this.fmt(s.total_outstanding)}.\n\nWe will arrange payment shortly. Please confirm your banking details are up to date.\n\nAccounts Payable`;
   }
 
   sendAlert() {
@@ -297,7 +309,7 @@ export class ApAgeingComponent implements OnInit, AfterViewInit {
     alert(`Payment reminders logged for ${overdue.length} supplier(s) with overdue balances.`);
   }
 
-  // ── HELPERS ───────────────────────────────────────────────────────────────
+  // â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   fmt(val: number): string {
     return 'R ' + (val || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -342,3 +354,4 @@ export class ApAgeingComponent implements OnInit, AfterViewInit {
     return this.report.suppliers.filter(s => s.days_90_plus > 0);
   }
 }
+

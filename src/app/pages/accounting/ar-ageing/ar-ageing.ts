@@ -1,4 +1,4 @@
-// File: src/app/pages/accounting/ar-ageing/ar-ageing.ts
+﻿// File: src/app/pages/accounting/ar-ageing/ar-ageing.ts
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,22 +9,34 @@ import { environment } from '../../../../environments/environment';
 export interface AgeingCustomer {
   customer_name: string;
   invoice_count: number;
+  opening_balance: number;
   current_due: number;
   days_1_30: number;
   days_31_60: number;
   days_61_90: number;
   days_90_plus: number;
   total_outstanding: number;
+  running_90plus: number;
+  running_61_90: number;
+  running_31_60: number;
+  running_1_30: number;
+  running_current: number;
 }
 
 export interface AgeingTotals {
   invoice_count: number;
+  opening_balance: number;
   current_due: number;
   days_1_30: number;
   days_31_60: number;
   days_61_90: number;
   days_90_plus: number;
   total_outstanding: number;
+  running_90plus: number;
+  running_61_90: number;
+  running_31_60: number;
+  running_1_30: number;
+  running_current: number;
 }
 
 export interface ARAgeing {
@@ -107,7 +119,7 @@ export class ArAgeingComponent implements OnInit, AfterViewInit {
     if (this.barChart) { this.barChart.destroy(); this.barChart = null; }
     if (this.donutChart) { this.donutChart.destroy(); this.donutChart = null; }
 
-    // Bar chart — top customers
+    // Bar chart â€” top customers
     if (this.barCanvas?.nativeElement && this.report.customers.length > 0) {
       const top = [...this.report.customers]
         .sort((a, b) => b.total_outstanding - a.total_outstanding)
@@ -115,7 +127,7 @@ export class ArAgeingComponent implements OnInit, AfterViewInit {
       this.barChart = new win.Chart(this.barCanvas.nativeElement, {
         type: 'bar',
         data: {
-          labels: top.map(c => c.customer_name.length > 16 ? c.customer_name.slice(0, 16) + '…' : c.customer_name),
+          labels: top.map(c => c.customer_name.length > 16 ? c.customer_name.slice(0, 16) + 'â€¦' : c.customer_name),
           datasets: [
             { label: 'Current', data: top.map(c => c.current_due), backgroundColor: '#22c55e' },
             { label: '1-30 Days', data: top.map(c => c.days_1_30), backgroundColor: '#f59e0b' },
@@ -135,7 +147,7 @@ export class ArAgeingComponent implements OnInit, AfterViewInit {
       });
     }
 
-    // Donut chart — bucket breakdown
+    // Donut chart â€” bucket breakdown
     if (this.donutCanvas?.nativeElement) {
       const nonZero = bucketData.some(v => v > 0);
       this.donutChart = new win.Chart(this.donutCanvas.nativeElement, {
@@ -156,7 +168,7 @@ export class ArAgeingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ── EXPORT ────────────────────────────────────────────────────────────────
+  // â”€â”€ EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   exportExcel() {
     if (!this.report) return;
@@ -199,7 +211,7 @@ export class ArAgeingComponent implements OnInit, AfterViewInit {
     doc.setTextColor(245, 158, 11);
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text('MaeRoll — AR Ageing Report', 14, 14);
+    doc.text('MaeRoll â€” AR Ageing Report', 14, 14);
     doc.setTextColor(148, 163, 184);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -261,7 +273,7 @@ export class ArAgeingComponent implements OnInit, AfterViewInit {
     doc.save(`AR_Ageing_${this.report.as_of}.pdf`);
   }
 
-  // ── COLLECTION ALERTS ─────────────────────────────────────────────────────
+  // â”€â”€ COLLECTION ALERTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   openAlert(customer: AgeingCustomer) {
     this.alertCustomer = customer;
@@ -306,7 +318,7 @@ export class ArAgeingComponent implements OnInit, AfterViewInit {
     alert(`Collection alerts logged for ${overdue.length} customer(s) with overdue balances.`);
   }
 
-  // ── HELPERS ───────────────────────────────────────────────────────────────
+  // â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   fmt(val: number): string {
     return 'R ' + (val || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -351,3 +363,4 @@ export class ArAgeingComponent implements OnInit, AfterViewInit {
     return this.report.customers.filter(c => c.days_90_plus > 0);
   }
 }
+
