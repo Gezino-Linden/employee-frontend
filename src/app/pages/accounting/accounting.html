@@ -66,6 +66,20 @@
       </button>
       <button
         class="tab-btn"
+        [class.active]="activeTab === 'apageing'"
+        (click)="setTab('apageing')"
+      >
+        📊 AP Ageing
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'arageing'"
+        (click)="setTab('arageing')"
+      >
+        📥 AR Ageing
+      </button>
+      <button
+        class="tab-btn"
         [class.active]="activeTab === 'financials'"
         (click)="setTab('financials')"
       >
@@ -1258,4 +1272,3 @@
     </div>
   </main>
 </div>
-

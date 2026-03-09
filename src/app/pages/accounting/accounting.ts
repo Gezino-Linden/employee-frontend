@@ -153,7 +153,9 @@ export class Accounting implements OnInit {
     | 'invoices'
     | 'suppliers'
     | 'revenue'
-    | 'financials' = 'accounts';
+    | 'financials'
+    | 'apageing'
+    | 'arageing' = 'accounts';
 
   accounts: Account[] = [];
   loadingAccounts = false;
@@ -260,7 +262,6 @@ export class Accounting implements OnInit {
   errorMsg = '';
   successMsg = '';
 
-  // ── Single source of truth for API base URL ──
   private api = environment.apiUrl;
 
   constructor(
@@ -286,6 +287,15 @@ export class Accounting implements OnInit {
   }
 
   setTab(tab: typeof this.activeTab) {
+    // AP Ageing navigates to its own dedicated page
+    if (tab === 'apageing') {
+      this.router.navigate(['/ap-ageing']);
+      return;
+    }
+    if (tab === 'arageing') {
+      this.router.navigate(['/ar-ageing']);
+      return;
+    }
     this.activeTab = tab;
     this.errorMsg = '';
     this.successMsg = '';
@@ -364,7 +374,6 @@ export class Accounting implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          // Fallback to payroll/periods
           this.http
             .get<any>(`${this.api}/payroll/periods`)
             .pipe(takeUntilDestroyed(this.destroyRef))

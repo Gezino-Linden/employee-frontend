@@ -47,6 +47,18 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'ap-ageing',
+    loadComponent: () =>
+      import('./pages/accounting/ap-ageing/ap-ageing').then((m) => m.ApAgeingComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'ar-ageing',
+    loadComponent: () =>
+      import('./pages/accounting/ar-ageing/ar-ageing').then((m) => m.ArAgeingComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'sars',
     loadComponent: () => import('./pages/sars/sars').then((m) => m.Sars),
     canActivate: [authGuard],

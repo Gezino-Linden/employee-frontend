@@ -1,0 +1,152 @@
+<!-- File: src/app/pages/accounting/ap-ageing/ap-ageing.html -->
+<div class="ageing-app">
+  <div class="bg-mesh"></div>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">🔒</div>
+      <span class="brand-name">MaeRoll</span>
+      <span class="brand-sub">/ Accounting / AP Ageing</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-ghost-sm" (click)="goBack()">← Accounting</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <h1>AP Ageing <span class="title-accent">Report</span></h1>
+        <p class="page-subtitle">
+          Outstanding supplier balances by overdue bucket
+          <span *ngIf="report" class="as-of-badge">As of {{ report.as_of }}</span>
+        </p>
+      </div>
+      <button class="btn-primary" (click)="loadReport()" [disabled]="loading">
+        <span *ngIf="!loading">⟳ Refresh</span>
+        <span *ngIf="loading">Loading...</span>
+      </button>
+    </div>
+
+    <!-- ERROR -->
+    <div *ngIf="errorMsg" class="alert alert-error">❌ {{ errorMsg }}</div>
+
+    <!-- LOADING SKELETON -->
+    <div *ngIf="loading" class="skeleton-wrap">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    </div>
+
+    <ng-container *ngIf="!loading && report">
+
+      <!-- SUMMARY CARDS -->
+      <div class="cards-grid">
+        <div class="summary-card card-total">
+          <div class="card-label">Total Outstanding</div>
+          <div class="card-value">{{ fmt(report.totals.total_outstanding) }}</div>
+          <div class="card-sub">{{ report.totals.invoice_count }} open invoice{{ report.totals.invoice_count !== 1 ? 's' : '' }}</div>
+        </div>
+        <div class="summary-card card-current">
+          <div class="card-label">Current (Not Due)</div>
+          <div class="card-value">{{ fmt(report.totals.current_due) }}</div>
+          <div class="card-sub">Due date not yet reached</div>
+        </div>
+        <div class="summary-card card-warn">
+          <div class="card-label">1 – 30 Days</div>
+          <div class="card-value">{{ fmt(report.totals.days_1_30) }}</div>
+          <div class="card-sub">Slightly overdue</div>
+        </div>
+        <div class="summary-card card-orange">
+          <div class="card-label">31 – 60 Days</div>
+          <div class="card-value">{{ fmt(report.totals.days_31_60) }}</div>
+          <div class="card-sub">Follow up required</div>
+        </div>
+        <div class="summary-card card-danger">
+          <div class="card-label">61 – 90 Days</div>
+          <div class="card-value">{{ fmt(report.totals.days_61_90) }}</div>
+          <div class="card-sub">Urgent attention needed</div>
+        </div>
+        <div class="summary-card card-critical">
+          <div class="card-label">90+ Days</div>
+          <div class="card-value">{{ fmt(report.totals.days_90_plus) }}</div>
+          <div class="card-sub">Critical — escalate now</div>
+        </div>
+      </div>
+
+      <!-- OVERDUE ALERT BANNER -->
+      <div *ngIf="totalOverdue > 0" class="overdue-banner">
+        ⚠️ <strong>{{ fmt(totalOverdue) }}</strong> is overdue across {{ report.suppliers.length }} supplier{{ report.suppliers.length !== 1 ? 's' : '' }}
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div *ngIf="!hasData" class="empty-state">
+        <div class="empty-icon">✅</div>
+        <h3>No outstanding balances</h3>
+        <p>All supplier invoices are either paid or there are no open bills.</p>
+      </div>
+
+      <!-- AGEING TABLE -->
+      <div *ngIf="hasData" class="table-card">
+        <div class="table-header">
+          <h2>Supplier Breakdown</h2>
+          <span class="table-count">{{ report.suppliers.length }} supplier{{ report.suppliers.length !== 1 ? 's' : '' }}</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Supplier</th>
+                <th class="num-col">Invoices</th>
+                <th class="num-col">Current</th>
+                <th class="num-col">1–30 Days</th>
+                <th class="num-col">31–60 Days</th>
+                <th class="num-col">61–90 Days</th>
+                <th class="num-col critical-col">90+ Days</th>
+                <th class="num-col total-col">Total</th>
+                <th class="num-col">Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of report.suppliers" [class]="riskClass(s)">
+                <td class="supplier-name">{{ s.supplier_name }}</td>
+                <td class="num-col">{{ s.invoice_count }}</td>
+                <td class="num-col amt-current">{{ fmt(s.current_due) }}</td>
+                <td class="num-col" [class.amt-warn]="s.days_1_30 > 0">{{ fmt(s.days_1_30) }}</td>
+                <td class="num-col" [class.amt-orange]="s.days_31_60 > 0">{{ fmt(s.days_31_60) }}</td>
+                <td class="num-col" [class.amt-danger]="s.days_61_90 > 0">{{ fmt(s.days_61_90) }}</td>
+                <td class="num-col critical-col" [class.amt-critical]="s.days_90_plus > 0">{{ fmt(s.days_90_plus) }}</td>
+                <td class="num-col total-col">{{ fmt(s.total_outstanding) }}</td>
+                <td class="num-col">
+                  <span class="risk-badge" [ngClass]="riskClass(s)">
+                    <ng-container [ngSwitch]="riskClass(s)">
+                      <ng-container *ngSwitchCase="'risk-critical'">🔴 Critical</ng-container>
+                      <ng-container *ngSwitchCase="'risk-high'">🟠 High</ng-container>
+                      <ng-container *ngSwitchCase="'risk-medium'">🟡 Medium</ng-container>
+                      <ng-container *ngSwitchDefault>🟢 OK</ng-container>
+                    </ng-container>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="totals-row">
+                <td><strong>TOTALS</strong></td>
+                <td class="num-col"><strong>{{ report.totals.invoice_count }}</strong></td>
+                <td class="num-col"><strong>{{ fmt(report.totals.current_due) }}</strong></td>
+                <td class="num-col"><strong>{{ fmt(report.totals.days_1_30) }}</strong></td>
+                <td class="num-col"><strong>{{ fmt(report.totals.days_31_60) }}</strong></td>
+                <td class="num-col"><strong>{{ fmt(report.totals.days_61_90) }}</strong></td>
+                <td class="num-col critical-col"><strong>{{ fmt(report.totals.days_90_plus) }}</strong></td>
+                <td class="num-col total-col"><strong>{{ fmt(report.totals.total_outstanding) }}</strong></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+    </ng-container>
+  </main>
+</div>
