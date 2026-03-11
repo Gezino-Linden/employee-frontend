@@ -1,264 +1,228 @@
-<!-- File: src/app/pages/analytics/analytics.component.html -->
-<div class="analytics-app">
-  <div class="bg-mesh"></div>
-
-  <!-- Top Navigation -->
+﻿<!-- File: src/app/pages/analytics/analytics.component.html -->
+<div class="analytics-shell">
   <nav class="topnav">
-    <div class="topnav-brand">
+    <div class="topnav-left">
       <span class="brand-icon">📊</span>
-      <span class="brand-name">Analytics</span>
+      <span class="breadcrumb">MaeRoll / <span class="breadcrumb-current">Analytics</span></span>
     </div>
-    <div class="topnav-right">
-      <button class="btn-ghost-sm" routerLink="/dashboard">← Dashboard</button>
-      <div class="user-chip">
-        <div class="user-avatar-sm">{{ dashboardData ? 'A' : 'L' }}</div>
-        <span>Local Admin</span>
-      </div>
-    </div>
+    <div class="topnav-right"><button class="btn-back" routerLink="/dashboard">← Dashboard</button></div>
   </nav>
-
-  <div class="main-content">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="page-title-group">
-        <h1>Analytics Dashboard</h1>
-        <p class="page-subtitle">Comprehensive insights and reporting</p>
+  <div class="page-body">
+    <div class="controls-row">
+      <div class="tab-group">
+        <button class="tab-btn" [class.active]="activeTab==='overview'"   (click)="setTab('overview')">Overview</button>
+        <button class="tab-btn" [class.active]="activeTab==='payroll'"    (click)="setTab('payroll')">Payroll</button>
+        <button class="tab-btn" [class.active]="activeTab==='leave'"      (click)="setTab('leave')">Leave</button>
+        <button class="tab-btn" [class.active]="activeTab==='attendance'" (click)="setTab('attendance')">Attendance</button>
+        <button class="tab-btn insights-tab" [class.active]="activeTab==='insights'" (click)="setTab('insights')">🧠 Insights</button>
       </div>
-      <div class="period-selector">
-        <select class="form-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
-          <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+      <div class="period-row">
+        <select class="period-select" [(ngModel)]="selectedMonth" (change)="onPeriodChange()">
+          <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
         </select>
-        <select class="form-select" [(ngModel)]="selectedMonth" (change)="onMonthChange()">
-          <option [value]="1">January</option>
-          <option [value]="2">February</option>
-          <option [value]="3">March</option>
-          <option [value]="4">April</option>
-          <option [value]="5">May</option>
-          <option [value]="6">June</option>
-          <option [value]="7">July</option>
-          <option [value]="8">August</option>
-          <option [value]="9">September</option>
-          <option [value]="10">October</option>
-          <option [value]="11">November</option>
-          <option [value]="12">December</option>
+        <select class="period-select" [(ngModel)]="selectedYear" (change)="onPeriodChange()">
+          <option *ngFor="let y of years" [value]="y">{{ y }}</option>
         </select>
       </div>
     </div>
+    <div *ngIf="loading" class="loading-state"><div class="spinner"></div><span>Loading analytics...</span></div>
+    <div *ngIf="error && !loading" class="error-state">{{ error }}</div>
 
-    <!-- Global Loading -->
-    <div *ngIf="loading" class="loading">
-      <div class="loading-spinner"></div>
-      <p>Loading analytics data...</p>
-    </div>
-
-    <!-- Error -->
-    <div *ngIf="error && !loading" class="alert alert-error">{{ error }}</div>
-
-    <!-- Main Content -->
-    <div *ngIf="!loading && !error && dashboardData">
-
-      <!-- KPI Cards -->
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-icon">👥</div>
-          <div class="summary-info">
-            <div class="summary-value">{{ dashboardData.employees.total_employees }}</div>
-            <div class="summary-label">Total Employees</div>
-            <div class="summary-detail">{{ dashboardData.employees.active_employees }} active</div>
+    <!-- OVERVIEW -->
+    <div *ngIf="!loading && dashboardData && activeTab==='overview'">
+      <div class="summary-cards">
+        <div class="summary-card teal"><div class="card-label">TOTAL EMPLOYEES</div><div class="card-value">{{ dashboardData.employees.total_employees }}</div><div class="card-sub">{{ dashboardData.employees.active_employees }} active</div></div>
+        <div class="summary-card indigo"><div class="card-label">GROSS PAYROLL</div><div class="card-value">{{ fmtDec(dashboardData.payroll.total_gross) }}</div><div class="card-sub">{{ dashboardData.payroll.processed_count }} processed</div></div>
+        <div class="summary-card amber"><div class="card-label">NET PAYROLL</div><div class="card-value">{{ fmtDec(dashboardData.payroll.total_net) }}</div><div class="card-sub">After all deductions</div></div>
+        <div class="summary-card blue"><div class="card-label">ATTENDANCE RATE</div><div class="card-value">{{ attendanceRate() }}%</div><div class="card-sub">Avg {{ avgHours() }} hrs/day</div></div>
+        <div class="summary-card green"><div class="card-label">LEAVE REQUESTS</div><div class="card-value">{{ dashboardData.leave.total_requests }}</div><div class="card-sub">{{ dashboardData.leave.pending_requests }} pending</div></div>
+        <div class="summary-card red"><div class="card-label">PAYE TAX</div><div class="card-value">{{ fmtDec(dashboardData.payroll.total_tax) }}</div><div class="card-sub">{{ getMonthLabel() }} {{ selectedYear }}</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card wide">
+          <div class="chart-title">PAYROLL COST BREAKDOWN</div>
+          <div class="breakdown-bars">
+            <div class="breakdown-item"><div class="breakdown-label">Gross Payroll</div><div class="breakdown-track"><div class="breakdown-fill" style="width:100%;background:#10b981"></div></div><div class="breakdown-val">{{ fmtDec(dashboardData.payroll.total_gross) }}</div></div>
+            <div class="breakdown-item"><div class="breakdown-label">Net Pay</div><div class="breakdown-track"><div class="breakdown-fill" [style.width]="(+dashboardData.payroll.total_net / +dashboardData.payroll.total_gross * 100) + '%'" style="background:#6366f1"></div></div><div class="breakdown-val">{{ fmtDec(dashboardData.payroll.total_net) }}</div></div>
+            <div class="breakdown-item"><div class="breakdown-label">PAYE Tax</div><div class="breakdown-track"><div class="breakdown-fill" [style.width]="(+dashboardData.payroll.total_tax / +dashboardData.payroll.total_gross * 100) + '%'" style="background:#f59e0b"></div></div><div class="breakdown-val">{{ fmtDec(dashboardData.payroll.total_tax) }}</div></div>
+            <div class="breakdown-item"><div class="breakdown-label">Total Deductions</div><div class="breakdown-track"><div class="breakdown-fill" [style.width]="(+dashboardData.payroll.total_deductions / +dashboardData.payroll.total_gross * 100) + '%'" style="background:#ef4444"></div></div><div class="breakdown-val">{{ fmtDec(dashboardData.payroll.total_deductions) }}</div></div>
           </div>
         </div>
-        <div class="summary-card">
-          <div class="summary-icon">💰</div>
-          <div class="summary-info">
-            <div class="summary-value">{{ formatCurrency(dashboardData.payroll.total_gross) }}</div>
-            <div class="summary-label">Gross Payroll</div>
-            <div class="summary-detail">{{ dashboardData.payroll.processed_count }} processed</div>
-          </div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-icon">💵</div>
-          <div class="summary-info">
-            <div class="summary-value">{{ formatCurrency(dashboardData.payroll.total_net) }}</div>
-            <div class="summary-label">Net Pay</div>
-            <div class="summary-detail">{{ formatCurrency(dashboardData.payroll.total_tax) }} tax</div>
-          </div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-icon">🏖️</div>
-          <div class="summary-info">
-            <div class="summary-value">{{ dashboardData.leave.approved_requests }}</div>
-            <div class="summary-label">Approved Leave</div>
-            <div class="summary-detail">{{ dashboardData.leave.total_days_taken }} days</div>
-          </div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-icon">⏰</div>
-          <div class="summary-info">
-            <div class="summary-value">{{ dashboardData.attendance.present_count }}</div>
-            <div class="summary-label">Present Today</div>
-            <div class="summary-detail">{{ dashboardData.attendance.late_count }} late</div>
-          </div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-icon">📋</div>
-          <div class="summary-info">
-            <div class="summary-value">{{ formatCurrency(dashboardData.compliance.outstanding_amount) }}</div>
-            <div class="summary-label">SARS Outstanding</div>
-            <div class="summary-detail">{{ dashboardData.compliance.pending_payments }} pending</div>
+        <div class="chart-card narrow">
+          <div class="chart-title">ATTENDANCE SUMMARY</div>
+          <div class="donut-center">
+            <svg viewBox="0 0 120 120" class="donut-svg">
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#1e293b" stroke-width="16"/>
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#10b981" stroke-width="16"
+                [attr.stroke-dasharray]="(dashboardData.attendance.present_count / (dashboardData.attendance.present_count + dashboardData.attendance.late_count + dashboardData.attendance.absent_count) * 283) + ' 283'"
+                stroke-dashoffset="70.75" stroke-linecap="butt"/>
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#f59e0b" stroke-width="16"
+                [attr.stroke-dasharray]="(dashboardData.attendance.late_count / (dashboardData.attendance.present_count + dashboardData.attendance.late_count + dashboardData.attendance.absent_count) * 283) + ' 283'"
+                [attr.stroke-dashoffset]="70.75 - (dashboardData.attendance.present_count / (dashboardData.attendance.present_count + dashboardData.attendance.late_count + dashboardData.attendance.absent_count) * 283)"
+                stroke-linecap="butt"/>
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#ef4444" stroke-width="16"
+                [attr.stroke-dasharray]="(dashboardData.attendance.absent_count / (dashboardData.attendance.present_count + dashboardData.attendance.late_count + dashboardData.attendance.absent_count) * 283) + ' 283'"
+                [attr.stroke-dashoffset]="70.75 - ((dashboardData.attendance.present_count + dashboardData.attendance.late_count) / (dashboardData.attendance.present_count + dashboardData.attendance.late_count + dashboardData.attendance.absent_count) * 283)"
+                stroke-linecap="butt"/>
+              <text x="60" y="56" text-anchor="middle" fill="#f1f5f9" font-size="20" font-weight="700" class="donut-pct">{{ attendanceRate() }}%</text>
+              <text x="60" y="70" text-anchor="middle" fill="#64748b" font-size="9">Rate</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-row"><span class="dot" style="background:#10b981"></span>Present <strong>{{ dashboardData.attendance.present_count }}</strong></div>
+              <div class="legend-row"><span class="dot" style="background:#f59e0b"></span>Late <strong>{{ dashboardData.attendance.late_count }}</strong></div>
+              <div class="legend-row"><span class="dot" style="background:#ef4444"></span>Absent <strong>{{ dashboardData.attendance.absent_count }}</strong></div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Tabs -->
-      <div class="tabs-container">
-        <div class="tabs">
-          <button class="tab" [class.tab-active]="activeTab === 'overview'" (click)="switchTab('overview')">📊 Overview</button>
-          <button class="tab" [class.tab-active]="activeTab === 'payroll'" (click)="switchTab('payroll')">💰 Payroll</button>
-          <button class="tab" [class.tab-active]="activeTab === 'leave'" (click)="switchTab('leave')">🏖️ Leave</button>
-          <button class="tab" [class.tab-active]="activeTab === 'attendance'" (click)="switchTab('attendance')">⏰ Attendance</button>
-          <button class="tab" [class.tab-active]="activeTab === 'compliance'" (click)="switchTab('compliance')">📋 Compliance</button>
-          <button class="tab" [class.tab-active]="activeTab === 'hr'" (click)="switchTab('hr')">👥 HR Insights</button>
-        </div>
-      </div>
-
-      <!-- Tab Content -->
-      <div class="tab-content">
-
-        <!-- Overview Tab -->
-        <div *ngIf="activeTab === 'overview'" class="overview-content">
-          <div class="alert alert-success" *ngIf="dashboardData.compliance.outstanding_amount === '0'">
-            ✅ All compliance obligations are up to date!
-          </div>
-          <div class="cards-grid">
-            <div class="info-card">
-              <h3>📊 Quick Stats</h3>
-              <div class="stats-list">
-                <div class="stat-item"><span>Active Employees</span><strong>{{ dashboardData.employees.active_employees }}</strong></div>
-                <div class="stat-item"><span>Payroll Processed</span><strong>{{ dashboardData.payroll.processed_count }}</strong></div>
-                <div class="stat-item"><span>Leave Requests</span><strong>{{ dashboardData.leave.total_requests }}</strong></div>
-                <div class="stat-item">
-                  <span>Attendance Rate</span>
-                  <strong>{{ calculatePercentage(dashboardData.attendance.present_count, dashboardData.attendance.present_count + dashboardData.attendance.absent_count) }}%</strong>
-                </div>
-              </div>
-            </div>
-            <div class="info-card">
-              <h3>🔔 Alerts & Notifications</h3>
-              <div class="alerts-list">
-                <div class="alert-item" *ngIf="dashboardData.leave.pending_requests > 0">
-                  <span class="alert-icon">⚠️</span>
-                  <span>{{ dashboardData.leave.pending_requests }} leave requests awaiting approval</span>
-                </div>
-                <div class="alert-item" *ngIf="dashboardData.compliance.pending_payments > 0">
-                  <span class="alert-icon">📋</span>
-                  <span>{{ dashboardData.compliance.pending_payments }} SARS payments pending</span>
-                </div>
-                <div class="alert-item" *ngIf="dashboardData.attendance.late_count > 5">
-                  <span class="alert-icon">⏰</span>
-                  <span>{{ dashboardData.attendance.late_count }} late arrivals this month</span>
-                </div>
-                <div class="alert-item" *ngIf="dashboardData.leave.pending_requests === 0 && dashboardData.compliance.pending_payments === 0">
-                  <span class="alert-icon">✅</span>
-                  <span>All systems running smoothly!</span>
-                </div>
-              </div>
-            </div>
+      <div class="charts-row">
+        <div class="chart-card full">
+          <div class="chart-title">LEAVE OVERVIEW — {{ getMonthLabel() }} {{ selectedYear }}</div>
+          <div class="leave-grid">
+            <div class="leave-stat"><div class="ls-val">{{ dashboardData.leave.total_requests }}</div><div class="ls-lbl">Total Requests</div></div>
+            <div class="leave-stat green"><div class="ls-val">{{ dashboardData.leave.approved_requests }}</div><div class="ls-lbl">Approved</div></div>
+            <div class="leave-stat amber"><div class="ls-val">{{ dashboardData.leave.pending_requests }}</div><div class="ls-lbl">Pending</div></div>
+            <div class="leave-stat blue"><div class="ls-val">{{ dashboardData.leave.total_days_taken | number:'1.0-0' }}</div><div class="ls-lbl">Days Taken</div></div>
+            <div class="leave-stat indigo"><div class="ls-val">{{ leaveApprovalRate() }}%</div><div class="ls-lbl">Approval Rate</div></div>
           </div>
         </div>
-
-        <!-- Payroll Tab -->
-        <div *ngIf="activeTab === 'payroll'" class="payroll-content">
-          <div class="loading" *ngIf="payrollLoading"><div class="loading-spinner"></div><p>Loading payroll data...</p></div>
-          <div class="alert alert-error" *ngIf="!payrollLoading && !payrollData">No payroll data available for this period.</div>
-          <div class="charts-grid" *ngIf="!payrollLoading && payrollData">
-            <div class="chart-card">
-              <h3 class="chart-title">Monthly Payroll Trend</h3>
-              <div class="chart-container" *ngIf="payrollChartData">
-                <canvas baseChart [data]="payrollChartData" [options]="payrollChartOptions" [type]="payrollChartType"></canvas>
-              </div>
-            </div>
-            <div class="chart-card">
-              <h3 class="chart-title">Department Breakdown</h3>
-              <div class="chart-container" *ngIf="departmentChartData">
-                <canvas baseChart [data]="departmentChartData" [options]="departmentChartOptions" [type]="departmentChartType"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Leave Tab -->
-        <div *ngIf="activeTab === 'leave'" class="leave-content">
-          <div class="loading" *ngIf="leaveLoading"><div class="loading-spinner"></div><p>Loading leave data...</p></div>
-          <div class="alert alert-error" *ngIf="!leaveLoading && !leaveData">No leave data available for this period.</div>
-          <div class="chart-card" *ngIf="!leaveLoading && leaveData">
-            <h3 class="chart-title">Leave Type Breakdown</h3>
-            <div class="chart-container" *ngIf="leaveChartData">
-              <canvas baseChart [data]="leaveChartData" [options]="leaveChartOptions" [type]="leaveChartType"></canvas>
-            </div>
-            <div class="stats-grid">
-              <div class="stat-box"><div class="stat-value">{{ leaveData.approvalStats.approval_rate }}%</div><div class="stat-label">Approval Rate</div></div>
-              <div class="stat-box"><div class="stat-value">{{ leaveData.approvalStats.pending }}</div><div class="stat-label">Pending</div></div>
-              <div class="stat-box"><div class="stat-value">{{ leaveData.approvalStats.approved }}</div><div class="stat-label">Approved</div></div>
-              <div class="stat-box"><div class="stat-value">{{ leaveData.approvalStats.rejected }}</div><div class="stat-label">Rejected</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Attendance Tab -->
-        <div *ngIf="activeTab === 'attendance'" class="attendance-content">
-          <div class="loading" *ngIf="attendanceLoading"><div class="loading-spinner"></div><p>Loading attendance data...</p></div>
-          <div class="alert alert-error" *ngIf="!attendanceLoading && !attendanceData">No attendance data available for this period.</div>
-          <div class="card" *ngIf="!attendanceLoading && attendanceData">
-            <div class="card-header"><h3>Attendance Summary</h3></div>
-            <div class="stats-grid">
-              <div class="stat-box"><div class="stat-value">{{ attendanceData.overtimeStats.total_overtime_hours }}</div><div class="stat-label">Overtime Hours</div></div>
-              <div class="stat-box"><div class="stat-value">{{ formatCurrency(attendanceData.overtimeStats.total_overtime_pay) }}</div><div class="stat-label">Overtime Pay</div></div>
-              <div class="stat-box"><div class="stat-value">{{ attendanceData.overtimeStats.employees_with_overtime }}</div><div class="stat-label">With Overtime</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Compliance Tab -->
-        <div *ngIf="activeTab === 'compliance'" class="compliance-content">
-          <div class="loading" *ngIf="complianceLoading"><div class="loading-spinner"></div><p>Loading compliance data...</p></div>
-          <div class="alert alert-error" *ngIf="!complianceLoading && !complianceData">No compliance data available for this period.</div>
-          <div class="card" *ngIf="!complianceLoading && complianceData">
-            <div class="card-header"><h3>SARS Compliance Status</h3></div>
-            <div class="stats-grid">
-              <div class="stat-box"><div class="stat-value">{{ formatCurrency(complianceData.outstanding.total_outstanding) }}</div><div class="stat-label">Total Outstanding</div></div>
-              <div class="stat-box"><div class="stat-value">{{ complianceData.outstanding.overdue_count }}</div><div class="stat-label">Overdue</div></div>
-              <div class="stat-box"><div class="stat-value">{{ complianceData.outstanding.pending_count }}</div><div class="stat-label">Pending</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- HR Insights Tab -->
-        <div *ngIf="activeTab === 'hr'" class="hr-content">
-          <div class="loading" *ngIf="hrLoading"><div class="loading-spinner"></div><p>Loading HR insights...</p></div>
-          <div class="alert alert-error" *ngIf="!hrLoading && !hrData">No HR data available.</div>
-          <div class="cards-grid" *ngIf="!hrLoading && hrData">
-            <div class="info-card">
-              <h3>👥 Headcount by Department</h3>
-              <div class="list-items">
-                <div class="list-item" *ngFor="let dept of hrData.headcount">
-                  <span>{{ dept.department }}</span>
-                  <strong>{{ dept.count }} ({{ dept.active_count }} active)</strong>
-                </div>
-              </div>
-            </div>
-            <div class="info-card">
-              <h3>💰 Salary Statistics</h3>
-              <div class="stats-list">
-                <div class="stat-item"><span>Average</span><strong>{{ formatCurrency(hrData.salaryStats.avg_salary) }}</strong></div>
-                <div class="stat-item"><span>Median</span><strong>{{ formatCurrency(hrData.salaryStats.median_salary) }}</strong></div>
-                <div class="stat-item"><span>Min</span><strong>{{ formatCurrency(hrData.salaryStats.min_salary) }}</strong></div>
-                <div class="stat-item"><span>Max</span><strong>{{ formatCurrency(hrData.salaryStats.max_salary) }}</strong></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
+
+    <!-- PAYROLL -->
+    <div *ngIf="activeTab==='payroll'">
+      <div *ngIf="payrollLoading" class="loading-state"><div class="spinner"></div><span>Loading payroll data...</span></div>
+      <div *ngIf="!payrollLoading && payrollData">
+        <div class="charts-row">
+          <div class="chart-card full">
+            <div class="chart-title">PAYROLL BY DEPARTMENT</div>
+            <div class="dept-bars">
+              <div class="dept-bar-row" *ngFor="let dept of payrollData.departmentBreakdown; let i = index">
+                <div class="dept-name">{{ dept.department }}</div>
+                <div class="dept-track"><div class="dept-fill" [style.width]="getBarWidth(dept.total_gross, payrollData.departmentBreakdown, 'total_gross') + '%'" [style.background]="getDeptColor(i)"></div></div>
+                <div class="dept-meta"><span class="dm-primary">{{ fmtDec(dept.total_gross) }}</span><span class="dm-secondary">{{ dept.employee_count }} staff</span><span class="dm-secondary">Avg {{ fmt(dept.avg_salary) }}/mo</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row" *ngIf="payrollData.monthlyTrend?.length">
+          <div class="chart-card full">
+            <div class="chart-title">MONTHLY TREND</div>
+            <div class="trend-chart">
+              <div class="trend-col" *ngFor="let m of payrollData.monthlyTrend">
+                <div class="trend-bar-wrap"><div class="trend-tooltip">{{ fmtDec(m.total_gross) }}</div><div class="trend-bar" [style.height]="getBarWidth(m.total_gross, payrollData.monthlyTrend, 'total_gross') + '%'"></div></div>
+                <div class="trend-label">{{ months[m.month-1]?.label?.substring(0,3) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row" *ngIf="payrollData.positionBreakdown?.length">
+          <div class="chart-card full">
+            <div class="chart-title">TOP POSITIONS BY SALARY</div>
+            <div class="position-table">
+              <div class="pt-header"><span>Position</span><span>Avg Salary</span><span>Min</span><span>Max</span><span>Count</span></div>
+              <div class="pt-row" *ngFor="let pos of payrollData.positionBreakdown">
+                <span class="pos-name">{{ pos.position }}</span><span class="pos-avg">{{ fmt(pos.avg_salary) }}</span><span class="pos-min">{{ fmt(pos.min_salary) }}</span><span class="pos-max">{{ fmt(pos.max_salary) }}</span><span class="pos-count">{{ pos.employee_count }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEAVE -->
+    <div *ngIf="activeTab==='leave'">
+      <div *ngIf="leaveLoading" class="loading-state"><div class="spinner"></div><span>Loading leave data...</span></div>
+      <div *ngIf="!leaveLoading && leaveData">
+        <div class="charts-row">
+          <div class="chart-card full">
+            <div class="chart-title">LEAVE USAGE BY TYPE</div>
+            <div class="dept-bars" *ngIf="leaveData.leaveTypes?.length; else noLeave">
+              <div class="dept-bar-row" *ngFor="let lt of leaveData.leaveTypes; let i = index">
+                <div class="dept-name">{{ lt.leave_type }}</div>
+                <div class="dept-track"><div class="dept-fill" [style.width]="getBarWidth(lt.total_days, leaveData.leaveTypes, 'total_days') + '%'" [style.background]="getDeptColor(i)"></div></div>
+                <div class="dept-meta"><span class="dm-primary">{{ lt.total_days | number:'1.1-1' }} days</span><span class="dm-secondary">{{ lt.request_count }} requests</span></div>
+              </div>
+            </div>
+            <ng-template #noLeave><div class="empty-state">No leave data for selected period</div></ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div *ngIf="activeTab==='attendance'">
+      <div *ngIf="attendanceLoading" class="loading-state"><div class="spinner"></div><span>Loading attendance...</span></div>
+      <div *ngIf="!attendanceLoading && attendanceData">
+        <div class="charts-row">
+          <div class="chart-card full">
+            <div class="chart-title">ATTENDANCE BY DEPARTMENT</div>
+            <div class="dept-bars" *ngIf="attendanceData.departmentBreakdown?.length; else noAtt">
+              <div class="dept-bar-row" *ngFor="let dept of attendanceData.departmentBreakdown; let i = index">
+                <div class="dept-name">{{ dept.department }}</div>
+                <div class="dept-track"><div class="dept-fill" [style.width]="dept.attendance_rate + '%'" [style.background]="dept.attendance_rate >= 90 ? '#10b981' : dept.attendance_rate >= 75 ? '#f59e0b' : '#ef4444'"></div></div>
+                <div class="dept-meta"><span class="dm-primary">{{ dept.attendance_rate }}%</span><span class="dm-secondary">{{ dept.present_count }} present</span><span class="dm-secondary">{{ dept.avg_hours | number:'1.1-1' }} hrs</span></div>
+              </div>
+            </div>
+            <ng-template #noAtt><div class="empty-state">No attendance data for this period</div></ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div *ngIf="activeTab==='insights'">
+      <div *ngIf="insightsLoading" class="loading-state"><div class="spinner"></div><span>Analysing workforce data...</span></div>
+      <div *ngIf="!insightsLoading && deptInsights.length">
+        <div class="alert-banner" *ngIf="alertCount() > 0">
+          <span class="alert-icon">⚠️</span>
+          <span><strong>{{ alertCount() }} department{{ alertCount() > 1 ? 's' : '' }}</strong> flagged for review — see details below.</span>
+        </div>
+        <div class="summary-cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="summary-card indigo"><div class="card-label">TOTAL PAYROLL</div><div class="card-value">{{ fmt(totalPayroll()) }}</div><div class="card-sub">{{ getMonthLabel() }} {{ selectedYear }}</div></div>
+          <div class="summary-card red"><div class="card-label">FLAGS / ALERTS</div><div class="card-value">{{ alertCount() }}</div><div class="card-sub">Depts needing review</div></div>
+          <div class="summary-card teal" *ngIf="hrData"><div class="card-label">AVG SALARY</div><div class="card-value">{{ fmt(hrData.salaryStats.avg_salary) }}</div><div class="card-sub">Median {{ fmt(hrData.salaryStats.median_salary) }}</div></div>
+          <div class="summary-card amber" *ngIf="hrData"><div class="card-label">SALARY RANGE</div><div class="card-value">{{ fmt(hrData.salaryStats.min_salary) }}</div><div class="card-sub">to {{ fmt(hrData.salaryStats.max_salary) }}</div></div>
+        </div>
+        <div class="insights-grid">
+          <div class="insight-card" *ngFor="let dept of deptInsights" [style.border-color]="getFlagColor(dept.flag)" [style.background]="getFlagBg(dept.flag)">
+            <div class="ic-header">
+              <div class="ic-dept">{{ dept.department }}</div>
+              <div class="ic-flag" [style.color]="getFlagColor(dept.flag)" [style.background]="getFlagBg(dept.flag)" [style.border-color]="getFlagColor(dept.flag)">{{ dept.flagLabel }}</div>
+            </div>
+            <div class="ic-metrics">
+              <div class="ic-metric"><div class="icm-val">{{ dept.headcount }}</div><div class="icm-lbl">Headcount</div></div>
+              <div class="ic-metric"><div class="icm-val">{{ fmt(dept.totalGross) }}</div><div class="icm-lbl">Monthly Cost</div></div>
+              <div class="ic-metric"><div class="icm-val">{{ dept.payrollShare.toFixed(1) }}%</div><div class="icm-lbl">Payroll Share</div></div>
+              <div class="ic-metric"><div class="icm-val">{{ fmt(dept.avgSalary) }}</div><div class="icm-lbl">Avg Salary</div></div>
+            </div>
+            <div class="ic-share-track"><div class="ic-share-fill" [style.width]="dept.payrollShare + '%'" [style.background]="getFlagColor(dept.flag)"></div></div>
+            <div class="ic-detail" [style.color]="getFlagColor(dept.flag)">{{ dept.flagDetail }}</div>
+          </div>
+        </div>
+        <div class="charts-row" *ngIf="hrData" style="margin-top:20px;">
+          <div class="chart-card narrow">
+            <div class="chart-title">GENDER SPLIT</div>
+            <div class="gender-bars">
+              <div class="gender-row"><span class="gender-lbl">Male</span><div class="gender-track"><div class="gender-fill" [style.width]="(genderMale()/(genderMale()+genderFemale())*100)+'%'" style="background:#6366f1"></div></div><span class="gender-val">{{ genderMale() }}</span></div>
+              <div class="gender-row"><span class="gender-lbl">Female</span><div class="gender-track"><div class="gender-fill" [style.width]="(genderFemale()/(genderMale()+genderFemale())*100)+'%'" style="background:#ec4899"></div></div><span class="gender-val">{{ genderFemale() }}</span></div>
+            </div>
+            <div class="gender-ratio">{{ genderMale() }}M : {{ genderFemale() }}F</div>
+          </div>
+          <div class="chart-card wide">
+            <div class="chart-title">AGE DISTRIBUTION</div>
+            <div class="dept-bars">
+              <div class="dept-bar-row" *ngFor="let ag of hrData.ageDistribution; let i = index">
+                <div class="dept-name">{{ ag.age_group }}</div>
+                <div class="dept-track"><div class="dept-fill" [style.width]="ageBarWidth(ag.count)+'%'" [style.background]="getDeptColor(i)"></div></div>
+                <div class="dept-meta"><span class="dm-primary">{{ ag.count }} employees</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!insightsLoading && !deptInsights.length" class="empty-state">No insights data available</div>
+    </div>
+
   </div>
 </div>

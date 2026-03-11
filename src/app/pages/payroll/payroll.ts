@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   ChangeDetectorRef,
@@ -30,8 +30,8 @@ export class Payroll implements OnInit {
 
   activeTab: PayrollTab = 'overview';
 
-  selectedMonth = new Date().getMonth() + 1;
-  selectedYear = new Date().getFullYear();
+  selectedMonth = 2;
+  selectedYear = 2026;
   months = [
     { value: 1, label: 'January' },
     { value: 2, label: 'February' },
@@ -208,11 +208,11 @@ export class Payroll implements OnInit {
 
   getStatusIcon(status: string): string {
     const map: any = {
-      draft: '📝',
-      processed: '✓',
-      paid: '💰',
+      draft: 'ðŸ“',
+      processed: 'âœ“',
+      paid: 'ðŸ’°',
     };
-    return map[status] || '•';
+    return map[status] || 'â€¢';
   }
 
   formatMoney(amount: number | null | undefined): string {
@@ -331,3 +331,4 @@ export class Payroll implements OnInit {
     return this.me?.role === 'admin' || this.me?.role === 'manager';
   }
 }
+
