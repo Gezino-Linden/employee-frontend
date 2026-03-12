@@ -111,7 +111,7 @@
             <div class="chart-title">MONTHLY TREND</div>
             <div class="trend-chart">
               <div class="trend-col" *ngFor="let m of payrollData.monthlyTrend">
-                <div class="trend-bar-wrap"><div class="trend-tooltip">{{ fmtDec(m.total_gross) }}</div><div class="trend-bar" [style.height]="getBarWidth(m.total_gross, payrollData.monthlyTrend, 'total_gross') + '%'"></div></div>
+                <div class="trend-bar-wrap"><div class="trend-tooltip">{{ fmtDec(m.total_gross) }}</div><div class="trend-bar" [style.height.px]="getBarWidth(m.total_gross, payrollData.monthlyTrend, 'total_gross') * 1.2"></div></div>
                 <div class="trend-label">{{ months[m.month-1]?.label?.substring(0,3) }}</div>
               </div>
             </div>
@@ -463,6 +463,7 @@
     </div>
   </div>
 </div>
+
 
 
 
