@@ -270,12 +270,13 @@ export class Payroll implements OnInit {
     const processed = this.payrollRecords.filter(r => r.status === 'processed');
     if (!processed.length) return;
     const today = new Date().toISOString().split('T')[0];
-    let done = 0;
-    processed.forEach(r => {
-      this.payrollService.markAsPaid(r.id, { payment_method: 'bank_transfer', payment_date: today })
+    const payNext = (idx: number) => {
+      if (idx >= processed.length) { this.statusFilter = 'paid'; this.loadPayrollData(); return; }
+      this.payrollService.markAsPaid(processed[idx].id, { payment_method: 'bank_transfer', payment_date: today })
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({ next: () => { done++; if (done === processed.length) this.loadPayrollData(); } });
-    });
+        .subscribe({ next: () => setTimeout(() => payNext(idx + 1), 500), error: () => setTimeout(() => payNext(idx + 1), 500) });
+    };
+    payNext(0);
   }
   openPaymentModal(record: PayrollRecord) {
     this.selectedPayroll = record;
@@ -343,6 +344,7 @@ export class Payroll implements OnInit {
     return this.me?.role === 'admin' || this.me?.role === 'manager';
   }
 }
+
 
 
 

@@ -17,7 +17,7 @@ export class AnalyticsComponent implements OnInit {
   selectedYear = 2026; selectedMonth = 2; years = [2024,2025,2026];
   activeTab: 'overview'|'payroll'|'leave'|'attendance'|'insights'|'revenue' = 'overview';
   dashboardData: DashboardOverview|null=null;
-  payrollData: PayrollAnalytics|null=null;
+  Math = Math; payrollData: PayrollAnalytics|null=null;
   leaveData: LeaveAnalytics|null=null;
   attendanceData: AttendanceAnalytics|null=null;
   hrData: HRInsights|null=null;
@@ -118,3 +118,6 @@ export class AnalyticsComponent implements OnInit {
   isFirstOfMonth(date: string, days: any[]): boolean { const d = new Date(date); return d.getDate() === 1 || days.findIndex((x:any) => x.revenue_date === date) === 0; }
 
 }
+
+
+

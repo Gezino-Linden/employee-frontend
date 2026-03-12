@@ -190,8 +190,8 @@
                 </td>
                 <td>
                   <div class="action-btns">
-                    <button class="action-btn" (click)="downloadPayslip(record.id)" title="Download Payslip"></button>
-                    <button *ngIf="record.status === 'processed'" class="action-btn pay-btn" (click)="openPaymentModal(record)" title="Mark as Paid"></button>
+                    <button class="action-btn" (click)="downloadPayslip(record.id)" title="Download Payslip">📄</button>
+                    <button *ngIf="record.status === 'processed'" class="action-btn pay-btn" (click)="openPaymentModal(record)" title="Mark as Paid">💰</button>
                   </div>
                 </td>
               </tr>
@@ -328,4 +328,5 @@
     </div>
   </div>
 </div>
+
 

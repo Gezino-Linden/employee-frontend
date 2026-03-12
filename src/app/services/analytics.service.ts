@@ -233,7 +233,7 @@ export class AnalyticsService {
 
   // Get payroll analytics
   getPayrollAnalytics(year: number): Observable<PayrollAnalytics> {
-    const params = new HttpParams().set('year', year.toString());
+    const params = new HttpParams().set('year', year.toString()).set('_t', Date.now().toString());
     return this.http.get<PayrollAnalytics>(`${this.baseUrl}/payroll`, { params });
   }
 
@@ -284,6 +284,7 @@ export class AnalyticsService {
     return this.http.get(`${this.baseUrl}/export`, { params });
   }
 }
+
 
 
 
