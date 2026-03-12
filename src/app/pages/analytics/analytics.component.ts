@@ -28,7 +28,7 @@ export class AnalyticsComponent implements OnInit {
   deptInsights: DeptInsight[]=[];
   months=[{value:1,label:'January'},{value:2,label:'February'},{value:3,label:'March'},{value:4,label:'April'},{value:5,label:'May'},{value:6,label:'June'},{value:7,label:'July'},{value:8,label:'August'},{value:9,label:'September'},{value:10,label:'October'},{value:11,label:'November'},{value:12,label:'December'}];
   constructor(private analyticsService: AnalyticsService) {}
-  ngOnInit() { this.loadDashboard(); }
+  ngOnInit() { this.loadDashboard(); this.loadPayroll(); }
 
   loadDashboard() {
     this.loading=true; this.error=null;
@@ -56,6 +56,7 @@ export class AnalyticsComponent implements OnInit {
       .subscribe({ next:(d)=>{this.revenueData=d;this.revenueLoading=false;}, error:()=>{this.revenueLoading=false;} });
   }
   loadInsights() {
+    if(this.deptInsights.length && this.hrData) return;
     this.insightsLoading=true;
     this.analyticsService.getPayrollAnalytics(this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next:(payroll)=>{
@@ -115,3 +116,5 @@ export class AnalyticsComponent implements OnInit {
   genderFemale():number{return this.hrData?.genderDistribution?.find((g:any)=>g.gender==='Female')?.count||0;}
   ageBarWidth(count:number):number{if(!this.hrData?.ageDistribution?.length)return 0;const max=Math.max(...(this.hrData.ageDistribution as any[]).map((a:any)=>a.count));return max===0?0:Math.round((count/max)*100);}
 }
+
+
