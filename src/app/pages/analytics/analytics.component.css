@@ -148,3 +148,23 @@
 .rev-rev{font-size:9px;color:#475569;margin-top:2px;text-align:center;}
 
 
+
+.daily-chart-wrap{overflow-x:auto;padding-bottom:8px;}
+.daily-bar-chart{display:flex;align-items:flex-end;gap:3px;min-height:160px;padding:8px 0 4px;}
+.daily-col{display:flex;flex-direction:column;align-items:center;cursor:pointer;opacity:0.9;transition:opacity 0.2s;}
+.daily-col:hover{opacity:1;}
+.daily-col.weekend .daily-stack{outline:1px solid rgba(231,76,60,0.4);border-radius:3px;}
+.daily-stack{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:14px;min-height:4px;}
+.ds-bar{width:14px;transition:height 0.4s;}
+.ds-rooms {background:#6c8ebf;}
+.ds-fb    {background:#82b366;}
+.ds-spa   {background:#9b59b6;}
+.ds-events{background:#e67e22;}
+.ds-other {background:#95a5a6;}
+.ds-bar:first-child{border-radius:3px 3px 0 0;}
+.daily-date-label{font-size:9px;color:rgba(255,255,255,0.3);margin-top:3px;writing-mode:vertical-rl;transform:rotate(180deg);height:28px;}
+.daily-legend{display:flex;gap:12px;font-size:11px;color:rgba(255,255,255,0.5);}
+.daily-legend .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
+.daily-month-labels{display:flex;gap:3px;padding-left:0;margin-top:4px;font-size:10px;color:rgba(255,255,255,0.4);}
+.month-marker{min-width:60px;}
+

@@ -195,6 +195,20 @@ export interface RevenueAnalytics {
     revenue_per_employee: string;
     flag: 'good'|'warning'|'danger';
   }>;
+  dailyRevenue: Array<{
+    revenue_date: string;
+    total_revenue: string;
+    rooms_revenue: string;
+    fb_revenue: string;
+    spa_revenue: string;
+    events_revenue: string;
+    other_revenue: string;
+    occupancy_rate: string;
+    rooms_occupied: number;
+    rooms_available: number;
+    total_costs: string;
+    day_name: string;
+  }>;
   summary: {
     total_revenue: string;
     total_labour_cost: string;
@@ -270,6 +284,7 @@ export class AnalyticsService {
     return this.http.get(`${this.baseUrl}/export`, { params });
   }
 }
+
 
 
 
