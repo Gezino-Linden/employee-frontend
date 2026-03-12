@@ -430,9 +430,40 @@
 
       </div>
       <div *ngIf="!revenueLoading && !revenueData" class="empty-state">No revenue data available</div>
+      <!-- Daily Revenue Chart -->
+      <div class="dm-card" style="margin-top:20px" *ngIf="revenueData">
+        <div class="dm-card-header">
+          <span class="dm-card-title">DAILY REVENUE BREAKDOWN</span>
+          <div class="daily-legend">
+            <span><span class="dot" style="background:#6c8ebf"></span>Rooms</span>
+            <span><span class="dot" style="background:#82b366"></span>F&amp;B</span>
+            <span><span class="dot" style="background:#9b59b6"></span>Spa</span>
+            <span><span class="dot" style="background:#e67e22"></span>Events</span>
+            <span><span class="dot" style="background:#95a5a6"></span>Other</span>
+            <span><span class="dot" style="background:rgba(231,76,60,0.4)"></span>Weekend</span>
+          </div>
+        </div>
+        <div class="daily-chart-wrap">
+          <div class="daily-bar-chart" *ngIf="revenueData?.dailyRevenue?.length > 0">
+            <div class="daily-col" *ngFor="let d of revenueData.dailyRevenue"
+                 [class.weekend]="d.day_name==='Saturday' || d.day_name==='Sunday'"
+                 [title]="d.revenue_date + ' (' + d.day_name + ') — R' + fmt(d.total_revenue)">
+              <div class="daily-stack">
+                <div class="ds-bar ds-other"  [style.height.px]="getDailyBarHeight(d.other_revenue,  revenueData.dailyRevenue)"></div>
+                <div class="ds-bar ds-events" [style.height.px]="getDailyBarHeight(d.events_revenue, revenueData.dailyRevenue)"></div>
+                <div class="ds-bar ds-spa"    [style.height.px]="getDailyBarHeight(d.spa_revenue,    revenueData.dailyRevenue)"></div>
+                <div class="ds-bar ds-fb"     [style.height.px]="getDailyBarHeight(d.fb_revenue,     revenueData.dailyRevenue)"></div>
+                <div class="ds-bar ds-rooms"  [style.height.px]="getDailyBarHeight(d.rooms_revenue,  revenueData.dailyRevenue)"></div>
+              </div>
+              <div class="daily-date-label">{{ d.revenue_date | date:"d" }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
 
 
 

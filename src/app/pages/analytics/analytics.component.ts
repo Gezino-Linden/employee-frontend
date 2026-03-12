@@ -114,8 +114,7 @@ export class AnalyticsComponent implements OnInit {
   genderMale():number{return this.hrData?.genderDistribution?.find((g:any)=>g.gender==='Male')?.count||0;}
   genderFemale():number{return this.hrData?.genderDistribution?.find((g:any)=>g.gender==='Female')?.count||0;}
   ageBarWidth(count:number):number{if(!this.hrData?.ageDistribution?.length)return 0;const max=Math.max(...(this.hrData.ageDistribution as any[]).map((a:any)=>a.count));return max===0?0:Math.round((count/max)*100);}
+  getDailyBarHeight(value: string, days: any[]): number { const max = Math.max(...days.map((d:any) => parseFloat(d.total_revenue) || 0)); if (!max) return 0; return Math.round((parseFloat(value) / max) * 120); }
+  isFirstOfMonth(date: string, days: any[]): boolean { const d = new Date(date); return d.getDate() === 1 || days.findIndex((x:any) => x.revenue_date === date) === 0; }
+
 }
-
-
-
-
