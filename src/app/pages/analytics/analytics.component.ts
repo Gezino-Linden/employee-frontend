@@ -1,7 +1,6 @@
 ﻿import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AnalyticsService, DashboardOverview, PayrollAnalytics, LeaveAnalytics, AttendanceAnalytics, HRInsights, RevenueAnalytics } from '../../services/analytics.service';
 
@@ -11,7 +10,7 @@ export interface DeptInsight {
   flag: 'high-cost'|'lean'|'normal'|'overstaffed'; flagLabel: string; flagDetail: string;
 }
 
-@Component({ selector: 'app-analytics', standalone: true, imports: [CommonModule, FormsModule, RouterLink],
+@Component({ selector: 'app-analytics', standalone: true, imports: [CommonModule, FormsModule],
   templateUrl: './analytics.component.html', styleUrls: ['./analytics.component.css'] })
 export class AnalyticsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
@@ -116,5 +115,6 @@ export class AnalyticsComponent implements OnInit {
   genderFemale():number{return this.hrData?.genderDistribution?.find((g:any)=>g.gender==='Female')?.count||0;}
   ageBarWidth(count:number):number{if(!this.hrData?.ageDistribution?.length)return 0;const max=Math.max(...(this.hrData.ageDistribution as any[]).map((a:any)=>a.count));return max===0?0:Math.round((count/max)*100);}
 }
+
 
 

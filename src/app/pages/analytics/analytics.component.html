@@ -365,7 +365,6 @@
                   <div class="rev-benchmark-zone"></div>
                   <!-- Labour % bar -->
                   <div class="rev-labour-bar" *ngIf="(+m.labour_pct) > 0" [style.height]="(+m.labour_pct) + '%'" [style.background]="getLabourFlagColor(m.flag)"></div>
-                  </div>
                 </div>
                 <div class="rev-pct" [style.color]="getLabourFlagColor(m.flag)">{{ m.labour_pct }}%</div>
                 <div class="rev-rev">{{ fmt(m.total_revenue) }}</div>
