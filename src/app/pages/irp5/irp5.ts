@@ -153,7 +153,7 @@ export class IRP5 implements OnInit {
       .subscribe({
         next: (res) => {
           this.generateLoading = false;
-          this.generateMessage = `✅ ${res.message}`;
+          this.generateMessage = ` ${res.message}`;
           this.selectedTaxYear = this.generateTaxYear;
           this.loadCertificates();
           this.loadReconciliation();

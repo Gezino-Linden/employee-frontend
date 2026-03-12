@@ -5,11 +5,11 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
-      <div class="brand-icon">ðŸ’°</div>
+      <div class="brand-icon"></div>
       <span class="brand-name">MaeRoll</span>
     </div>
     <div class="topnav-right">
-      <button class="btn-ghost-sm" (click)="goToDashboard()"><span>â†</span> Dashboard</button>
+      <button class="btn-ghost-sm" (click)="goToDashboard()"><span></span> Dashboard</button>
       <div *ngIf="me" class="user-chip">
         <div class="user-avatar-sm">{{ me.name[0] }}</div>
         <span class="user-name">{{ me.name }}</span>
@@ -41,16 +41,16 @@
     <div class="tabs-container">
       <div class="tabs">
         <button class="tab" [class.tab-active]="activeTab === 'overview'" (click)="switchTab('overview')">
-          <span>ðŸ“Š</span> Overview
+          <span></span> Overview
         </button>
         <button class="tab" [class.tab-active]="activeTab === 'records'" (click)="switchTab('records')">
-          <span>ðŸ“‹</span> Records
+          <span></span> Records
         </button>
         <button *ngIf="isAdmin()" class="tab" [class.tab-active]="activeTab === 'processing'" (click)="switchTab('processing')">
-          <span>âš™ï¸</span> Processing
+          <span></span> Processing
         </button>
         <button class="tab" [class.tab-active]="activeTab === 'history'" (click)="switchTab('history')">
-          <span>ðŸ“ˆ</span> History
+          <span></span> History
         </button>
       </div>
     </div>
@@ -59,42 +59,42 @@
     <div *ngIf="activeTab === 'overview'" class="tab-content">
       <div class="summary-grid" *ngIf="summary">
         <div class="summary-card total">
-          <div class="summary-icon">ðŸ’°</div>
+          <div class="summary-icon"></div>
           <div class="summary-info">
             <span class="summary-value">{{ formatMoney(summary.total_gross) }}</span>
             <span class="summary-label">Total Gross</span>
           </div>
         </div>
         <div class="summary-card employees">
-          <div class="summary-icon">ðŸ‘¥</div>
+          <div class="summary-icon"></div>
           <div class="summary-info">
             <span class="summary-value">{{ summary.total_employees }}</span>
             <span class="summary-label">Employees</span>
           </div>
         </div>
         <div class="summary-card net">
-          <div class="summary-icon">ðŸ’µ</div>
+          <div class="summary-icon"></div>
           <div class="summary-info">
             <span class="summary-value">{{ formatMoney(summary.total_net) }}</span>
             <span class="summary-label">Total Net Pay</span>
           </div>
         </div>
         <div class="summary-card deductions">
-          <div class="summary-icon">âž–</div>
+          <div class="summary-icon"></div>
           <div class="summary-info">
             <span class="summary-value">{{ formatMoney(summary.total_deductions) }}</span>
             <span class="summary-label">Deductions</span>
           </div>
         </div>
         <div class="summary-card processed">
-          <div class="summary-icon">âœ“</div>
+          <div class="summary-icon"></div>
           <div class="summary-info">
             <span class="summary-value">{{ summary.processed_count }}</span>
             <span class="summary-label">Processed</span>
           </div>
         </div>
         <div class="summary-card paid">
-          <div class="summary-icon">âœ…</div>
+          <div class="summary-icon"></div>
           <div class="summary-info">
             <span class="summary-value">{{ summary.paid_count }}</span>
             <span class="summary-label">Paid</span>
@@ -133,7 +133,7 @@
         <div class="card-header">
           <h2 class="card-title">Payroll Records</h2>
           <button *ngIf="processedCount() > 0" class="btn btn-success" (click)="payAllProcessed()" style="margin-left:auto">
-            💰 Pay All Processed ({{ processedCount() }})
+             Pay All Processed ({{ processedCount() }})
           </button>
           <div class="filter-group">
             <button class="filter-btn" [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">All</button>
@@ -146,7 +146,7 @@
         <div *ngIf="loading" class="loading">Loading payroll records...</div>
 
         <div *ngIf="!loading && payrollRecords.length === 0" class="empty">
-          <div class="empty-state-icon">ðŸ“‹</div>
+          <div class="empty-state-icon"></div>
           <h3>No payroll records</h3>
           <p>No records found for {{ months[selectedMonth - 1]?.label }} {{ selectedYear }}</p>
         </div>
@@ -190,8 +190,8 @@
                 </td>
                 <td>
                   <div class="action-btns">
-                    <button class="action-btn" (click)="downloadPayslip(record.id)" title="Download Payslip">ðŸ“„</button>
-                    <button *ngIf="record.status === 'processed'" class="action-btn pay-btn" (click)="openPaymentModal(record)" title="Mark as Paid">ðŸ’°</button>
+                    <button class="action-btn" (click)="downloadPayslip(record.id)" title="Download Payslip"></button>
+                    <button *ngIf="record.status === 'processed'" class="action-btn pay-btn" (click)="openPaymentModal(record)" title="Mark as Paid"></button>
                   </div>
                 </td>
               </tr>
@@ -208,27 +208,27 @@
       <div class="card" style="margin-bottom: 1rem;">
         <div class="card-header">
           <div>
-            <h2 class="card-title">Step 1 â€” Initialize Period</h2>
+            <h2 class="card-title">Step 1  Initialize Period</h2>
             <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted, #888);">
               Creates draft payroll records for all active employees for
               {{ months[selectedMonth - 1]?.label }} {{ selectedYear }}.
-              Safe to run again â€” existing records are not overwritten.
+              Safe to run again  existing records are not overwritten.
             </p>
           </div>
           <button class="btn btn-secondary" [disabled]="initializeLoading" (click)="initializePeriod()">
             <span *ngIf="initializeLoading" class="loading-spinner"></span>
-            {{ initializeLoading ? 'Initializing...' : 'ðŸš€ Initialize Period' }}
+            {{ initializeLoading ? 'Initializing...' : ' Initialize Period' }}
           </button>
         </div>
-        <div *ngIf="initializeMessage" class="initialize-success">âœ… {{ initializeMessage }}</div>
-        <div *ngIf="error" class="initialize-error">âŒ {{ error }}</div>
+        <div *ngIf="initializeMessage" class="initialize-success"> {{ initializeMessage }}</div>
+        <div *ngIf="error" class="initialize-error"> {{ error }}</div>
       </div>
 
       <!-- Step 2: Process -->
       <div class="card">
         <div class="card-header">
           <div>
-            <h2 class="card-title">Step 2 â€” Process Payroll</h2>
+            <h2 class="card-title">Step 2  Process Payroll</h2>
             <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted, #888);">
               Select draft records below and mark them as processed.
             </p>
@@ -249,7 +249,7 @@
           </div>
 
           <div *ngIf="draftRecords.length === 0" class="empty" style="padding: 2rem;">
-            <div class="empty-state-icon">ðŸ“‹</div>
+            <div class="empty-state-icon"></div>
             <h3>No draft records</h3>
             <p>Click "Initialize Period" above to create draft records for all active employees.</p>
           </div>
@@ -292,7 +292,7 @@
             </div>
           </div>
           <div *ngIf="paidRecords.length === 0" class="empty" style="padding: 2rem;">
-            <div class="empty-state-icon">ðŸ“ˆ</div>
+            <div class="empty-state-icon"></div>
             <h3>No payment history</h3>
             <p>Paid records will appear here.</p>
           </div>

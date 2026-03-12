@@ -2,7 +2,7 @@
 <div class="analytics-shell">
   <nav class="topnav">
     <div class="topnav-left">
-      <span class="brand-icon">📊</span>
+      <span class="brand-icon"></span>
       <span class="breadcrumb">MaeRoll / <span class="breadcrumb-current">Analytics</span></span>
     </div>
     <div class="topnav-right"><button class="btn-back" routerLink="/dashboard">← Dashboard</button></div>
@@ -14,8 +14,8 @@
         <button class="tab-btn" [class.active]="activeTab==='payroll'"    (click)="setTab('payroll')">Payroll</button>
         <button class="tab-btn" [class.active]="activeTab==='leave'"      (click)="setTab('leave')">Leave</button>
         <button class="tab-btn" [class.active]="activeTab==='attendance'" (click)="setTab('attendance')">Attendance</button>
-        <button class="tab-btn insights-tab" [class.active]="activeTab==='insights'" (click)="setTab('insights')">🧠 Insights</button>
-      <button class="tab-btn" [class.active]="activeTab==='revenue'" (click)="setTab('revenue')">📈 Revenue</button>
+        <button class="tab-btn insights-tab" [class.active]="activeTab==='insights'" (click)="setTab('insights')"> Insights</button>
+      <button class="tab-btn" [class.active]="activeTab==='revenue'" (click)="setTab('revenue')"> Revenue</button>
       </div>
       <div class="period-row">
         <select class="period-select" [(ngModel)]="selectedMonth" (change)="onPeriodChange()">
@@ -276,7 +276,7 @@
       <div *ngIf="insightsLoading" class="loading-state"><div class="spinner"></div><span>Analysing workforce data...</span></div>
       <div *ngIf="!insightsLoading && deptInsights.length">
         <div class="alert-banner" *ngIf="alertCount() > 0">
-          <span class="alert-icon">⚠️</span>
+          <span class="alert-icon">️</span>
           <span><strong>{{ alertCount() }} department{{ alertCount() > 1 ? 's' : '' }}</strong> flagged for review — see details below.</span>
         </div>
         <div class="summary-cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
@@ -349,7 +349,7 @@
           <div class="summary-card" [class.red]="(+revenueData.summary.overall_labour_pct) > 40" [class.amber]="(+revenueData.summary.overall_labour_pct) <= 40 && (+revenueData.summary.overall_labour_pct) > 32" [class.green]="(+revenueData.summary.overall_labour_pct) <= 32">
             <div class="card-label">YOUR LABOUR RATIO</div>
             <div class="card-value">{{ revenueData.summary.overall_labour_pct }}%</div>
-            <div class="card-sub">{{ (+revenueData.summary.overall_labour_pct) > 40 ? '🔴 Significantly above benchmark' : (+revenueData.summary.overall_labour_pct) > 32 ? '⚡ Slightly above benchmark' : '✅ Within benchmark' }}</div>
+            <div class="card-sub">{{ (+revenueData.summary.overall_labour_pct) > 40 ? ' Significantly above benchmark' : (+revenueData.summary.overall_labour_pct) > 32 ? ' Slightly above benchmark' : ' Within benchmark' }}</div>
           </div>
         </div>
 

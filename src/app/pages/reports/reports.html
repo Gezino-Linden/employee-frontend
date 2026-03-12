@@ -4,7 +4,7 @@
   <!-- Header -->
   <nav class="reports-nav">
     <div class="nav-left">
-      <span class="nav-icon">📄</span>
+      <span class="nav-icon"></span>
       <span class="nav-title">/ Reports</span>
     </div>
     <div class="nav-right">
@@ -86,19 +86,19 @@
       </div>
 
       <!-- Messages -->
-      <div class="alert alert-error" *ngIf="errorMsg">⚠️ {{ errorMsg }}</div>
-      <div class="alert alert-success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+      <div class="alert alert-error" *ngIf="errorMsg">️ {{ errorMsg }}</div>
+      <div class="alert alert-success" *ngIf="successMsg"> {{ successMsg }}</div>
 
       <!-- Export buttons -->
       <div class="export-card">
         <h3 class="export-title">Export</h3>
         <div class="export-buttons">
           <button class="btn-excel" (click)="exportExcel()" [disabled]="isLoading('excel')">
-            <span *ngIf="!isLoading('excel')">📊 Export Excel</span>
+            <span *ngIf="!isLoading('excel')"> Export Excel</span>
             <span *ngIf="isLoading('excel')">⏳ Generating...</span>
           </button>
           <button class="btn-pdf" (click)="exportPDF()" [disabled]="isLoading('pdf')">
-            <span *ngIf="!isLoading('pdf')">📄 Export PDF</span>
+            <span *ngIf="!isLoading('pdf')"> Export PDF</span>
             <span *ngIf="isLoading('pdf')">⏳ Generating...</span>
           </button>
         </div>
@@ -106,7 +106,7 @@
 
       <!-- Preview -->
       <div class="preview-card" *ngIf="selectedReportId === 'full_hr'">
-        <h3 class="preview-title">📋 Report Preview — What Will Be Included</h3>
+        <h3 class="preview-title"> Report Preview — What Will Be Included</h3>
 
         <div *ngIf="loadingPreview" class="preview-loading">Loading preview...</div>
 
@@ -115,7 +115,7 @@
           <!-- Employees -->
           <div class="preview-section">
             <div class="preview-section-header">
-              <span class="preview-icon">👥</span>
+              <span class="preview-icon"></span>
               <div>
                 <div class="preview-section-title">Employees</div>
                 <div class="preview-section-sub">Full employee register with salaries, departments & tax numbers</div>
@@ -131,7 +131,7 @@
           <!-- Payroll -->
           <div class="preview-section">
             <div class="preview-section-header">
-              <span class="preview-icon">💰</span>
+              <span class="preview-icon"></span>
               <div>
                 <div class="preview-section-title">Payroll</div>
                 <div class="preview-section-sub">All payroll records with gross, PAYE, UIF, net pay per employee</div>
@@ -148,7 +148,7 @@
           <!-- Leave -->
           <div class="preview-section">
             <div class="preview-section-header">
-              <span class="preview-icon">🏖️</span>
+              <span class="preview-icon">️</span>
               <div>
                 <div class="preview-section-title">Leave</div>
                 <div class="preview-section-sub">Leave requests and current balances per employee</div>
@@ -163,7 +163,7 @@
           <!-- Attendance -->
           <div class="preview-section">
             <div class="preview-section-header">
-              <span class="preview-icon">🕐</span>
+              <span class="preview-icon"></span>
               <div>
                 <div class="preview-section-title">Attendance</div>
                 <div class="preview-section-sub">Clock-in/out records, hours worked and overtime</div>
@@ -175,7 +175,7 @@
           <!-- SARS -->
           <div class="preview-section">
             <div class="preview-section-header">
-              <span class="preview-icon">🏛️</span>
+              <span class="preview-icon">️</span>
               <div>
                 <div class="preview-section-title">SARS Compliance</div>
                 <div class="preview-section-sub">EMP201, UI-19 and IRP5 tax submission data</div>

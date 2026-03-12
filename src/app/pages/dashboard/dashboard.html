@@ -20,7 +20,7 @@
   <main class="main-content">
     <div class="page-header">
       <div>
-        <h1 class="page-title">Welcome back, {{ me?.name?.split(' ')?.[0] }} 👋</h1>
+        <h1 class="page-title">Welcome back, {{ me?.name?.split(' ')?.[0] }} </h1>
         <p class="page-subtitle">What would you like to manage today?</p>
       </div>
     </div>
@@ -28,7 +28,7 @@
     <div class="nav-cards">
       <!-- People -->
       <div class="nav-card indigo" (click)="goToEmployees()" *ngIf="can('employees')">
-        <div class="nav-card-icon">👥</div>
+        <div class="nav-card-icon"></div>
         <div class="nav-card-body">
           <h3>Employees</h3>
           <p>Manage staff, profiles &amp; salaries</p>
@@ -37,7 +37,7 @@
       </div>
 
       <div class="nav-card green" (click)="goToAttendance()" *ngIf="can('attendance')">
-        <div class="nav-card-icon">🕐</div>
+        <div class="nav-card-icon"></div>
         <div class="nav-card-body">
           <h3>Attendance</h3>
           <p>Clock in/out, breaks &amp; hours</p>
@@ -46,7 +46,7 @@
       </div>
 
       <div class="nav-card purple" (click)="goToShifts()" *ngIf="can('shifts')">
-        <div class="nav-card-icon">🗓️</div>
+        <div class="nav-card-icon">️</div>
         <div class="nav-card-body">
           <h3>Shifts</h3>
           <p>Templates, assignments &amp; calendar</p>
@@ -55,7 +55,7 @@
       </div>
 
       <div class="nav-card blue" (click)="goToLeave()" *ngIf="can('leave')">
-        <div class="nav-card-icon">🏖️</div>
+        <div class="nav-card-icon">️</div>
         <div class="nav-card-body">
           <h3>Leave</h3>
           <p>Manage leave requests &amp; balances</p>
@@ -65,7 +65,7 @@
 
       <!-- Finance -->
       <div class="nav-card amber" (click)="goToPayroll()" *ngIf="can('payroll')">
-        <div class="nav-card-icon">💰</div>
+        <div class="nav-card-icon"></div>
         <div class="nav-card-body">
           <h3>Payroll</h3>
           <p>Process salaries, payslips &amp; PAYE</p>
@@ -74,7 +74,7 @@
       </div>
 
       <div class="nav-card teal" (click)="goToAccounting()" *ngIf="can('accounting')">
-        <div class="nav-card-icon">📒</div>
+        <div class="nav-card-icon"></div>
         <div class="nav-card-body">
           <h3>Accounting</h3>
           <p>Chart of accounts &amp; GL journals</p>
@@ -84,7 +84,7 @@
 
       <!-- SARS Compliance -->
       <div class="nav-card sars" (click)="goToSars()" *ngIf="can('sars')">
-        <div class="nav-card-icon">🏛️</div>
+        <div class="nav-card-icon">️</div>
         <div class="nav-card-body">
           <h3>SARS Compliance</h3>
           <p>EMP201, UI-19 &amp; IRP5 tax submissions</p>
@@ -94,7 +94,7 @@
 
       <!-- Insights -->
       <div class="nav-card violet" (click)="goToAnalytics()" *ngIf="can('analytics')">
-        <div class="nav-card-icon">📊</div>
+        <div class="nav-card-icon"></div>
         <div class="nav-card-body">
           <h3>Analytics</h3>
           <p>Charts, KPIs &amp; insights</p>
@@ -103,7 +103,7 @@
       </div>
 
       <div class="nav-card orange" (click)="goToReports()" *ngIf="can('reports')">
-        <div class="nav-card-icon">📋</div>
+        <div class="nav-card-icon"></div>
         <div class="nav-card-body">
           <h3>Reports</h3>
           <p>Export PDF &amp; Excel HR reports</p>
@@ -113,7 +113,7 @@
 
       <!-- Audit — owner, admin, GM, HR manager only -->
       <div class="nav-card slate" (click)="goToAuditLog()" *ngIf="can('audit')">
-        <div class="nav-card-icon">🔍</div>
+        <div class="nav-card-icon"></div>
         <div class="nav-card-body">
           <h3>Audit Log</h3>
           <p>Track changes, approvals &amp; actions</p>
@@ -121,7 +121,7 @@
         <div class="nav-card-arrow">→</div>
       </div>
       <div class="nav-card rose" (click)="goToUsers()" *ngIf="can('users')">
-        <div class="nav-card-icon">🔐</div>
+        <div class="nav-card-icon"></div>
         <div class="nav-card-body">
           <h3>Users</h3>
           <p>Manage staff access &amp; roles</p>
@@ -129,7 +129,7 @@
         <div class="nav-card-arrow">→</div>
       </div>
       <div class="nav-card emerald" (click)="goToPortal()" *ngIf="can('portal')">
-        <div class="nav-card-icon">🧑‍💼</div>
+        <div class="nav-card-icon">‍</div>
         <div class="nav-card-body">
           <h3>My Portal</h3>
           <p>Clock in, leave, shifts &amp; payslips</p>

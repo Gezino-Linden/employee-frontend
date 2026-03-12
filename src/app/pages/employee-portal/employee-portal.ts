@@ -267,7 +267,7 @@ export class EmployeePortalComponent implements OnInit, OnDestroy {
 </div>
 <div class="net"><div><div class="label">Net Pay</div><div style="font-size:12px;opacity:0.8">${months[p.month]} ${p.year}</div></div><div class="amount">R ${fmt(p.net_pay)}</div></div>
 <div class="footer">This is a computer-generated payslip and does not require a signature. — MaeRoll HR System</div>
-<button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+<button class="print-btn" onclick="window.print()"> Print / Save as PDF</button>
 </body></html>`;
         const w = window.open('', '_blank');
         if (w) { w.document.write(html); w.document.close(); }

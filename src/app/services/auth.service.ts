@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 type LoginRequest = { email: string; password: string };
 type LoginResponse = { token: string };
 
-// ✅ EXPORT ADDED
+//  EXPORT ADDED
 export type MeResponse = {
   id: number;
   name: string;
@@ -15,7 +15,7 @@ export type MeResponse = {
   company_id: number | null;
 };
 
-// ✅ EXPORT ADDED
+//  EXPORT ADDED
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private baseUrl = environment.apiUrl;

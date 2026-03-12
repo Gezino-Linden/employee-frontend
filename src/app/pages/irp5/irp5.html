@@ -5,7 +5,7 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
-      <div class="brand-icon">📜</div>
+      <div class="brand-icon"></div>
       <span class="brand-name">MaeRoll</span>
       <span class="brand-sub">/ IRP5</span>
     </div>
@@ -40,13 +40,13 @@
     <!-- TABS -->
     <div class="tabs">
       <button class="tab" [class.active]="activeTab === 'certificates'" (click)="activeTab = 'certificates'">
-        📜 Certificates
+         Certificates
       </button>
       <button class="tab" [class.active]="activeTab === 'reconciliation'" (click)="activeTab = 'reconciliation'; loadReconciliation()">
-        📊 IT3(a) Reconciliation
+         IT3(a) Reconciliation
       </button>
       <button *ngIf="isManager()" class="tab" [class.active]="activeTab === 'generate'" (click)="activeTab = 'generate'">
-        ⚙️ Generate
+        ️ Generate
       </button>
     </div>
 
@@ -59,10 +59,10 @@
         </div>
         <div class="toolbar-right">
           <button *ngIf="certificates.length > 0" class="btn btn-secondary" (click)="exportCSV()">
-            📥 Export CSV (e@syFile)
+             Export CSV (e@syFile)
           </button>
           <button *ngIf="isAdmin() && certificates.length > 0" class="btn btn-success" [disabled]="issueLoading" (click)="issueAll()">
-            {{ issueLoading ? 'Issuing...' : '✅ Issue All Certificates' }}
+            {{ issueLoading ? 'Issuing...' : ' Issue All Certificates' }}
           </button>
         </div>
       </div>
@@ -74,7 +74,7 @@
       </div>
 
       <div *ngIf="!loadingCerts && certificates.length === 0" class="empty-state">
-        <div class="empty-icon">📜</div>
+        <div class="empty-icon"></div>
         <h3>No IRP5 certificates yet</h3>
         <p>Generate IRP5 certificates from full-year payroll records.</p>
         <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">Generate IRP5</button>
@@ -113,7 +113,7 @@
           <div class="cert-footer">
             <span class="cert-number">{{ cert.certificate_number }}</span>
             <div class="cert-actions" (click)="$event.stopPropagation()">
-              <button class="icon-btn" title="Print PDF" (click)="printCertificate(cert)">🖨️</button>
+              <button class="icon-btn" title="Print PDF" (click)="printCertificate(cert)">️</button>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@
       </div>
 
       <div *ngIf="!loadingRecon && !reconciliation" class="empty-state">
-        <div class="empty-icon">📊</div>
+        <div class="empty-icon"></div>
         <h3>No reconciliation for {{ selectedTaxYear }}</h3>
         <p>Generate IRP5 certificates first to build the IT3(a) reconciliation.</p>
         <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">Generate IRP5</button>
@@ -145,13 +145,13 @@
             </div>
           </div>
           <div class="recon-actions">
-            <button class="btn btn-secondary" (click)="exportCSV()">📥 Export CSV</button>
+            <button class="btn btn-secondary" (click)="exportCSV()"> Export CSV</button>
           </div>
         </div>
 
         <div class="recon-grid">
           <div class="recon-card recon-remun">
-            <div class="recon-icon">💼</div>
+            <div class="recon-icon"></div>
             <div class="recon-body">
               <div class="recon-value">{{ formatMoney(reconciliation.total_remuneration) }}</div>
               <div class="recon-label">Total Remuneration</div>
@@ -159,7 +159,7 @@
             </div>
           </div>
           <div class="recon-card recon-paye">
-            <div class="recon-icon">🏛️</div>
+            <div class="recon-icon">️</div>
             <div class="recon-body">
               <div class="recon-value">{{ formatMoney(reconciliation.total_paye) }}</div>
               <div class="recon-label">Total PAYE Withheld</div>
@@ -167,7 +167,7 @@
             </div>
           </div>
           <div class="recon-card recon-uif">
-            <div class="recon-icon">🛡️</div>
+            <div class="recon-icon">️</div>
             <div class="recon-body">
               <div class="recon-value">{{ formatMoney(+reconciliation.total_uif_employee + +reconciliation.total_uif_employer) }}</div>
               <div class="recon-label">Total UIF (Both Sides)</div>
@@ -175,7 +175,7 @@
             </div>
           </div>
           <div class="recon-card recon-sdl">
-            <div class="recon-icon">📚</div>
+            <div class="recon-icon"></div>
             <div class="recon-body">
               <div class="recon-value">{{ formatMoney(reconciliation.total_sdl) }}</div>
               <div class="recon-label">Total SDL (1%)</div>
@@ -237,8 +237,8 @@
         </div>
 
         <div class="recon-employees">
-          <span>👥 <strong>{{ reconciliation.employee_count }}</strong> employees included</span>
-          <span>📅 Tax year: <strong>{{ getTaxYearLabel(selectedTaxYear) }}</strong></span>
+          <span> <strong>{{ reconciliation.employee_count }}</strong> employees included</span>
+          <span> Tax year: <strong>{{ getTaxYearLabel(selectedTaxYear) }}</strong></span>
         </div>
       </div>
     </div>
@@ -246,7 +246,7 @@
     <!-- ==================== GENERATE TAB ==================== -->
     <div *ngIf="activeTab === 'generate'">
       <div class="generate-card">
-        <div class="generate-icon">📜</div>
+        <div class="generate-icon"></div>
         <h2>Generate IRP5 Certificates</h2>
         <p>Auto-generates annual tax certificates from full-year payroll records.</p>
 
@@ -259,20 +259,20 @@
         </div>
 
         <div *ngIf="generateMessage" class="alert alert-success">{{ generateMessage }}</div>
-        <div *ngIf="generateError" class="alert alert-error">❌ {{ generateError }}</div>
+        <div *ngIf="generateError" class="alert alert-error"> {{ generateError }}</div>
 
         <div class="generate-info">
-          <div class="info-item">📅 SA tax year runs <strong>1 March – 28/29 February</strong></div>
-          <div class="info-item">📌 Only <strong>processed</strong> or <strong>paid</strong> payroll records included</div>
-          <div class="info-item">🔄 Re-generating will <strong>recalculate</strong> all amounts from scratch</div>
-          <div class="info-item">🖨️ Each certificate can be <strong>printed as PDF</strong> from the certificates tab</div>
-          <div class="info-item">📥 Export bulk <strong>CSV for SARS e@syFile</strong> bulk upload</div>
-          <div class="info-item">📊 IT3(a) reconciliation is <strong>auto-generated</strong> alongside certificates</div>
+          <div class="info-item"> SA tax year runs <strong>1 March – 28/29 February</strong></div>
+          <div class="info-item"> Only <strong>processed</strong> or <strong>paid</strong> payroll records included</div>
+          <div class="info-item"> Re-generating will <strong>recalculate</strong> all amounts from scratch</div>
+          <div class="info-item">️ Each certificate can be <strong>printed as PDF</strong> from the certificates tab</div>
+          <div class="info-item"> Export bulk <strong>CSV for SARS e@syFile</strong> bulk upload</div>
+          <div class="info-item"> IT3(a) reconciliation is <strong>auto-generated</strong> alongside certificates</div>
         </div>
 
         <button class="btn btn-primary btn-lg" [disabled]="generateLoading" (click)="generate()">
           <span *ngIf="generateLoading" class="spinner-sm"></span>
-          {{ generateLoading ? 'Generating...' : '📜 Generate IRP5 Certificates' }}
+          {{ generateLoading ? 'Generating...' : ' Generate IRP5 Certificates' }}
         </button>
       </div>
     </div>
@@ -289,8 +289,8 @@
         <p class="modal-sub">{{ selectedCert.certificate_number }} · Tax Year {{ selectedCert.tax_year }}</p>
       </div>
       <div class="modal-header-actions">
-        <button class="btn btn-primary" (click)="printCertificate(selectedCert)">🖨️ Print PDF</button>
-        <button class="modal-close" (click)="showCertModal = false">✕</button>
+        <button class="btn btn-primary" (click)="printCertificate(selectedCert)">️ Print PDF</button>
+        <button class="modal-close" (click)="showCertModal = false"></button>
       </div>
     </div>
 

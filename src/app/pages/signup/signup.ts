@@ -169,9 +169,9 @@ export class Signup implements OnInit {
         this.contactSent = true;
       },
       error: () => {
-        // Fallback â€” open mailto if endpoint not available
+        // Fallback  open mailto if endpoint not available
         this.contactLoading = false;
-        const subject = encodeURIComponent(`License Key Request â€” ${this.contact.hotel}`);
+        const subject = encodeURIComponent(`License Key Request  ${this.contact.hotel}`);
         const body = encodeURIComponent(
           `Hotel: ${this.contact.hotel}\nName: ${this.contact.name}\nEmail: ${this.contact.email}\nEmployees: ${this.contact.employees}\nPlan: ${this.contact.plan}\n\n${this.contact.message}`
         );

@@ -233,7 +233,7 @@ export class Attendance implements OnInit, OnDestroy {
         next: (record: AttendanceRecord) => {
           this.todayRecord = record;
           this.actionLoading = false;
-          this.actionMessage = '✅ Clocked in successfully!';
+          this.actionMessage = ' Clocked in successfully!';
           if (this.isAdmin()) {
             this.loadSummary();
             this.loadRecords();
@@ -261,7 +261,7 @@ export class Attendance implements OnInit, OnDestroy {
         next: (record: AttendanceRecord) => {
           this.todayRecord = record;
           this.actionLoading = false;
-          this.actionMessage = '☕ Break started';
+          this.actionMessage = ' Break started';
           this.cdr.detectChanges();
           setTimeout(() => {
             this.actionMessage = '';
@@ -285,7 +285,7 @@ export class Attendance implements OnInit, OnDestroy {
         next: (record: AttendanceRecord) => {
           this.todayRecord = record;
           this.actionLoading = false;
-          this.actionMessage = '💪 Break ended, back to work!';
+          this.actionMessage = ' Break ended, back to work!';
           this.cdr.detectChanges();
           setTimeout(() => {
             this.actionMessage = '';
@@ -309,7 +309,7 @@ export class Attendance implements OnInit, OnDestroy {
         next: (record: AttendanceRecord) => {
           this.todayRecord = record;
           this.actionLoading = false;
-          this.actionMessage = '👋 Clocked out. Great work today!';
+          this.actionMessage = ' Clocked out. Great work today!';
           if (this.isAdmin()) {
             this.loadSummary();
             this.loadRecords();
@@ -330,7 +330,7 @@ export class Attendance implements OnInit, OnDestroy {
 
   submitOverride() {
     if (!this.overrideForm.employee_id) {
-      this.overrideMessage = '❌ Please select an employee';
+      this.overrideMessage = ' Please select an employee';
       return;
     }
     this.overrideLoading = true;
@@ -348,7 +348,7 @@ export class Attendance implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.overrideLoading = false;
-          this.overrideMessage = '✅ Attendance updated successfully';
+          this.overrideMessage = ' Attendance updated successfully';
           this.loadRecords();
           this.loadSummary();
           this.cdr.detectChanges();
@@ -359,7 +359,7 @@ export class Attendance implements OnInit, OnDestroy {
         },
         error: (err: any) => {
           this.overrideLoading = false;
-          this.overrideMessage = '❌ ' + (err.error?.error || 'Failed to override');
+          this.overrideMessage = ' ' + (err.error?.error || 'Failed to override');
           this.cdr.detectChanges();
         },
       });
@@ -412,11 +412,11 @@ export class Attendance implements OnInit, OnDestroy {
 
   getStatusIcon(status: string): string {
     const map: any = {
-      present: '✅',
-      absent: '❌',
+      present: '',
+      absent: '',
       late: '⏰',
-      half_day: '🌓',
-      on_leave: '🏖️',
+      half_day: '',
+      on_leave: '️',
       not_clocked_in: '⭕',
     };
     return map[status] || '•';

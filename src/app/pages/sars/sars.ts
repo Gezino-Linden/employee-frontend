@@ -360,7 +360,7 @@ export class Sars implements OnInit {
       .subscribe({
         next: (res) => {
           this.emp201GenLoading = false;
-          this.emp201GenMessage = `✅ EMP201 generated for ${
+          this.emp201GenMessage = ` EMP201 generated for ${
             this.months[this.emp201GenMonth - 1].label
           } ${this.emp201GenYear} — Total: ${this.formatMoney(res.declaration.total_liability)}`;
           this.loadEmp201Declarations();
@@ -519,7 +519,7 @@ export class Sars implements OnInit {
       .subscribe({
         next: (res) => {
           this.ui19GenLoading = false;
-          this.ui19GenMessage = `✅ UI-19 generated for ${
+          this.ui19GenMessage = ` UI-19 generated for ${
             this.months[this.ui19GenMonth - 1].label
           } ${this.ui19GenYear} — Total UIF: ${this.formatMoney(res.declaration.total_uif)}`;
           this.loadUi19Declarations();
@@ -654,7 +654,7 @@ export class Sars implements OnInit {
       .subscribe({
         next: (res) => {
           this.irp5GenLoading = false;
-          this.irp5GenMessage = `✅ ${res.message}`;
+          this.irp5GenMessage = ` ${res.message}`;
           this.irp5TaxYear = this.irp5GenYear;
           this.loadIrp5Certs();
           this.loadIrp5Recon();

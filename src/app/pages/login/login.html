@@ -56,7 +56,7 @@
           </svg>
         </button>
       </div>
-      <div class="caps-warn" *ngIf="capsLock && password">⚠ Caps Lock is on</div>
+      <div class="caps-warn" *ngIf="capsLock && password"> Caps Lock is on</div>
     </div>
 
     <div class="error-box" *ngIf="error">
@@ -66,7 +66,7 @@
       {{ error }}
     </div>
 
-    <div class="warn-box" *ngIf="attemptsWarning">⚠ {{ attemptsWarning }}</div>
+    <div class="warn-box" *ngIf="attemptsWarning"> {{ attemptsWarning }}</div>
 
     <button type="submit" class="submit-btn" [disabled]="loading">
       <span *ngIf="!loading">Login</span>

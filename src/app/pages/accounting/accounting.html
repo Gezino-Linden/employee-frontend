@@ -4,7 +4,7 @@
 
   <nav class="topnav">
     <div class="topnav-brand">
-      <div class="brand-icon">📒</div>
+      <div class="brand-icon"></div>
       <span class="brand-name">MaeRoll</span>
       <span class="brand-sub">/ Accounting</span>
     </div>
@@ -35,60 +35,60 @@
         [class.active]="activeTab === 'accounts'"
         (click)="setTab('accounts')"
       >
-        📋 Accounts
+         Accounts
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'journal'" (click)="setTab('journal')">
-        📓 Journals
+         Journals
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'mappings'"
         (click)="setTab('mappings')"
       >
-        🔗 GL Mappings
+         GL Mappings
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'invoices'"
         (click)="setTab('invoices')"
       >
-        🧾 Invoices
+         Invoices
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'suppliers'"
         (click)="setTab('suppliers')"
       >
-        🏭 Suppliers
+         Suppliers
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'revenue'" (click)="setTab('revenue')">
-        📈 Revenue
+         Revenue
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'apageing'"
         (click)="setTab('apageing')"
       >
-        📊 AP Ageing
+         AP Ageing
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'arageing'"
         (click)="setTab('arageing')"
       >
-        📥 AR Ageing
+         AR Ageing
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'financials'"
         (click)="setTab('financials')"
       >
-        💰 Financials
+         Financials
       </button>
     </div>
 
-    <div *ngIf="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
-    <div *ngIf="errorMsg" class="alert alert-error">❌ {{ errorMsg }}</div>
+    <div *ngIf="successMsg" class="alert alert-success"> {{ successMsg }}</div>
+    <div *ngIf="errorMsg" class="alert alert-error"> {{ errorMsg }}</div>
 
     <!-- ══════════════════════════════════════════ -->
     <!-- TAB: CHART OF ACCOUNTS                    -->
@@ -96,7 +96,7 @@
     <div *ngIf="activeTab === 'accounts'">
       <div class="section-toolbar">
         <div class="search-wrap">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"></span>
           <input
             class="search-input"
             [(ngModel)]="accountSearch"
@@ -133,7 +133,7 @@
           </div>
         </div>
         <div *ngIf="filteredAccounts.length === 0" class="empty-state">
-          <div class="empty-icon">📋</div>
+          <div class="empty-icon"></div>
           <p>No accounts found</p>
         </div>
       </div>
@@ -167,14 +167,14 @@
                 [class.active]="journalForm.type === 'standard'"
                 (click)="journalForm.type = 'standard'"
               >
-                📊 Standard
+                 Standard
               </button>
               <button
                 class="type-btn"
                 [class.active]="journalForm.type === 'hospitality'"
                 (click)="journalForm.type = 'hospitality'"
               >
-                🏨 Hospitality
+                 Hospitality
               </button>
             </div>
           </div>
@@ -188,7 +188,7 @@
             />
           </div>
           <div *ngIf="journalForm.type === 'hospitality'" class="journal-info-box">
-            🏨 Hospitality mode includes <strong>tips</strong> and <strong>service charges</strong>.
+             Hospitality mode includes <strong>tips</strong> and <strong>service charges</strong>.
           </div>
           <button
             class="btn btn-primary full-btn"
@@ -196,7 +196,7 @@
             (click)="generateJournal()"
           >
             <span *ngIf="generatingJournal" class="spinner-sm"></span>
-            {{ generatingJournal ? 'Generating...' : '⚡ Generate Journal' }}
+            {{ generatingJournal ? 'Generating...' : ' Generate Journal' }}
           </button>
           <button
             *ngIf="journal"
@@ -205,7 +205,7 @@
             (click)="exportCSV()"
           >
             <span *ngIf="exportingCSV" class="spinner-sm"></span>
-            {{ exportingCSV ? 'Exporting...' : '📥 Export CSV' }}
+            {{ exportingCSV ? 'Exporting...' : ' Export CSV' }}
           </button>
         </div>
 
@@ -217,15 +217,15 @@
                 class="balanced-badge"
                 [class.balanced]="journal.is_balanced"
                 [class.unbalanced]="!journal.is_balanced"
-                >{{ journal.is_balanced ? '✓ Balanced' : '⚠ Unbalanced' }}</span
+                >{{ journal.is_balanced ? ' Balanced' : ' Unbalanced' }}</span
               >
             </div>
             <div class="journal-meta">
               <span
-                >📅 {{ formatDate(journal.period_start) }} –
+                > {{ formatDate(journal.period_start) }} –
                 {{ formatDate(journal.period_end) }}</span
               >
-              <span>🔖 {{ journal.reference }}</span>
+              <span> {{ journal.reference }}</span>
               <span class="type-chip">{{ journal.type | titlecase }}</span>
             </div>
           </div>
@@ -248,7 +248,7 @@
             </div>
           </div>
           <div *ngIf="journal.summary?.hospitality" class="hosp-summary">
-            <div class="hosp-title">🏨 Hospitality Breakdown</div>
+            <div class="hosp-title"> Hospitality Breakdown</div>
             <div class="hosp-grid">
               <div class="hosp-item">
                 <span>Tips (Cash)</span
@@ -325,7 +325,7 @@
           </div>
         </div>
         <div *ngIf="!journal && !generatingJournal" class="journal-empty">
-          <div class="empty-icon">📓</div>
+          <div class="empty-icon"></div>
           <p>Select a payroll period and click Generate to create a journal entry</p>
         </div>
       </div>
@@ -340,7 +340,7 @@
         <p>Loading mappings...</p>
       </div>
       <div *ngIf="!loadingMappings && mappings.length === 0" class="empty-state">
-        <div class="empty-icon">🔗</div>
+        <div class="empty-icon"></div>
         <p>No GL mappings configured</p>
       </div>
       <div *ngIf="!loadingMappings && mappings.length > 0" class="mappings-table-wrap">
@@ -367,7 +367,7 @@
               </td>
               <td>{{ m.department || '—' }}</td>
               <td>
-                <span *ngIf="m.is_default" class="default-badge">✓ Default</span
+                <span *ngIf="m.is_default" class="default-badge"> Default</span
                 ><span *ngIf="!m.is_default" class="text-muted">—</span>
               </td>
             </tr>
@@ -397,7 +397,7 @@
           </select>
         </div>
         <button class="btn btn-primary" (click)="showInvoiceForm = !showInvoiceForm">
-          {{ showInvoiceForm ? '✕ Cancel' : '+ New Invoice' }}
+          {{ showInvoiceForm ? ' Cancel' : '+ New Invoice' }}
         </button>
       </div>
 
@@ -465,7 +465,7 @@
               step="0.01"
             />
             <span class="line-total">{{ formatMoney(line.quantity * line.unit_price) }}</span>
-            <button class="btn-remove" (click)="removeInvoiceLine(i)">✕</button>
+            <button class="btn-remove" (click)="removeInvoiceLine(i)"></button>
           </div>
           <div class="invoice-total-row">
             <span>Subtotal (excl. VAT)</span>
@@ -477,7 +477,7 @@
           <button class="btn btn-ghost" (click)="showInvoiceForm = false">Cancel</button>
           <button class="btn btn-primary" [disabled]="savingInvoice" (click)="saveInvoice()">
             <span *ngIf="savingInvoice" class="spinner-sm"></span>
-            {{ savingInvoice ? 'Saving...' : '💾 Create Invoice' }}
+            {{ savingInvoice ? 'Saving...' : ' Create Invoice' }}
           </button>
         </div>
       </div>
@@ -508,7 +508,7 @@
           </div>
           <div class="form-actions mt-16">
             <button class="btn btn-ghost" (click)="recordingPayment = null">Cancel</button>
-            <button class="btn btn-primary" (click)="submitPayment()">✓ Record Payment</button>
+            <button class="btn btn-primary" (click)="submitPayment()"> Record Payment</button>
           </div>
         </div>
       </div>
@@ -558,7 +558,7 @@
               (click)="submitBillPayment()"
             >
               <span *ngIf="savingBillPayment" class="spinner-sm"></span>
-              {{ savingBillPayment ? 'Processing...' : '✓ Confirm Payment' }}
+              {{ savingBillPayment ? 'Processing...' : ' Confirm Payment' }}
             </button>
           </div>
         </div>
@@ -570,7 +570,7 @@
         <p>Loading invoices...</p>
       </div>
       <div *ngIf="!loadingInvoices && invoices.length === 0" class="empty-state">
-        <div class="empty-icon">🧾</div>
+        <div class="empty-icon"></div>
         <p>No invoices found</p>
       </div>
       <div *ngIf="!loadingInvoices && invoices.length > 0" class="data-table-wrap">
@@ -615,7 +615,7 @@
                   class="btn-action"
                   (click)="startRecordPayment(inv.id)"
                 >
-                  💳 Pay
+                   Pay
                 </button>
               </td>
             </tr>
@@ -634,10 +634,10 @@
           [class.active]="apView === 'suppliers'"
           (click)="apView = 'suppliers'"
         >
-          🏭 Suppliers
+           Suppliers
         </button>
         <button class="sub-tab-btn" [class.active]="apView === 'bills'" (click)="apView = 'bills'">
-          📄 Bills
+           Bills
         </button>
       </div>
 
@@ -646,7 +646,7 @@
         <div class="section-toolbar">
           <span class="section-count">{{ suppliers.length }} suppliers</span>
           <button class="btn btn-primary" (click)="showSupplierForm = !showSupplierForm">
-            {{ showSupplierForm ? '✕ Cancel' : '+ Add Supplier' }}
+            {{ showSupplierForm ? ' Cancel' : '+ Add Supplier' }}
           </button>
         </div>
 
@@ -708,7 +708,7 @@
             <button class="btn btn-ghost" (click)="showSupplierForm = false">Cancel</button>
             <button class="btn btn-primary" [disabled]="savingSupplier" (click)="saveSupplier()">
               <span *ngIf="savingSupplier" class="spinner-sm"></span>
-              {{ savingSupplier ? 'Saving...' : '💾 Save Supplier' }}
+              {{ savingSupplier ? 'Saving...' : ' Save Supplier' }}
             </button>
           </div>
         </div>
@@ -718,7 +718,7 @@
           <p>Loading suppliers...</p>
         </div>
         <div *ngIf="!loadingSuppliers && suppliers.length === 0" class="empty-state">
-          <div class="empty-icon">🏭</div>
+          <div class="empty-icon"></div>
           <p>No suppliers yet</p>
         </div>
         <div *ngIf="!loadingSuppliers && suppliers.length > 0" class="suppliers-grid">
@@ -734,8 +734,8 @@
               }}</span>
             </div>
             <div class="supplier-details">
-              <span *ngIf="s.email">✉ {{ s.email }}</span>
-              <span *ngIf="s.phone">📞 {{ s.phone }}</span>
+              <span *ngIf="s.email"> {{ s.email }}</span>
+              <span *ngIf="s.phone"> {{ s.phone }}</span>
               <span>Net {{ s.payment_terms }} days</span>
             </div>
           </div>
@@ -747,7 +747,7 @@
         <div class="section-toolbar">
           <span class="section-count">{{ apBills.length }} bills</span>
           <button class="btn btn-primary" (click)="showBillForm = !showBillForm">
-            {{ showBillForm ? '✕ Cancel' : '+ Add Bill' }}
+            {{ showBillForm ? ' Cancel' : '+ Add Bill' }}
           </button>
         </div>
 
@@ -818,7 +818,7 @@
             <button class="btn btn-ghost" (click)="showBillForm = false">Cancel</button>
             <button class="btn btn-primary" [disabled]="savingBill" (click)="saveBill()">
               <span *ngIf="savingBill" class="spinner-sm"></span>
-              {{ savingBill ? 'Saving...' : '💾 Save Bill' }}
+              {{ savingBill ? 'Saving...' : ' Save Bill' }}
             </button>
           </div>
         </div>
@@ -828,7 +828,7 @@
           <p>Loading bills...</p>
         </div>
         <div *ngIf="!loadingBills && apBills.length === 0" class="empty-state">
-          <div class="empty-icon">📄</div>
+          <div class="empty-icon"></div>
           <p>No bills yet</p>
         </div>
         <div *ngIf="!loadingBills && apBills.length > 0" class="data-table-wrap">
@@ -875,9 +875,9 @@
                     (click)="startPayBill(b)"
                   >
                     <span *ngIf="payingBill === b.id" class="spinner-sm"></span>
-                    {{ payingBill === b.id ? '...' : '💳 Pay' }}
+                    {{ payingBill === b.id ? '...' : ' Pay' }}
                   </button>
-                  <span *ngIf="b.status === 'paid'" class="paid-check">✅ Paid</span>
+                  <span *ngIf="b.status === 'paid'" class="paid-check"> Paid</span>
                 </td>
               </tr>
             </tbody>
@@ -907,7 +907,7 @@
           />
         </div>
         <button class="btn btn-primary" (click)="showRevenueForm = !showRevenueForm">
-          {{ showRevenueForm ? '✕ Cancel' : '+ Log Revenue' }}
+          {{ showRevenueForm ? ' Cancel' : '+ Log Revenue' }}
         </button>
       </div>
 
@@ -1013,7 +1013,7 @@
           <button class="btn btn-ghost" (click)="showRevenueForm = false">Cancel</button>
           <button class="btn btn-primary" [disabled]="savingRevenue" (click)="saveRevenue()">
             <span *ngIf="savingRevenue" class="spinner-sm"></span>
-            {{ savingRevenue ? 'Saving...' : '💾 Save Revenue' }}
+            {{ savingRevenue ? 'Saving...' : ' Save Revenue' }}
           </button>
         </div>
       </div>
@@ -1023,7 +1023,7 @@
         <p>Loading revenue...</p>
       </div>
       <div *ngIf="!loadingRevenue && dailyRevenue.length === 0" class="empty-state">
-        <div class="empty-icon">📈</div>
+        <div class="empty-icon"></div>
         <p>No revenue entries for this period</p>
       </div>
       <div *ngIf="!loadingRevenue && dailyRevenue.length > 0" class="data-table-wrap">
@@ -1073,20 +1073,20 @@
           [class.active]="financialsTab === 'pl'"
           (click)="setFinancialsTab('pl')"
         >
-          📊 P&L Report
+           P&L Report
         </button>
         <button
           class="sub-tab-btn"
           [class.active]="financialsTab === 'vat'"
           (click)="setFinancialsTab('vat')"
         >
-          🧮 VAT Return
+           VAT Return
         </button>
       </div>
 
       <div class="close-period-bar" *ngIf="!periodClosed">
         <div class="close-period-info">
-          <span>📅</span>
+          <span></span>
           <span
             >Close <strong>{{ monthName(vatMonth) }} {{ vatYear }}</strong> to lock all entries and
             finalize VAT</span
@@ -1094,11 +1094,11 @@
         </div>
         <button class="btn btn-close-period" [disabled]="closingPeriod" (click)="closePeriod()">
           <span *ngIf="closingPeriod" class="spinner-sm"></span>
-          {{ closingPeriod ? 'Closing...' : '🔒 Close Month' }}
+          {{ closingPeriod ? 'Closing...' : ' Close Month' }}
         </button>
       </div>
       <div class="close-period-bar closed-bar" *ngIf="periodClosed">
-        <span>🔒 {{ monthName(vatMonth) }} {{ vatYear }} is closed</span>
+        <span> {{ monthName(vatMonth) }} {{ vatYear }} is closed</span>
         <span class="closed-chip">VAT Payable: {{ formatMoney(periodClosed.vat_payable) }}</span>
       </div>
       <!-- P&L REPORT -->
@@ -1109,7 +1109,7 @@
             <span class="date-sep">to</span>
             <input class="form-input sm-input" [(ngModel)]="plTo" type="date" />
           </div>
-          <button class="btn btn-primary" (click)="loadPL()">🔄 Run Report</button>
+          <button class="btn btn-primary" (click)="loadPL()"> Run Report</button>
         </div>
 
         <div *ngIf="loadingPL" class="loading-state">
@@ -1160,7 +1160,7 @@
 
           <div class="pl-layout">
             <div class="card-panel">
-              <h3 class="panel-title income-title">📥 Revenue Breakdown</h3>
+              <h3 class="panel-title income-title"> Revenue Breakdown</h3>
               <div *ngFor="let r of plReport.revenue" class="pl-row">
                 <span>{{ r.department || r.category || r.name }}</span>
                 <span class="income-val">{{ formatMoney(r.amount || r.total) }}</span>
@@ -1174,7 +1174,7 @@
             </div>
 
             <div class="card-panel">
-              <h3 class="panel-title expense-title">📤 Cost Breakdown</h3>
+              <h3 class="panel-title expense-title"> Cost Breakdown</h3>
               <div *ngFor="let c of plReport.costs" class="pl-row">
                 <span>{{ c.category || c.name }}</span>
                 <span class="expense-val">{{ formatMoney(c.amount || c.total) }}</span>
@@ -1190,7 +1190,7 @@
         </div>
 
         <div *ngIf="!loadingPL && !plReport" class="empty-state">
-          <div class="empty-icon">📊</div>
+          <div class="empty-icon"></div>
           <p>Select a date range and click Run Report</p>
         </div>
       </div>
@@ -1213,7 +1213,7 @@
               style="width: 90px"
             />
           </div>
-          <button class="btn btn-primary" (click)="loadVAT()">🔄 Calculate VAT</button>
+          <button class="btn btn-primary" (click)="loadVAT()"> Calculate VAT</button>
         </div>
 
         <div *ngIf="loadingVAT" class="loading-state">
@@ -1252,7 +1252,7 @@
           </div>
 
           <div class="vat-info-box">
-            <span>🧮</span>
+            <span></span>
             <span
               >VAT Period:
               <strong
@@ -1265,7 +1265,7 @@
         </div>
 
         <div *ngIf="!loadingVAT && !vatReturn" class="empty-state">
-          <div class="empty-icon">🧮</div>
+          <div class="empty-icon"></div>
           <p>Select a month and click Calculate VAT</p>
         </div>
       </div>

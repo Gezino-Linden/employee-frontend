@@ -19,7 +19,7 @@
   <main class="main-content">
     <div class="page-header">
       <div>
-        <h1 class="page-title">🔍 Audit Log</h1>
+        <h1 class="page-title"> Audit Log</h1>
         <p class="page-subtitle">Track every change made in your system</p>
       </div>
       <div class="header-actions">
@@ -30,28 +30,28 @@
     <!-- Summary Cards -->
     <div class="summary-cards" *ngIf="summary">
       <div class="summary-card">
-        <div class="summary-icon">👤</div>
+        <div class="summary-icon"></div>
         <div class="summary-info">
           <div class="summary-value">{{ getCount('CREATE', 'employee') }}</div>
           <div class="summary-label">Employees Added</div>
         </div>
       </div>
       <div class="summary-card">
-        <div class="summary-icon">✏️</div>
+        <div class="summary-icon">️</div>
         <div class="summary-info">
           <div class="summary-value">{{ getCount('UPDATE', 'employee') }}</div>
           <div class="summary-label">Records Updated</div>
         </div>
       </div>
       <div class="summary-card">
-        <div class="summary-icon">💰</div>
+        <div class="summary-icon"></div>
         <div class="summary-info">
           <div class="summary-value">{{ getCount('PROCESS', 'payroll') }}</div>
           <div class="summary-label">Payrolls Processed</div>
         </div>
       </div>
       <div class="summary-card">
-        <div class="summary-icon">✅</div>
+        <div class="summary-icon"></div>
         <div class="summary-info">
           <div class="summary-value">{{ getCount('APPROVE', 'leave') }}</div>
           <div class="summary-label">Leave Approved</div>
@@ -85,7 +85,7 @@
         <option value="RESTORE">Restore</option>
         <option value="ROLE_CHANGE">Role Change</option>
       </select>
-      <button class="btn-clear" (click)="clearFilters()" *ngIf="filterEntity || filterAction">✕ Clear</button>
+      <button class="btn-clear" (click)="clearFilters()" *ngIf="filterEntity || filterAction"> Clear</button>
     </div>
 
     <!-- Loading -->
@@ -96,14 +96,14 @@
 
     <!-- Error -->
     <div class="error-state" *ngIf="!loading && error">
-      <p>⚠️ {{ error }}</p>
+      <p>️ {{ error }}</p>
       <button class="btn-retry" (click)="loadLogs()">Retry</button>
     </div>
 
     <!-- Audit Log Table -->
     <div class="table-card" *ngIf="!loading && !error">
       <div class="table-empty" *ngIf="logs.length === 0">
-        <div class="empty-icon">📋</div>
+        <div class="empty-icon"></div>
         <p>No audit logs found</p>
       </div>
 

@@ -85,7 +85,7 @@ export class Reports implements OnInit {
     {
       id: 'full_hr',
       label: 'Full HR Report',
-      icon: '📋',
+      icon: '',
       description: 'Complete export — employees, payroll, leave, attendance & SARS in one file',
       category: 'Full Reports',
       requiresMonth: false,
@@ -98,7 +98,7 @@ export class Reports implements OnInit {
     {
       id: 'employee_register',
       label: 'Employee Register',
-      icon: '👥',
+      icon: '',
       description: 'Full employee list with salaries, departments, positions & tax numbers',
       category: 'Employees',
       requiresMonth: false,
@@ -109,7 +109,7 @@ export class Reports implements OnInit {
     {
       id: 'employee_headcount',
       label: 'Headcount by Department',
-      icon: '🏢',
+      icon: '',
       description: 'Employee counts per department with active/inactive breakdown',
       category: 'Employees',
       requiresMonth: false,
@@ -122,7 +122,7 @@ export class Reports implements OnInit {
     {
       id: 'payroll_summary',
       label: 'Payroll Summary',
-      icon: '💰',
+      icon: '',
       description: 'Monthly payroll totals — gross, PAYE, UIF, net pay per employee',
       category: 'Payroll',
       requiresMonth: true,
@@ -133,7 +133,7 @@ export class Reports implements OnInit {
     {
       id: 'payroll_detailed',
       label: 'Payroll Detailed Breakdown',
-      icon: '🧾',
+      icon: '',
       description: 'Full payroll detail with all earnings, deductions, and payment status',
       category: 'Payroll',
       requiresMonth: true,
@@ -144,7 +144,7 @@ export class Reports implements OnInit {
     {
       id: 'payroll_ytd',
       label: 'Payroll Year-to-Date',
-      icon: '📊',
+      icon: '',
       description: 'Cumulative payroll totals from January to selected month',
       category: 'Payroll',
       requiresMonth: true,
@@ -157,7 +157,7 @@ export class Reports implements OnInit {
     {
       id: 'attendance_monthly',
       label: 'Monthly Attendance Report',
-      icon: '🕐',
+      icon: '',
       description: 'Hours worked, overtime, late arrivals and absences per employee',
       category: 'Attendance',
       requiresMonth: true,
@@ -168,7 +168,7 @@ export class Reports implements OnInit {
     {
       id: 'attendance_range',
       label: 'Attendance by Date Range',
-      icon: '📅',
+      icon: '',
       description: 'Detailed daily clock-in/out records for a custom date range',
       category: 'Attendance',
       requiresMonth: false,
@@ -192,7 +192,7 @@ export class Reports implements OnInit {
     {
       id: 'leave_balances',
       label: 'Leave Balances',
-      icon: '🏖️',
+      icon: '️',
       description: 'Current leave balances per employee and leave type',
       category: 'Leave',
       requiresMonth: false,
@@ -203,7 +203,7 @@ export class Reports implements OnInit {
     {
       id: 'leave_taken',
       label: 'Leave Taken Report',
-      icon: '✈️',
+      icon: '️',
       description: 'All approved leave requests with dates and leave types for the year',
       category: 'Leave',
       requiresMonth: false,
@@ -216,7 +216,7 @@ export class Reports implements OnInit {
     {
       id: 'sars_emp201',
       label: 'EMP201 PAYE Report',
-      icon: '🏛️',
+      icon: '️',
       description: 'Monthly PAYE, SDL and UIF liability for SARS submission',
       category: 'SARS & Tax',
       requiresMonth: true,
@@ -227,7 +227,7 @@ export class Reports implements OnInit {
     {
       id: 'sars_tax_liability',
       label: 'Tax Liability Summary',
-      icon: '📑',
+      icon: '',
       description: 'Outstanding PAYE, UIF and SDL liabilities for the year',
       category: 'SARS & Tax',
       requiresMonth: false,

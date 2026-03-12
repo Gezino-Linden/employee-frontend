@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   template: `
     <div style="min-height:100vh;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;">
       <div style="background:white;border-radius:16px;padding:48px;max-width:480px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-        <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+        <div style="font-size:48px;margin-bottom:16px;"></div>
         <h1 style="font-size:24px;font-weight:700;color:#1e293b;margin-bottom:8px;">Feature Locked</h1>
         <p style="color:#64748b;margin-bottom:8px;">
           <strong style="color:#f59e0b;text-transform:capitalize;">{{ currentPlan }}</strong> plan does not include
@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
         <div style="background:#f1f5f9;border-radius:12px;padding:20px;margin-bottom:32px;text-align:left;">
           <p style="font-weight:600;color:#1e293b;margin-bottom:12px;">{{ requiredPlan }} includes:</p>
           <div *ngFor="let f of planFeatures" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-            <span style="color:#10b981;">✓</span>
+            <span style="color:#10b981;"></span>
             <span style="color:#475569;font-size:14px;">{{ f }}</span>
           </div>
         </div>

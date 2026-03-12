@@ -5,7 +5,7 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
-      <div class="brand-icon">🏛️</div>
+      <div class="brand-icon">️</div>
       <span class="brand-name">MaeRoll</span>
       <span class="brand-sub">/ SARS Compliance</span>
     </div>
@@ -32,21 +32,21 @@
     <!-- TOP-LEVEL TABS -->
     <div class="module-tabs">
       <button class="module-tab" [class.active]="activeTab === 'emp201'" (click)="setTab('emp201')">
-        <span class="module-tab-icon">📋</span>
+        <span class="module-tab-icon"></span>
         <div class="module-tab-text">
           <span class="module-tab-title">EMP201</span>
           <span class="module-tab-sub">PAYE, SDL & UIF</span>
         </div>
       </button>
       <button class="module-tab" [class.active]="activeTab === 'ui19'" (click)="setTab('ui19')">
-        <span class="module-tab-icon">🛡️</span>
+        <span class="module-tab-icon">️</span>
         <div class="module-tab-text">
           <span class="module-tab-title">UI-19</span>
           <span class="module-tab-sub">Monthly UIF — DoL</span>
         </div>
       </button>
       <button class="module-tab" [class.active]="activeTab === 'irp5'" (click)="setTab('irp5')">
-        <span class="module-tab-icon">📜</span>
+        <span class="module-tab-icon"></span>
         <div class="module-tab-text">
           <span class="module-tab-title">IRP5</span>
           <span class="module-tab-sub">Annual certificates</span>
@@ -61,9 +61,9 @@
 
       <div class="section-toolbar">
         <div class="inner-tabs">
-          <button class="tab" [class.tab-active]="emp201Tab === 'dashboard'" (click)="emp201Tab = 'dashboard'">📊 Dashboard</button>
-          <button class="tab" [class.tab-active]="emp201Tab === 'declarations'" (click)="emp201Tab = 'declarations'">📋 Declarations</button>
-          <button *ngIf="isManager()" class="tab" [class.tab-active]="emp201Tab === 'generate'" (click)="emp201Tab = 'generate'">⚙️ Generate</button>
+          <button class="tab" [class.tab-active]="emp201Tab === 'dashboard'" (click)="emp201Tab = 'dashboard'"> Dashboard</button>
+          <button class="tab" [class.tab-active]="emp201Tab === 'declarations'" (click)="emp201Tab = 'declarations'"> Declarations</button>
+          <button *ngIf="isManager()" class="tab" [class.tab-active]="emp201Tab === 'generate'" (click)="emp201Tab = 'generate'">️ Generate</button>
         </div>
         <div class="toolbar-right">
           <select class="form-select year-select" [(ngModel)]="emp201FilterYear" (change)="loadEmp201Summary(); loadEmp201Declarations()">
@@ -79,14 +79,14 @@
       <div *ngIf="emp201Tab === 'dashboard'">
         <div *ngIf="!emp201Loading && emp201Summary" class="kpi-grid">
           <div class="kpi-card kpi-liability">
-            <div class="kpi-icon">💰</div>
+            <div class="kpi-icon"></div>
             <div class="kpi-body">
               <div class="kpi-value">{{ formatMoney(emp201Summary.total_liability_ytd) }}</div>
               <div class="kpi-label">Total Liability YTD</div>
             </div>
           </div>
           <div class="kpi-card kpi-paid">
-            <div class="kpi-icon">✅</div>
+            <div class="kpi-icon"></div>
             <div class="kpi-body">
               <div class="kpi-value">{{ formatMoney(emp201Summary.total_paid_ytd) }}</div>
               <div class="kpi-label">Total Paid to SARS</div>
@@ -100,7 +100,7 @@
             </div>
           </div>
           <div class="kpi-card kpi-count">
-            <div class="kpi-icon">📋</div>
+            <div class="kpi-icon"></div>
             <div class="kpi-body">
               <div class="kpi-value">{{ emp201Summary.total_declarations }}</div>
               <div class="kpi-label">Declarations {{ emp201FilterYear }}</div>
@@ -117,7 +117,7 @@
         <div class="section-title">Recent Declarations</div>
         <div *ngIf="emp201DeclarationsLoading" class="loading-state"><div class="spinner"></div><p>Loading...</p></div>
         <div *ngIf="!emp201DeclarationsLoading && emp201Declarations.length === 0" class="empty-state">
-          <div class="empty-icon">📋</div>
+          <div class="empty-icon"></div>
           <h3>No declarations yet</h3>
           <p>Generate your first EMP201 from processed payroll records.</p>
           <button *ngIf="isManager()" class="btn btn-primary" (click)="emp201Tab = 'generate'">Generate EMP201</button>
@@ -133,7 +133,7 @@
             </div>
             <div class="decl-liability">{{ formatMoney(d.total_liability) }}</div>
             <div class="decl-meta">
-              <span>👥 {{ d.employee_count }} employees</span>
+              <span> {{ d.employee_count }} employees</span>
               <span *ngIf="d.due_date">{{ getDueStatus(d.due_date) }}</span>
             </div>
             <div class="decl-breakdown">
@@ -178,8 +178,8 @@
                 <td><span class="badge" [ngClass]="getPaymentClass(d.computed_payment_status || d.payment_status)">{{ d.computed_payment_status || d.payment_status }}</span></td>
                 <td>
                   <div class="row-actions" (click)="$event.stopPropagation()">
-                    <button class="icon-btn" title="View" (click)="viewEmp201(d)">👁</button>
-                    <button class="icon-btn" title="Export CSV" (click)="exportEmp201CSV(d.id)">📥</button>
+                    <button class="icon-btn" title="View" (click)="viewEmp201(d)"></button>
+                    <button class="icon-btn" title="Export CSV" (click)="exportEmp201CSV(d.id)"></button>
                   </div>
                 </td>
               </tr>
@@ -193,9 +193,9 @@
         <div class="detail-header">
           <button class="btn-back" (click)="emp201Tab = 'declarations'">← Back</button>
           <div class="detail-actions" *ngIf="isManager()">
-            <button class="btn btn-secondary" (click)="exportEmp201CSV(emp201Selected.id)">📥 Export CSV</button>
-            <button *ngIf="emp201Selected.submission_status === 'draft'" class="btn btn-info" (click)="openSubmitModal()">📤 Submit to SARS</button>
-            <button *ngIf="emp201Selected.payment_status !== 'paid'" class="btn btn-success" (click)="openPaymentModal()">💰 Record Payment</button>
+            <button class="btn btn-secondary" (click)="exportEmp201CSV(emp201Selected.id)"> Export CSV</button>
+            <button *ngIf="emp201Selected.submission_status === 'draft'" class="btn btn-info" (click)="openSubmitModal()"> Submit to SARS</button>
+            <button *ngIf="emp201Selected.payment_status !== 'paid'" class="btn btn-success" (click)="openPaymentModal()"> Record Payment</button>
           </div>
         </div>
         <div class="detail-grid">
@@ -207,7 +207,7 @@
               <span class="badge lg" [ngClass]="getSubmissionClass(emp201Selected.submission_status)">{{ emp201Selected.submission_status }}</span>
               <span class="badge lg" [ngClass]="getPaymentClass(emp201Selected.payment_status)">{{ emp201Selected.payment_status }}</span>
             </div>
-            <div class="detail-employees">👥 {{ emp201Selected.employee_count }} employees · {{ formatMoney(emp201Selected.total_remuneration) }}</div>
+            <div class="detail-employees"> {{ emp201Selected.employee_count }} employees · {{ formatMoney(emp201Selected.total_remuneration) }}</div>
           </div>
           <div class="detail-card">
             <h3 class="card-title">Tax Breakdown</h3>
@@ -273,7 +273,7 @@
       <!-- EMP201 GENERATE -->
       <div *ngIf="emp201Tab === 'generate'">
         <div class="generate-card">
-          <div class="generate-icon">⚙️</div>
+          <div class="generate-icon">️</div>
           <h2>Generate EMP201 Declaration</h2>
           <p>Auto-generates from processed or paid payroll records for the selected period.</p>
           <div class="generate-form">
@@ -290,15 +290,15 @@
             </div>
           </div>
           <div *ngIf="emp201GenMessage" class="alert alert-success">{{ emp201GenMessage }}</div>
-          <div *ngIf="emp201GenError" class="alert alert-error">❌ {{ emp201GenError }}</div>
+          <div *ngIf="emp201GenError" class="alert alert-error"> {{ emp201GenError }}</div>
           <div class="generate-info">
-            <div class="info-item">📌 Only <strong>processed</strong> or <strong>paid</strong> payroll records are included</div>
-            <div class="info-item">💡 UIF is capped at R177.12 per employee per side</div>
-            <div class="info-item">📊 SDL calculated at 1% of gross remuneration</div>
+            <div class="info-item"> Only <strong>processed</strong> or <strong>paid</strong> payroll records are included</div>
+            <div class="info-item"> UIF is capped at R177.12 per employee per side</div>
+            <div class="info-item"> SDL calculated at 1% of gross remuneration</div>
           </div>
           <button class="btn btn-primary btn-lg" [disabled]="emp201GenLoading" (click)="generateEmp201()">
             <span *ngIf="emp201GenLoading" class="spinner-sm"></span>
-            {{ emp201GenLoading ? 'Generating...' : '⚙️ Generate EMP201' }}
+            {{ emp201GenLoading ? 'Generating...' : '️ Generate EMP201' }}
           </button>
         </div>
       </div>
@@ -311,8 +311,8 @@
 
       <div class="section-toolbar">
         <div class="inner-tabs">
-          <button class="tab" [class.tab-active]="ui19Tab === 'list'" (click)="ui19Tab = 'list'">📋 Declarations</button>
-          <button *ngIf="isManager()" class="tab" [class.tab-active]="ui19Tab === 'generate'" (click)="ui19Tab = 'generate'">⚙️ Generate</button>
+          <button class="tab" [class.tab-active]="ui19Tab === 'list'" (click)="ui19Tab = 'list'"> Declarations</button>
+          <button *ngIf="isManager()" class="tab" [class.tab-active]="ui19Tab === 'generate'" (click)="ui19Tab = 'generate'">️ Generate</button>
         </div>
         <div class="toolbar-right">
           <select class="form-select year-select" [(ngModel)]="ui19FilterYear" (change)="loadUi19Declarations()">
@@ -332,7 +332,7 @@
       <div *ngIf="ui19Tab === 'list'">
         <div *ngIf="ui19Loading" class="loading-state"><div class="spinner"></div><p>Loading...</p></div>
         <div *ngIf="!ui19Loading && ui19Declarations.length === 0" class="empty-state">
-          <div class="empty-icon">🛡️</div>
+          <div class="empty-icon">️</div>
           <h3>No UI-19 declarations yet</h3>
           <button *ngIf="isManager()" class="btn btn-primary" (click)="ui19Tab = 'generate'">Generate UI-19</button>
         </div>
@@ -344,16 +344,16 @@
             </div>
             <div class="decl-liability">{{ formatMoney(d.total_uif) }}</div>
             <div class="decl-meta">
-              <span>👥 {{ d.employee_count }} employees</span>
+              <span> {{ d.employee_count }} employees</span>
             </div>
             <div class="decl-breakdown">
               <div class="breakdown-row"><span>Employee UIF</span><span>{{ formatMoney(d.total_uif_employee) }}</span></div>
               <div class="breakdown-row"><span>Employer UIF</span><span>{{ formatMoney(d.total_uif_employer) }}</span></div>
             </div>
             <div class="decl-footer-row">
-              <span *ngIf="d.submission_date" class="submitted-info">✅ {{ formatDate(d.submission_date) }}</span>
+              <span *ngIf="d.submission_date" class="submitted-info"> {{ formatDate(d.submission_date) }}</span>
               <span *ngIf="!d.submission_date" class="pending-info">⏳ Pending</span>
-              <button class="icon-btn" title="Export" (click)="$event.stopPropagation(); exportUi19CSV(d.id)">📥</button>
+              <button class="icon-btn" title="Export" (click)="$event.stopPropagation(); exportUi19CSV(d.id)"></button>
             </div>
           </div>
         </div>
@@ -364,15 +364,15 @@
         <div class="detail-header">
           <button class="btn-back" (click)="ui19Tab = 'list'">← Back</button>
           <div class="detail-actions" *ngIf="isManager()">
-            <button class="btn btn-secondary" (click)="exportUi19CSV(ui19Selected.id)">📥 Export CSV</button>
-            <button *ngIf="ui19Selected.submission_status === 'draft'" class="btn btn-primary" (click)="openUi19SubmitModal()">📤 Mark as Submitted</button>
+            <button class="btn btn-secondary" (click)="exportUi19CSV(ui19Selected.id)"> Export CSV</button>
+            <button *ngIf="ui19Selected.submission_status === 'draft'" class="btn btn-primary" (click)="openUi19SubmitModal()"> Mark as Submitted</button>
           </div>
         </div>
         <div class="summary-grid-4">
-          <div class="summary-card"><div class="summary-icon">🛡️</div><div class="summary-body"><div class="summary-value">{{ formatMoney(ui19Selected.total_uif) }}</div><div class="summary-label">Total UIF Due</div></div></div>
-          <div class="summary-card"><div class="summary-icon">👤</div><div class="summary-body"><div class="summary-value">{{ formatMoney(ui19Selected.total_uif_employee) }}</div><div class="summary-label">Employee UIF</div></div></div>
-          <div class="summary-card"><div class="summary-icon">🏢</div><div class="summary-body"><div class="summary-value">{{ formatMoney(ui19Selected.total_uif_employer) }}</div><div class="summary-label">Employer UIF</div></div></div>
-          <div class="summary-card"><div class="summary-icon">👥</div><div class="summary-body"><div class="summary-value">{{ ui19Selected.employee_count }}</div><div class="summary-label">Employees</div></div></div>
+          <div class="summary-card"><div class="summary-icon">️</div><div class="summary-body"><div class="summary-value">{{ formatMoney(ui19Selected.total_uif) }}</div><div class="summary-label">Total UIF Due</div></div></div>
+          <div class="summary-card"><div class="summary-icon"></div><div class="summary-body"><div class="summary-value">{{ formatMoney(ui19Selected.total_uif_employee) }}</div><div class="summary-label">Employee UIF</div></div></div>
+          <div class="summary-card"><div class="summary-icon"></div><div class="summary-body"><div class="summary-value">{{ formatMoney(ui19Selected.total_uif_employer) }}</div><div class="summary-label">Employer UIF</div></div></div>
+          <div class="summary-card"><div class="summary-icon"></div><div class="summary-body"><div class="summary-value">{{ ui19Selected.employee_count }}</div><div class="summary-label">Employees</div></div></div>
         </div>
         <div *ngIf="ui19DetailLoading" class="loading-state"><div class="spinner"></div></div>
         <div *ngIf="!ui19DetailLoading && ui19LineItems.length > 0" class="table-wrap">
@@ -396,9 +396,9 @@
                 </td>
                 <td>
                   <div class="row-actions">
-                    <button *ngIf="ui19EditingId !== item.id" class="icon-btn" (click)="startEditUi19LineItem(item)">✏️</button>
-                    <button *ngIf="ui19EditingId === item.id" class="icon-btn" (click)="saveUi19LineItem(item)">✅</button>
-                    <button *ngIf="ui19EditingId === item.id" class="icon-btn" (click)="ui19EditingId = null">✕</button>
+                    <button *ngIf="ui19EditingId !== item.id" class="icon-btn" (click)="startEditUi19LineItem(item)">️</button>
+                    <button *ngIf="ui19EditingId === item.id" class="icon-btn" (click)="saveUi19LineItem(item)"></button>
+                    <button *ngIf="ui19EditingId === item.id" class="icon-btn" (click)="ui19EditingId = null"></button>
                   </div>
                 </td>
               </tr>
@@ -420,7 +420,7 @@
       <!-- UI19 GENERATE -->
       <div *ngIf="ui19Tab === 'generate'">
         <div class="generate-card">
-          <div class="generate-icon">🛡️</div>
+          <div class="generate-icon">️</div>
           <h2>Generate UI-19 Declaration</h2>
           <p>Auto-generates UIF contributions from processed or paid payroll records.</p>
           <div class="generate-form">
@@ -437,14 +437,14 @@
             </div>
           </div>
           <div *ngIf="ui19GenMessage" class="alert alert-success">{{ ui19GenMessage }}</div>
-          <div *ngIf="ui19GenError" class="alert alert-error">❌ {{ ui19GenError }}</div>
+          <div *ngIf="ui19GenError" class="alert alert-error"> {{ ui19GenError }}</div>
           <div class="generate-info">
-            <div class="info-item">🛡️ UIF = 1% employee + 1% employer, capped at <strong>R177.12 each</strong></div>
-            <div class="info-item">📥 Export CSV to upload to the <strong>u-Filing DoL portal</strong></div>
+            <div class="info-item">️ UIF = 1% employee + 1% employer, capped at <strong>R177.12 each</strong></div>
+            <div class="info-item"> Export CSV to upload to the <strong>u-Filing DoL portal</strong></div>
           </div>
           <button class="btn btn-primary btn-lg" [disabled]="ui19GenLoading" (click)="generateUi19()">
             <span *ngIf="ui19GenLoading" class="spinner-sm"></span>
-            {{ ui19GenLoading ? 'Generating...' : '🛡️ Generate UI-19' }}
+            {{ ui19GenLoading ? 'Generating...' : '️ Generate UI-19' }}
           </button>
         </div>
       </div>
@@ -457,9 +457,9 @@
 
       <div class="section-toolbar">
         <div class="inner-tabs">
-          <button class="tab" [class.tab-active]="irp5Tab === 'certificates'" (click)="irp5Tab = 'certificates'">📜 Certificates</button>
-          <button class="tab" [class.tab-active]="irp5Tab === 'reconciliation'" (click)="irp5Tab = 'reconciliation'; loadIrp5Recon()">📊 IT3(a) Recon</button>
-          <button *ngIf="isManager()" class="tab" [class.tab-active]="irp5Tab === 'generate'" (click)="irp5Tab = 'generate'">⚙️ Generate</button>
+          <button class="tab" [class.tab-active]="irp5Tab === 'certificates'" (click)="irp5Tab = 'certificates'"> Certificates</button>
+          <button class="tab" [class.tab-active]="irp5Tab === 'reconciliation'" (click)="irp5Tab = 'reconciliation'; loadIrp5Recon()"> IT3(a) Recon</button>
+          <button *ngIf="isManager()" class="tab" [class.tab-active]="irp5Tab === 'generate'" (click)="irp5Tab = 'generate'">️ Generate</button>
         </div>
         <div class="toolbar-right">
           <select class="form-select year-select" [(ngModel)]="irp5TaxYear" (change)="onIrp5YearChange()">
@@ -474,16 +474,16 @@
         <div class="toolbar">
           <span class="count-label">{{ irp5Certs.length }} certificates · {{ getTaxYearLabel(irp5TaxYear) }}</span>
           <div class="toolbar-right">
-            <button *ngIf="irp5Certs.length > 0" class="btn btn-secondary" (click)="exportIrp5CSV()">📥 Export CSV (e@syFile)</button>
+            <button *ngIf="irp5Certs.length > 0" class="btn btn-secondary" (click)="exportIrp5CSV()"> Export CSV (e@syFile)</button>
             <button *ngIf="isAdmin() && irp5Certs.length > 0" class="btn btn-success" [disabled]="irp5IssueLoading" (click)="issueAllIrp5()">
-              {{ irp5IssueLoading ? 'Issuing...' : '✅ Issue All' }}
+              {{ irp5IssueLoading ? 'Issuing...' : ' Issue All' }}
             </button>
           </div>
         </div>
         <div *ngIf="irp5IssueMessage" class="alert alert-success">{{ irp5IssueMessage }}</div>
         <div *ngIf="irp5CertsLoading" class="loading-state"><div class="spinner"></div></div>
         <div *ngIf="!irp5CertsLoading && irp5Certs.length === 0" class="empty-state">
-          <div class="empty-icon">📜</div>
+          <div class="empty-icon"></div>
           <h3>No IRP5 certificates yet</h3>
           <button *ngIf="isManager()" class="btn btn-primary" (click)="irp5Tab = 'generate'">Generate IRP5</button>
         </div>
@@ -504,7 +504,7 @@
             </div>
             <div class="cert-footer">
               <span class="cert-number">{{ cert.certificate_number }}</span>
-              <button class="icon-btn" title="Print" (click)="$event.stopPropagation(); printIrp5Certificate(cert)">🖨️</button>
+              <button class="icon-btn" title="Print" (click)="$event.stopPropagation(); printIrp5Certificate(cert)">️</button>
             </div>
           </div>
         </div>
@@ -514,16 +514,16 @@
       <div *ngIf="irp5Tab === 'reconciliation'">
         <div *ngIf="irp5ReconLoading" class="loading-state"><div class="spinner"></div></div>
         <div *ngIf="!irp5ReconLoading && !irp5Recon" class="empty-state">
-          <div class="empty-icon">📊</div>
+          <div class="empty-icon"></div>
           <h3>No reconciliation for {{ irp5TaxYear }}</h3>
           <button *ngIf="isManager()" class="btn btn-primary" (click)="irp5Tab = 'generate'">Generate IRP5</button>
         </div>
         <div *ngIf="!irp5ReconLoading && irp5Recon">
           <div class="recon-grid">
-            <div class="recon-card recon-remun"><div class="recon-icon">💼</div><div class="recon-body"><div class="recon-value">{{ formatMoney(irp5Recon.total_remuneration) }}</div><div class="recon-label">Total Remuneration</div><div class="recon-code">Code 3601</div></div></div>
-            <div class="recon-card recon-paye"><div class="recon-icon">🏛️</div><div class="recon-body"><div class="recon-value">{{ formatMoney(irp5Recon.total_paye) }}</div><div class="recon-label">Total PAYE</div><div class="recon-code">Code 4101</div></div></div>
-            <div class="recon-card recon-uif"><div class="recon-icon">🛡️</div><div class="recon-body"><div class="recon-value">{{ formatMoney(+irp5Recon.total_uif_employee + +irp5Recon.total_uif_employer) }}</div><div class="recon-label">Total UIF</div><div class="recon-code">4141 + 4142</div></div></div>
-            <div class="recon-card recon-sdl"><div class="recon-icon">📚</div><div class="recon-body"><div class="recon-value">{{ formatMoney(irp5Recon.total_sdl) }}</div><div class="recon-label">Total SDL</div><div class="recon-code">Code 4149</div></div></div>
+            <div class="recon-card recon-remun"><div class="recon-icon"></div><div class="recon-body"><div class="recon-value">{{ formatMoney(irp5Recon.total_remuneration) }}</div><div class="recon-label">Total Remuneration</div><div class="recon-code">Code 3601</div></div></div>
+            <div class="recon-card recon-paye"><div class="recon-icon">️</div><div class="recon-body"><div class="recon-value">{{ formatMoney(irp5Recon.total_paye) }}</div><div class="recon-label">Total PAYE</div><div class="recon-code">Code 4101</div></div></div>
+            <div class="recon-card recon-uif"><div class="recon-icon">️</div><div class="recon-body"><div class="recon-value">{{ formatMoney(+irp5Recon.total_uif_employee + +irp5Recon.total_uif_employer) }}</div><div class="recon-label">Total UIF</div><div class="recon-code">4141 + 4142</div></div></div>
+            <div class="recon-card recon-sdl"><div class="recon-icon"></div><div class="recon-body"><div class="recon-value">{{ formatMoney(irp5Recon.total_sdl) }}</div><div class="recon-label">Total SDL</div><div class="recon-code">Code 4149</div></div></div>
           </div>
           <div class="table-wrap" style="margin-top:1.5rem">
             <table class="decl-table">
@@ -544,7 +544,7 @@
       <!-- IRP5 GENERATE -->
       <div *ngIf="irp5Tab === 'generate'">
         <div class="generate-card">
-          <div class="generate-icon">📜</div>
+          <div class="generate-icon"></div>
           <h2>Generate IRP5 Certificates</h2>
           <p>Auto-generates annual tax certificates from full-year payroll records.</p>
           <div class="form-group" style="max-width:300px; margin: 0 auto 24px;">
@@ -555,15 +555,15 @@
             </select>
           </div>
           <div *ngIf="irp5GenMessage" class="alert alert-success">{{ irp5GenMessage }}</div>
-          <div *ngIf="irp5GenError" class="alert alert-error">❌ {{ irp5GenError }}</div>
+          <div *ngIf="irp5GenError" class="alert alert-error"> {{ irp5GenError }}</div>
           <div class="generate-info">
-            <div class="info-item">📅 SA tax year runs <strong>1 March – 28/29 February</strong></div>
-            <div class="info-item">🖨️ Each certificate can be <strong>printed as PDF</strong></div>
-            <div class="info-item">📥 Export bulk <strong>CSV for SARS e@syFile</strong></div>
+            <div class="info-item"> SA tax year runs <strong>1 March – 28/29 February</strong></div>
+            <div class="info-item">️ Each certificate can be <strong>printed as PDF</strong></div>
+            <div class="info-item"> Export bulk <strong>CSV for SARS e@syFile</strong></div>
           </div>
           <button class="btn btn-primary btn-lg" [disabled]="irp5GenLoading" (click)="generateIrp5()">
             <span *ngIf="irp5GenLoading" class="spinner-sm"></span>
-            {{ irp5GenLoading ? 'Generating...' : '📜 Generate IRP5' }}
+            {{ irp5GenLoading ? 'Generating...' : ' Generate IRP5' }}
           </button>
         </div>
       </div>
@@ -575,7 +575,7 @@
 <!-- ═══ EMP201 SUBMIT MODAL ═══ -->
 <div *ngIf="showSubmitModal" class="modal-overlay" (click)="showSubmitModal = false">
   <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-header"><h3>📤 Submit to SARS</h3><button class="modal-close" (click)="showSubmitModal = false">✕</button></div>
+    <div class="modal-header"><h3> Submit to SARS</h3><button class="modal-close" (click)="showSubmitModal = false"></button></div>
     <p class="modal-desc">Record that this EMP201 has been submitted via SARS eFiling.</p>
     <div class="form-group"><label>SARS Reference Number *</label><input class="form-input" [(ngModel)]="submitReference" placeholder="e.g. REF2026020001" /></div>
     <div class="form-group"><label>Acknowledgement Number (optional)</label><input class="form-input" [(ngModel)]="submitAcknowledgement" placeholder="e.g. ACK123456" /></div>
@@ -590,14 +590,14 @@
 <!-- ═══ EMP201 PAYMENT MODAL ═══ -->
 <div *ngIf="showPaymentModal" class="modal-overlay" (click)="showPaymentModal = false">
   <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-header"><h3>💰 Record SARS Payment</h3><button class="modal-close" (click)="showPaymentModal = false">✕</button></div>
+    <div class="modal-header"><h3> Record SARS Payment</h3><button class="modal-close" (click)="showPaymentModal = false"></button></div>
     <div class="form-group"><label>Payment Date *</label><input type="date" class="form-input" [(ngModel)]="paymentDate" /></div>
     <div class="form-group"><label>Payment Reference *</label><input class="form-input" [(ngModel)]="paymentReference" placeholder="e.g. EFT-2026-002-SARS" /></div>
     <div class="form-group"><label>Amount (ZAR)</label><input type="number" class="form-input" [(ngModel)]="paymentAmount" /></div>
     <div *ngIf="paymentError" class="alert alert-error">{{ paymentError }}</div>
     <div class="modal-actions">
       <button class="btn btn-secondary" (click)="showPaymentModal = false">Cancel</button>
-      <button class="btn btn-success" [disabled]="paymentLoading || !paymentDate || !paymentReference" (click)="recordEmp201Payment()">{{ paymentLoading ? 'Recording...' : '✅ Confirm Payment' }}</button>
+      <button class="btn btn-success" [disabled]="paymentLoading || !paymentDate || !paymentReference" (click)="recordEmp201Payment()">{{ paymentLoading ? 'Recording...' : ' Confirm Payment' }}</button>
     </div>
   </div>
 </div>
@@ -605,14 +605,14 @@
 <!-- ═══ UI19 SUBMIT MODAL ═══ -->
 <div *ngIf="showUi19SubmitModal" class="modal-overlay" (click)="showUi19SubmitModal = false">
   <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-header"><h3>📤 Mark as Submitted</h3><button class="modal-close" (click)="showUi19SubmitModal = false">✕</button></div>
+    <div class="modal-header"><h3> Mark as Submitted</h3><button class="modal-close" (click)="showUi19SubmitModal = false"></button></div>
     <p class="modal-desc">Record that this UI-19 has been submitted to the Department of Labour u-Filing portal.</p>
     <div class="form-group"><label>Submission Reference *</label><input class="form-input" [(ngModel)]="ui19SubmitReference" placeholder="e.g. DOL-2026-02-001" /></div>
     <div class="form-group"><label>Notes (optional)</label><textarea class="form-input" [(ngModel)]="ui19SubmitNotes" rows="3"></textarea></div>
     <div *ngIf="ui19SubmitError" class="alert alert-error">{{ ui19SubmitError }}</div>
     <div class="modal-actions">
       <button class="btn btn-secondary" (click)="showUi19SubmitModal = false">Cancel</button>
-      <button class="btn btn-primary" [disabled]="ui19SubmitLoading || !ui19SubmitReference" (click)="submitUi19()">{{ ui19SubmitLoading ? 'Saving...' : '✅ Confirm Submission' }}</button>
+      <button class="btn btn-primary" [disabled]="ui19SubmitLoading || !ui19SubmitReference" (click)="submitUi19()">{{ ui19SubmitLoading ? 'Saving...' : ' Confirm Submission' }}</button>
     </div>
   </div>
 </div>
@@ -623,8 +623,8 @@
     <div class="modal-header">
       <div><h3>{{ irp5SelectedCert.employee_name }}</h3><p class="modal-sub">{{ irp5SelectedCert.certificate_number }} · Tax Year {{ irp5SelectedCert.tax_year }}</p></div>
       <div class="modal-header-actions">
-        <button class="btn btn-primary" (click)="printIrp5Certificate(irp5SelectedCert)">🖨️ Print PDF</button>
-        <button class="modal-close" (click)="irp5ShowModal = false">✕</button>
+        <button class="btn btn-primary" (click)="printIrp5Certificate(irp5SelectedCert)">️ Print PDF</button>
+        <button class="modal-close" (click)="irp5ShowModal = false"></button>
       </div>
     </div>
     <div class="modal-cert-grid">

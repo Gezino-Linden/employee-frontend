@@ -161,7 +161,7 @@ export class UI19 implements OnInit {
       .subscribe({
         next: (res) => {
           this.generateLoading = false;
-          this.generateMessage = `✅ UI-19 generated for ${
+          this.generateMessage = ` UI-19 generated for ${
             this.months[this.generateMonth - 1].label
           } ${this.generateYear} — Total UIF: ${this.formatMoney(res.declaration.total_uif)}`;
           this.loadDeclarations();

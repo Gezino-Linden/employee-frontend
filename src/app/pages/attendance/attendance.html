@@ -5,7 +5,7 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
-      <div class="brand-icon">🕐</div>
+      <div class="brand-icon"></div>
       <span class="brand-name">MaeRoll</span>
     </div>
     <div class="topnav-right">
@@ -31,7 +31,7 @@
     <div class="tabs-container">
       <div class="tabs">
         <button class="tab" [class.tab-active]="activeTab === 'clock'" (click)="switchTab('clock')">
-          <span>🕐</span> My Clock
+          <span></span> My Clock
         </button>
         <button
           *ngIf="isAdmin()"
@@ -39,7 +39,7 @@
           [class.tab-active]="activeTab === 'today'"
           (click)="switchTab('today')"
         >
-          <span>📋</span> Today
+          <span></span> Today
         </button>
         <button
           *ngIf="isAdmin()"
@@ -47,7 +47,7 @@
           [class.tab-active]="activeTab === 'monthly'"
           (click)="switchTab('monthly')"
         >
-          <span>📊</span> Monthly Report
+          <span></span> Monthly Report
         </button>
         <button
           *ngIf="isAdmin()"
@@ -55,7 +55,7 @@
           [class.tab-active]="activeTab === 'override'"
           (click)="switchTab('override')"
         >
-          <span>✏️</span> Admin Override
+          <span>️</span> Admin Override
         </button>
       </div>
     </div>
@@ -76,14 +76,14 @@
           <h3>Not Clocked In</h3>
           <p>You haven't clocked in today yet.</p>
           <button class="btn-clock btn-clock-in" (click)="clockIn()" [disabled]="actionLoading">
-            {{ actionLoading ? 'Processing...' : '🟢 Clock In' }}
+            {{ actionLoading ? 'Processing...' : ' Clock In' }}
           </button>
         </div>
 
         <!-- Clocked in / on break -->
         <div *ngIf="isClockedIn() || isOnBreak()" class="clock-state">
           <div class="state-icon" [class.on-break]="isOnBreak()">
-            {{ isOnBreak() ? '☕' : '✅' }}
+            {{ isOnBreak() ? '' : '' }}
           </div>
           <h3>{{ isOnBreak() ? 'On Break' : 'Clocked In' }}</h3>
           <div class="time-row">
@@ -108,7 +108,7 @@
               (click)="startBreak()"
               [disabled]="actionLoading"
             >
-              ☕ Start Break
+               Start Break
             </button>
             <button
               *ngIf="isOnBreak()"
@@ -116,14 +116,14 @@
               (click)="endBreak()"
               [disabled]="actionLoading"
             >
-              💪 End Break
+               End Break
             </button>
             <button
               class="btn-clock btn-clock-out"
               (click)="clockOut()"
               [disabled]="actionLoading || isOnBreak()"
             >
-              🔴 Clock Out
+               Clock Out
             </button>
           </div>
 
@@ -132,7 +132,7 @@
 
         <!-- Clocked out -->
         <div *ngIf="isClockedOut()" class="clock-state">
-          <div class="state-icon done">✅</div>
+          <div class="state-icon done"></div>
           <h3>Day Complete</h3>
           <div class="time-row">
             <div class="time-item">
@@ -192,11 +192,11 @@
         <div class="att-summary-grid" *ngIf="summary">
           <div class="att-stat present">
             <span class="att-stat-value">{{ summary.present }}</span>
-            <span class="att-stat-label">✅ Present</span>
+            <span class="att-stat-label"> Present</span>
           </div>
           <div class="att-stat absent">
             <span class="att-stat-value">{{ summary.absent }}</span>
-            <span class="att-stat-label">❌ Absent</span>
+            <span class="att-stat-label"> Absent</span>
           </div>
           <div class="att-stat late">
             <span class="att-stat-value">{{ summary.late }}</span>
@@ -204,7 +204,7 @@
           </div>
           <div class="att-stat clocked">
             <span class="att-stat-value">{{ summary.currently_clocked_in }}</span>
-            <span class="att-stat-label">🟢 Active Now</span>
+            <span class="att-stat-label"> Active Now</span>
           </div>
           <div class="att-stat hours">
             <span class="att-stat-value">{{ formatHours(summary.total_hours_worked) }}</span>
@@ -212,7 +212,7 @@
           </div>
           <div class="att-stat cost">
             <span class="att-stat-value">{{ formatMoney(summary.total_daily_cost) }}</span>
-            <span class="att-stat-label">💰 Daily Cost</span>
+            <span class="att-stat-label"> Daily Cost</span>
           </div>
         </div>
       </div>
@@ -226,7 +226,7 @@
         <div *ngIf="recordsLoading" class="loading">Loading...</div>
 
         <div *ngIf="!recordsLoading && records.length === 0" class="empty" style="padding: 2rem">
-          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-icon"></div>
           <h3>No records for this date</h3>
           <p>Employees haven't clocked in yet or no data exists for this date.</p>
         </div>
@@ -302,7 +302,7 @@
               (click)="loadMonthlyReport()"
               [disabled]="reportLoading"
             >
-              {{ reportLoading ? 'Loading...' : '🔍 Generate' }}
+              {{ reportLoading ? 'Loading...' : ' Generate' }}
             </button>
           </div>
         </div>
@@ -314,7 +314,7 @@
           class="empty"
           style="padding: 2rem"
         >
-          <div class="empty-state-icon">📊</div>
+          <div class="empty-state-icon"></div>
           <h3>No data</h3>
           <p>Select a period and click Generate to view the report.</p>
         </div>
@@ -457,13 +457,13 @@
 
           <div class="form-actions">
             <button class="btn btn-primary" (click)="submitOverride()" [disabled]="overrideLoading">
-              {{ overrideLoading ? 'Saving...' : '💾 Save Attendance' }}
+              {{ overrideLoading ? 'Saving...' : ' Save Attendance' }}
             </button>
           </div>
 
           <div
             *ngIf="overrideMessage"
-            [class]="overrideMessage.startsWith('❌') ? 'initialize-error' : 'initialize-success'"
+            [class]="overrideMessage.startsWith('') ? 'initialize-error' : 'initialize-success'"
             style="margin-top: 1rem"
           >
             {{ overrideMessage }}

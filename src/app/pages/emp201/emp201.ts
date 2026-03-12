@@ -231,7 +231,7 @@ export class EMP201 implements OnInit {
       .subscribe({
         next: (res) => {
           this.generateLoading = false;
-          this.generateMessage = `✅ EMP201 generated for ${
+          this.generateMessage = ` EMP201 generated for ${
             this.months[this.generateMonth - 1].label
           } ${this.generateYear} — Total liability: ${this.formatMoney(
             res.declaration.total_liability

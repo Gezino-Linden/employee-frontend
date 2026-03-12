@@ -16,7 +16,7 @@
     <div class="form-group">
       <label>Work Email</label>
       <div class="input-wrap">
-        <span class="input-icon">✉</span>
+        <span class="input-icon"></span>
         <input type="email" [(ngModel)]="email" class="form-input"
           placeholder="you@hotel.co.za" (keyup.enter)="login()" />
       </div>
@@ -25,12 +25,12 @@
     <div class="form-group">
       <label>Password</label>
       <div class="input-wrap">
-        <span class="input-icon">🔒</span>
+        <span class="input-icon"></span>
         <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="password"
           class="form-input" placeholder="Your password"
           (keyup.enter)="login()" />
         <button class="toggle-pass" (click)="showPass = !showPass" type="button">
-          {{ showPass ? '👁' : '👁‍🗨' }}
+          {{ showPass ? '' : '‍' }}
         </button>
       </div>
     </div>

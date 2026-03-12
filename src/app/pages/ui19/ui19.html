@@ -5,7 +5,7 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
-      <div class="brand-icon">🛡️</div>
+      <div class="brand-icon">️</div>
       <span class="brand-name">MaeRoll</span>
       <span class="brand-sub">/ UI-19</span>
     </div>
@@ -42,10 +42,10 @@
     <!-- TABS -->
     <div class="tabs">
       <button class="tab" [class.active]="activeTab === 'list'" (click)="activeTab = 'list'">
-        📋 Declarations
+         Declarations
       </button>
       <button *ngIf="isManager()" class="tab" [class.active]="activeTab === 'generate'" (click)="activeTab = 'generate'">
-        ⚙️ Generate
+        ️ Generate
       </button>
     </div>
 
@@ -65,7 +65,7 @@
       </div>
 
       <div *ngIf="!loadingDeclarations && declarations.length === 0" class="empty-state">
-        <div class="empty-icon">🛡️</div>
+        <div class="empty-icon">️</div>
         <h3>No UI-19 declarations yet</h3>
         <p>Generate your first UI-19 from processed payroll records.</p>
         <button *ngIf="isManager()" class="btn btn-primary" (click)="activeTab = 'generate'">Generate UI-19</button>
@@ -83,28 +83,28 @@
 
           <div class="decl-stats">
             <div class="stat">
-              <span class="stat-label">👥 Employees</span>
+              <span class="stat-label"> Employees</span>
               <span class="stat-value">{{ d.employee_count }}</span>
             </div>
             <div class="stat">
-              <span class="stat-label">💼 Employee UIF</span>
+              <span class="stat-label"> Employee UIF</span>
               <span class="stat-value">{{ formatMoney(d.total_uif_employee) }}</span>
             </div>
             <div class="stat">
-              <span class="stat-label">🏢 Employer UIF</span>
+              <span class="stat-label"> Employer UIF</span>
               <span class="stat-value">{{ formatMoney(d.total_uif_employer) }}</span>
             </div>
           </div>
 
           <div class="decl-footer">
             <span *ngIf="d.submission_date" class="submitted-info">
-              ✅ Submitted {{ formatDate(d.submission_date) }}
+               Submitted {{ formatDate(d.submission_date) }}
             </span>
             <span *ngIf="!d.submission_date" class="pending-info">
               ⏳ Pending submission
             </span>
             <div class="card-actions" (click)="$event.stopPropagation()">
-              <button class="icon-btn" title="Export CSV" (click)="exportCSV(d.id)">📥</button>
+              <button class="icon-btn" title="Export CSV" (click)="exportCSV(d.id)"></button>
             </div>
           </div>
         </div>
@@ -117,40 +117,40 @@
       <div class="detail-header">
         <button class="btn-back" (click)="activeTab = 'list'">← Back</button>
         <div class="detail-actions" *ngIf="isManager()">
-          <button class="btn btn-secondary" (click)="exportCSV(selectedDeclaration.id)">📥 Export CSV</button>
+          <button class="btn btn-secondary" (click)="exportCSV(selectedDeclaration.id)"> Export CSV</button>
           <button
             *ngIf="selectedDeclaration.submission_status === 'draft'"
             class="btn btn-primary"
             (click)="openSubmitModal()">
-            📤 Mark as Submitted
+             Mark as Submitted
           </button>
         </div>
       </div>
 
       <div class="summary-grid">
         <div class="summary-card card-teal">
-          <div class="summary-icon">🛡️</div>
+          <div class="summary-icon">️</div>
           <div class="summary-body">
             <div class="summary-value">{{ formatMoney(selectedDeclaration.total_uif) }}</div>
             <div class="summary-label">Total UIF Due</div>
           </div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon">👤</div>
+          <div class="summary-icon"></div>
           <div class="summary-body">
             <div class="summary-value">{{ formatMoney(selectedDeclaration.total_uif_employee) }}</div>
             <div class="summary-label">Employee Contributions</div>
           </div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon">🏢</div>
+          <div class="summary-icon"></div>
           <div class="summary-body">
             <div class="summary-value">{{ formatMoney(selectedDeclaration.total_uif_employer) }}</div>
             <div class="summary-label">Employer Contributions</div>
           </div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon">👥</div>
+          <div class="summary-icon"></div>
           <div class="summary-body">
             <div class="summary-value">{{ selectedDeclaration.employee_count }}</div>
             <div class="summary-label">Employees</div>
@@ -159,13 +159,13 @@
       </div>
 
       <div *ngIf="selectedDeclaration.submission_status === 'submitted'" class="submission-banner">
-        ✅ Submitted to Department of Labour on {{ formatDate(selectedDeclaration.submission_date) }}
+         Submitted to Department of Labour on {{ formatDate(selectedDeclaration.submission_date) }}
         <span *ngIf="selectedDeclaration.submission_reference"> · Ref: <strong>{{ selectedDeclaration.submission_reference }}</strong></span>
       </div>
 
       <div class="section-header">
         <h3 class="section-title">Employee UIF Breakdown</h3>
-        <p class="section-sub">Click the ✏️ icon to add/edit a UIF number for an employee</p>
+        <p class="section-sub">Click the ️ icon to add/edit a UIF number for an employee</p>
       </div>
 
       <div *ngIf="loadingDetail" class="loading-state"><div class="spinner"></div></div>
@@ -210,11 +210,11 @@
               <td>
                 <div class="row-actions">
                   <button *ngIf="editingLineItemId !== item.id"
-                    class="icon-btn" title="Edit" (click)="startEditLineItem(item)">✏️</button>
+                    class="icon-btn" title="Edit" (click)="startEditLineItem(item)">️</button>
                   <button *ngIf="editingLineItemId === item.id"
-                    class="icon-btn save-btn" title="Save" (click)="saveLineItem(item)">✅</button>
+                    class="icon-btn save-btn" title="Save" (click)="saveLineItem(item)"></button>
                   <button *ngIf="editingLineItemId === item.id"
-                    class="icon-btn" title="Cancel" (click)="editingLineItemId = null">✕</button>
+                    class="icon-btn" title="Cancel" (click)="editingLineItemId = null"></button>
                 </div>
               </td>
             </tr>
@@ -236,7 +236,7 @@
     <!-- ==================== GENERATE TAB ==================== -->
     <div *ngIf="activeTab === 'generate'">
       <div class="generate-card">
-        <div class="generate-icon">🛡️</div>
+        <div class="generate-icon">️</div>
         <h2>Generate UI-19 Declaration</h2>
         <p>Auto-generates UIF contributions from processed or paid payroll records.</p>
 
@@ -257,18 +257,18 @@
         </div>
 
         <div *ngIf="generateMessage" class="alert alert-success">{{ generateMessage }}</div>
-        <div *ngIf="generateError" class="alert alert-error">❌ {{ generateError }}</div>
+        <div *ngIf="generateError" class="alert alert-error"> {{ generateError }}</div>
 
         <div class="generate-info">
-          <div class="info-item">🛡️ UIF = 1% employee + 1% employer, capped at <strong>R177.12 each</strong></div>
-          <div class="info-item">📌 Only <strong>processed</strong> or <strong>paid</strong> payroll records included</div>
-          <div class="info-item">🔄 Re-generating an existing period will recalculate all amounts</div>
-          <div class="info-item">📥 Export CSV to upload to the <strong>u-Filing DoL portal</strong></div>
+          <div class="info-item">️ UIF = 1% employee + 1% employer, capped at <strong>R177.12 each</strong></div>
+          <div class="info-item"> Only <strong>processed</strong> or <strong>paid</strong> payroll records included</div>
+          <div class="info-item"> Re-generating an existing period will recalculate all amounts</div>
+          <div class="info-item"> Export CSV to upload to the <strong>u-Filing DoL portal</strong></div>
         </div>
 
         <button class="btn btn-primary btn-lg" [disabled]="generateLoading" (click)="generate()">
           <span *ngIf="generateLoading" class="spinner-sm"></span>
-          {{ generateLoading ? 'Generating...' : '🛡️ Generate UI-19' }}
+          {{ generateLoading ? 'Generating...' : '️ Generate UI-19' }}
         </button>
       </div>
     </div>
@@ -280,8 +280,8 @@
 <div *ngIf="showSubmitModal" class="modal-overlay" (click)="showSubmitModal = false">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>📤 Mark as Submitted</h3>
-      <button class="modal-close" (click)="showSubmitModal = false">✕</button>
+      <h3> Mark as Submitted</h3>
+      <button class="modal-close" (click)="showSubmitModal = false"></button>
     </div>
     <p class="modal-desc">Record that this UI-19 has been submitted to the Department of Labour u-Filing portal.</p>
     <div class="form-group">
@@ -296,7 +296,7 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" (click)="showSubmitModal = false">Cancel</button>
       <button class="btn btn-primary" [disabled]="submitLoading || !submitReference" (click)="submitDeclaration()">
-        {{ submitLoading ? 'Saving...' : '✅ Confirm Submission' }}
+        {{ submitLoading ? 'Saving...' : ' Confirm Submission' }}
       </button>
     </div>
   </div>

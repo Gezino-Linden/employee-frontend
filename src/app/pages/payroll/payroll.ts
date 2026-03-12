@@ -208,11 +208,11 @@ export class Payroll implements OnInit {
 
   getStatusIcon(status: string): string {
     const map: any = {
-      draft: 'ðŸ“',
-      processed: 'âœ“',
-      paid: 'ðŸ’°',
+      draft: '',
+      processed: '',
+      paid: '',
     };
-    return map[status] || 'â€¢';
+    return map[status] || '';
   }
 
   formatMoney(amount: number | null | undefined): string {

@@ -5,7 +5,7 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="topnav-brand">
-      <div class="brand-icon">🗓️</div>
+      <div class="brand-icon">️</div>
       <span class="brand-name">MaeRoll</span>
       <span class="brand-sub">/ Shifts</span>
     </div>
@@ -32,22 +32,22 @@
     <!-- TABS -->
     <div class="tab-bar">
       <button class="tab-btn" [class.active]="activeTab === 'templates'" (click)="setTab('templates')">
-        <span>🧩</span> Templates
+        <span></span> Templates
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'assign'" (click)="setTab('assign')">
-        <span>👤</span> Assign Shifts
+        <span></span> Assign Shifts
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'calendar'" (click)="setTab('calendar')">
-        <span>📅</span> Weekly Calendar
+        <span></span> Weekly Calendar
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'swaps'" (click)="setTab('swaps')">
-        <span>🔄</span> Swap Requests
+        <span></span> Swap Requests
       </button>
     </div>
 
     <!-- ALERTS -->
-    <div *ngIf="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
-    <div *ngIf="errorMsg"   class="alert alert-error">❌ {{ errorMsg }}</div>
+    <div *ngIf="successMsg" class="alert alert-success"> {{ successMsg }}</div>
+    <div *ngIf="errorMsg"   class="alert alert-error"> {{ errorMsg }}</div>
 
     <!-- ══════════════════════════════════════════ -->
     <!-- TAB: TEMPLATES                            -->
@@ -57,7 +57,7 @@
       <div class="section-toolbar">
         <span class="section-count">{{ templates.length }} templates</span>
         <button class="btn btn-primary" (click)="showCreateTemplate = !showCreateTemplate">
-          {{ showCreateTemplate ? '✕ Cancel' : '+ New Template' }}
+          {{ showCreateTemplate ? ' Cancel' : '+ New Template' }}
         </button>
       </div>
 
@@ -138,22 +138,22 @@
             <div class="template-info">
               <h3>{{ t.name }}</h3>
               <span class="template-code">{{ t.code }}</span>
-              <span *ngIf="t.is_night_shift" class="badge badge-purple">🌙 Night</span>
+              <span *ngIf="t.is_night_shift" class="badge badge-purple"> Night</span>
             </div>
-            <button *ngIf="isAdmin()" class="btn-icon btn-danger" (click)="deleteTemplate(t.id)" title="Delete">🗑️</button>
+            <button *ngIf="isAdmin()" class="btn-icon btn-danger" (click)="deleteTemplate(t.id)" title="Delete">️</button>
           </div>
           <div class="template-details">
-            <div class="detail-item">🕐 {{ formatTime(t.start_time) }} – {{ formatTime(t.end_time) }}</div>
+            <div class="detail-item"> {{ formatTime(t.start_time) }} – {{ formatTime(t.end_time) }}</div>
             <div class="detail-item">⏱️ {{ t.duration_hours }}h</div>
-            <div class="detail-item" *ngIf="t.department">🏢 {{ t.department }}</div>
-            <div class="detail-item">👥 {{ t.min_staff }}–{{ t.max_staff }} staff</div>
-            <div class="detail-item">💰 {{ t.base_rate_multiplier }}x rate</div>
+            <div class="detail-item" *ngIf="t.department"> {{ t.department }}</div>
+            <div class="detail-item"> {{ t.min_staff }}–{{ t.max_staff }} staff</div>
+            <div class="detail-item"> {{ t.base_rate_multiplier }}x rate</div>
           </div>
           <div *ngIf="t.notes" class="template-notes">{{ t.notes }}</div>
         </div>
 
         <div *ngIf="templates.length === 0" class="empty-state">
-          <div class="empty-icon">🧩</div>
+          <div class="empty-icon"></div>
           <p>No shift templates yet</p>
           <button class="btn btn-primary" (click)="showCreateTemplate = true">Create your first template</button>
         </div>
@@ -233,7 +233,7 @@
             </div>
             <div class="shift-row-right">
               <span class="badge" [class]="getStatusClass(s.status)">{{ s.status }}</span>
-              <button *ngIf="isAdmin()" class="btn-icon btn-danger" (click)="deleteShift(s.id)">🗑️</button>
+              <button *ngIf="isAdmin()" class="btn-icon btn-danger" (click)="deleteShift(s.id)">️</button>
             </div>
           </div>
         </div>
@@ -248,7 +248,7 @@
 
       <div class="calendar-toolbar">
         <button class="btn btn-ghost" (click)="prevWeek()">← Prev</button>
-        <span class="week-label">📅 {{ getWeekLabel() }}</span>
+        <span class="week-label"> {{ getWeekLabel() }}</span>
         <button class="btn btn-ghost" (click)="nextWeek()">Next →</button>
       </div>
 
@@ -287,7 +287,7 @@
       </div>
 
       <div *ngIf="!loadingSwaps && swapRequests.length === 0" class="empty-state">
-        <div class="empty-icon">🔄</div>
+        <div class="empty-icon"></div>
         <p>No swap requests at the moment</p>
       </div>
 
@@ -302,13 +302,13 @@
             <span class="badge" [class]="getStatusClass(swap.status)">{{ swap.status }}</span>
           </div>
           <div class="swap-details">
-            <div class="swap-date">📅 {{ swap.requester_shift_date | date:'mediumDate' }} → {{ swap.target_shift_date | date:'mediumDate' }}</div>
-            <div class="swap-reason" *ngIf="swap.reason">💬 {{ swap.reason }}</div>
+            <div class="swap-date"> {{ swap.requester_shift_date | date:'mediumDate' }} → {{ swap.target_shift_date | date:'mediumDate' }}</div>
+            <div class="swap-reason" *ngIf="swap.reason"> {{ swap.reason }}</div>
             <div class="swap-created">Requested {{ swap.created_at | date:'short' }}</div>
           </div>
           <div *ngIf="swap.status === 'pending' && isAdmin()" class="swap-actions">
-            <button class="btn btn-success-sm" (click)="approveSwap(swap.id)">✓ Approve</button>
-            <button class="btn btn-danger-sm" (click)="rejectSwap(swap.id)">✗ Reject</button>
+            <button class="btn btn-success-sm" (click)="approveSwap(swap.id)"> Approve</button>
+            <button class="btn btn-danger-sm" (click)="rejectSwap(swap.id)"> Reject</button>
           </div>
         </div>
       </div>

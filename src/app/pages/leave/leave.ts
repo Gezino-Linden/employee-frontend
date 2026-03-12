@@ -407,22 +407,22 @@ export class Leave implements OnInit {
 
   getLeaveTypeIcon(leaveType: string): string {
     const icons: { [key: string]: string } = {
-      'Annual Leave': '🏖️',
-      'Sick Leave': '🏥',
-      'Personal Leave': '🏠',
-      'Remote Work': '💻',
-      'Casual Leave': '🌴',
-      'Maternity Leave': '👶',
-      'Paternity Leave': '👨‍👩‍👧',
-      'Bereavement Leave': '🕯️',
-      'Unpaid Leave': '💸',
-      'Study Leave': '📚',
-      'Compassionate Leave': '💜',
-      'Emergency Leave': '🚨',
-      'Marriage Leave': '💍',
-      'Relocation Leave': '🚚',
+      'Annual Leave': '️',
+      'Sick Leave': '',
+      'Personal Leave': '',
+      'Remote Work': '',
+      'Casual Leave': '',
+      'Maternity Leave': '',
+      'Paternity Leave': '‍‍',
+      'Bereavement Leave': '️',
+      'Unpaid Leave': '',
+      'Study Leave': '',
+      'Compassionate Leave': '',
+      'Emergency Leave': '',
+      'Marriage Leave': '',
+      'Relocation Leave': '',
     };
-    return icons[leaveType] || '📅';
+    return icons[leaveType] || '';
   }
 
   getRelativeTime(date: string | Date | undefined | null): string {
@@ -468,7 +468,7 @@ export class Leave implements OnInit {
     return map[status] || '';
   }
   getStatusIcon(status: string): string {
-    const map: any = { pending: '⏳', approved: '✔', rejected: '✕', cancelled: '🚫' };
+    const map: any = { pending: '⏳', approved: '', rejected: '', cancelled: '' };
     return map[status] || '•';
   }
 

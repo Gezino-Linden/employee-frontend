@@ -29,14 +29,14 @@
       </div>
       <div class="quick-stats" *ngIf="balances.length > 0">
         <div class="stat-pill">
-          <div class="stat-icon purple">📅</div>
+          <div class="stat-icon purple"></div>
           <div class="stat-info">
             <span class="stat-value">{{ getTotalAvailable() }}</span>
             <span class="stat-label">Days Available</span>
           </div>
         </div>
         <div class="stat-pill">
-          <div class="stat-icon green">✓</div>
+          <div class="stat-icon green"></div>
           <div class="stat-info">
             <span class="stat-value">{{ getTotalUsed() }}</span>
             <span class="stat-label">Used This Year</span>
@@ -56,21 +56,21 @@
     <div class="tabs-container">
       <div class="tabs">
         <button class="tab" [class.tab-active]="activeTab === 'request'" (click)="switchTab('request')">
-          <span>📝</span> Request
+          <span></span> Request
         </button>
         <button class="tab" [class.tab-active]="activeTab === 'my-requests'" (click)="switchTab('my-requests')">
-          <span>📋</span> My Requests
+          <span></span> My Requests
         </button>
         <button *ngIf="isManager()" class="tab" [class.tab-active]="activeTab === 'approvals'" (click)="switchTab('approvals')">
-          <span>✓</span> Approvals
+          <span></span> Approvals
           <span *ngIf="approvalTotal > 0" class="badge">{{ approvalTotal }}</span>
         </button>
         <button class="tab" [class.tab-active]="activeTab === 'balance'" (click)="switchTab('balance')">
-          <span>📊</span> Balance
+          <span></span> Balance
         </button>
         <!-- ANALYTICS TAB ADDED HERE -->
         <button class="tab" [class.tab-active]="activeTab === 'analytics'" (click)="switchTab('analytics')">
-          <span>📈</span> Analytics
+          <span></span> Analytics
         </button>
       </div>
     </div>
@@ -83,10 +83,10 @@
         </div>
 
         <div *ngIf="submitSuccess" class="alert alert-success">
-          <span>✓</span> {{ submitSuccess }}
+          <span></span> {{ submitSuccess }}
         </div>
         <div *ngIf="submitError" class="alert alert-error">
-          <span>⚠</span> {{ submitError }}
+          <span></span> {{ submitError }}
         </div>
 
         <!-- Balance Preview -->
@@ -165,11 +165,11 @@
 
         <div *ngIf="loadingMyRequests" class="loading">Loading your requests...</div>
         <div *ngIf="myRequestsError" class="alert alert-error">
-          <span>⚠</span> {{ myRequestsError }}
+          <span></span> {{ myRequestsError }}
         </div>
 
         <div *ngIf="!loadingMyRequests && myRequests.length === 0" class="empty">
-          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-icon"></div>
           <h3>No requests found</h3>
           <p>Submit your first leave request to see it here.</p>
         </div>
@@ -235,11 +235,11 @@
 
         <div *ngIf="loadingApprovals" class="loading">Loading approvals...</div>
         <div *ngIf="approvalsError" class="alert alert-error">
-          <span>⚠</span> {{ approvalsError }}
+          <span></span> {{ approvalsError }}
         </div>
 
         <div *ngIf="!loadingApprovals && approvalRequests.length === 0" class="empty">
-          <div class="empty-state-icon">✓</div>
+          <div class="empty-state-icon"></div>
           <h3>No pending approvals</h3>
           <p>All caught up! Check back later for new requests.</p>
         </div>
@@ -248,7 +248,7 @@
           <div *ngFor="let req of approvalRequests" class="request-card pending">
             <div class="request-header">
               <div class="leave-type">
-                <div class="type-icon" style="background: var(--info-bg);">👤</div>
+                <div class="type-icon" style="background: var(--info-bg);"></div>
                 <div class="type-info">
                   <h3 class="employee-name">{{ req.first_name }} {{ req.last_name }}</h3>
                   <span>{{ req.leave_type }}</span>
@@ -271,8 +271,8 @@
                 <span>Requested {{ getRelativeTime(req.created_at) }}</span>
               </div>
               <div class="request-actions">
-                <button class="btn btn-success btn-sm" (click)="openReviewModal(req, 'approve')">✓ Approve</button>
-                <button class="btn btn-danger btn-sm" (click)="openReviewModal(req, 'reject')">✕ Reject</button>
+                <button class="btn btn-success btn-sm" (click)="openReviewModal(req, 'approve')"> Approve</button>
+                <button class="btn btn-danger btn-sm" (click)="openReviewModal(req, 'reject')"> Reject</button>
               </div>
             </div>
           </div>
@@ -301,7 +301,7 @@
         <div *ngIf="loadingBalances" class="loading">Loading balances...</div>
 
         <div *ngIf="!loadingBalances && balances.length === 0" class="empty">
-          <div class="empty-state-icon">📊</div>
+          <div class="empty-state-icon"></div>
           <h3>No balance data for this year</h3>
           <p>Contact HR to set up your leave allocations.</p>
         </div>
@@ -356,7 +356,7 @@
           <!-- KPI Cards Row -->
           <div class="kpi-row">
             <div class="kpi-card">
-              <div class="kpi-icon purple">📋</div>
+              <div class="kpi-icon purple"></div>
               <div class="kpi-info">
                 <span class="kpi-value">{{ analyticsData.totalRequests }}</span>
                 <span class="kpi-label">Total Requests</span>
@@ -367,7 +367,7 @@
             </div>
 
             <div class="kpi-card">
-              <div class="kpi-icon green">✓</div>
+              <div class="kpi-icon green"></div>
               <div class="kpi-info">
                 <span class="kpi-value">{{ analyticsData.approvedRequests }}</span>
                 <span class="kpi-label">Approved</span>
@@ -387,7 +387,7 @@
             </div>
 
             <div class="kpi-card">
-              <div class="kpi-icon red">✕</div>
+              <div class="kpi-icon red"></div>
               <div class="kpi-info">
                 <span class="kpi-value">{{ analyticsData.rejectedRequests }}</span>
                 <span class="kpi-label">Rejected</span>
@@ -538,7 +538,7 @@
       <textarea [(ngModel)]="reviewNotes" rows="3" class="form-textarea" placeholder="Add any comments..."></textarea>
     </div>
     <div *ngIf="reviewError" class="alert alert-error" style="margin-top: 16px;">
-      <span>⚠</span> {{ reviewError }}
+      <span></span> {{ reviewError }}
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" (click)="closeReviewModal()">Cancel</button>
