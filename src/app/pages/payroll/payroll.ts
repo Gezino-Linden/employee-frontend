@@ -265,6 +265,18 @@ export class Payroll implements OnInit {
       });
   }
 
+  processedCount(): number { return this.payrollRecords.filter(r => r.status === 'processed').length; }
+  payAllProcessed() {
+    const processed = this.payrollRecords.filter(r => r.status === 'processed');
+    if (!processed.length) return;
+    const today = new Date().toISOString().split('T')[0];
+    let done = 0;
+    processed.forEach(r => {
+      this.payrollService.markAsPaid(r.id, { payment_method: 'bank_transfer', payment_date: today })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({ next: () => { done++; if (done === processed.length) this.loadPayrollData(); } });
+    });
+  }
   openPaymentModal(record: PayrollRecord) {
     this.selectedPayroll = record;
     this.showPaymentModal = true;
@@ -331,4 +343,5 @@ export class Payroll implements OnInit {
     return this.me?.role === 'admin' || this.me?.role === 'manager';
   }
 }
+
 
