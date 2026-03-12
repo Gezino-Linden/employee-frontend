@@ -184,6 +184,8 @@ export interface RevenueAnalytics {
     total_revenue: string;
     rooms_revenue: string;
     fb_revenue: string;
+    spa_revenue: string;
+    events_revenue: string;
     other_revenue: string;
     avg_occupancy: string;
     days_recorded: number;
@@ -268,5 +270,6 @@ export class AnalyticsService {
     return this.http.get(`${this.baseUrl}/export`, { params });
   }
 }
+
 
 

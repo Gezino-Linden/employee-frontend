@@ -364,7 +364,7 @@
                   <!-- Benchmark zone -->
                   <div class="rev-benchmark-zone"></div>
                   <!-- Labour % bar -->
-                  <div class="rev-labour-bar" *ngIf="(+m.labour_pct) > 0"
+                  <div class="rev-labour-bar" *ngIf="(+m.labour_pct) > 0">
                     [style.height]="(+m.labour_pct) + '%'"
                     [style.background]="getLabourFlagColor(m.flag)"
                     
@@ -437,6 +437,9 @@
     </div>
   </div>
 </div>
+
+
+
 
 
 
