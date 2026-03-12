@@ -141,9 +141,10 @@
 .rev-month-grid{display:flex;gap:12px;align-items:flex-end;height:200px;padding:8px 0;}
 .rev-month-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;}
 .rev-month-name{font-size:10px;color:#94a3b8;font-weight:600;margin-bottom:6px;}
-.rev-bar-track{flex:1;width:100%;background:rgba(255,255,255,0.04);border-radius:6px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;}
+.rev-bar-track{flex:1;width:100%;background:rgba(255,255,255,0.04);border-radius:6px;position:relative;}
 .rev-benchmark-zone{position:absolute;bottom:28%;height:7%;width:100%;background:rgba(99,102,241,0.15);border-top:1px dashed rgba(99,102,241,0.4);border-bottom:1px dashed rgba(99,102,241,0.4);}
-.rev-labour-bar{width:100%;border-radius:6px 6px 0 0;transition:height 0.8s ease;min-height:4px;}
+.rev-labour-bar{position:absolute;bottom:0;left:0;width:100%;border-radius:6px 6px 0 0;transition:height 0.8s ease;min-height:4px;}
 .rev-pct{font-size:11px;font-weight:700;margin-top:4px;}
 .rev-rev{font-size:9px;color:#475569;margin-top:2px;text-align:center;}
+
 
