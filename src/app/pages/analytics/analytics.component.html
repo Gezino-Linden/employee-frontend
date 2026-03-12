@@ -444,7 +444,7 @@
           </div>
         </div>
         <div class="daily-chart-wrap">
-          <div class="daily-bar-chart" *ngIf="revenueData?.dailyRevenue?.length > 0">
+          <div class="daily-bar-chart" *ngIf="revenueData && revenueData.dailyRevenue && revenueData.dailyRevenue.length > 0">
             <div class="daily-col" *ngFor="let d of revenueData.dailyRevenue"
                  [class.weekend]="d.day_name==='Saturday' || d.day_name==='Sunday'"
                  [title]="d.revenue_date + ' (' + d.day_name + ') — R' + fmt(d.total_revenue)">
@@ -463,6 +463,7 @@
     </div>
   </div>
 </div>
+
 
 
 
