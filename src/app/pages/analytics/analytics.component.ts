@@ -1,10 +1,9 @@
-﻿// File: src/app/pages/analytics/analytics.component.ts
-import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+﻿import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AnalyticsService, DashboardOverview, PayrollAnalytics, LeaveAnalytics, AttendanceAnalytics, HRInsights } from '../../services/analytics.service';
+import { AnalyticsService, DashboardOverview, PayrollAnalytics, LeaveAnalytics, AttendanceAnalytics, HRInsights, RevenueAnalytics } from '../../services/analytics.service';
 
 export interface DeptInsight {
   department: string; headcount: number; totalGross: number; avgSalary: number;
@@ -17,40 +16,51 @@ export interface DeptInsight {
 export class AnalyticsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   selectedYear = 2026; selectedMonth = 2; years = [2024,2025,2026];
-  activeTab: 'overview'|'payroll'|'leave'|'attendance'|'insights' = 'overview';
-  dashboardData: DashboardOverview|null=null; payrollData: PayrollAnalytics|null=null;
-  leaveData: LeaveAnalytics|null=null; attendanceData: AttendanceAnalytics|null=null; hrData: HRInsights|null=null;
-  loading=false; error:string|null=null; payrollLoading=false; leaveLoading=false; attendanceLoading=false; insightsLoading=false;
+  activeTab: 'overview'|'payroll'|'leave'|'attendance'|'insights'|'revenue' = 'overview';
+  dashboardData: DashboardOverview|null=null;
+  payrollData: PayrollAnalytics|null=null;
+  leaveData: LeaveAnalytics|null=null;
+  attendanceData: AttendanceAnalytics|null=null;
+  hrData: HRInsights|null=null;
+  revenueData: RevenueAnalytics|null=null;
+  loading=false; error:string|null=null;
+  payrollLoading=false; leaveLoading=false; attendanceLoading=false; insightsLoading=false; revenueLoading=false;
   deptInsights: DeptInsight[]=[];
   months=[{value:1,label:'January'},{value:2,label:'February'},{value:3,label:'March'},{value:4,label:'April'},{value:5,label:'May'},{value:6,label:'June'},{value:7,label:'July'},{value:8,label:'August'},{value:9,label:'September'},{value:10,label:'October'},{value:11,label:'November'},{value:12,label:'December'}];
   constructor(private analyticsService: AnalyticsService) {}
   ngOnInit() { this.loadDashboard(); }
+
   loadDashboard() {
     this.loading=true; this.error=null;
-    this.analyticsService.getDashboardOverview(this.selectedMonth,this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
+    this.analyticsService.getDashboardOverview(this.selectedYear, this.selectedMonth).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next:(d)=>{this.dashboardData=d;this.loading=false;}, error:()=>{this.error='Failed to load analytics';this.loading=false;} });
   }
   loadPayroll() {
     if(this.payrollData)return; this.payrollLoading=true;
-    this.analyticsService.getPayrollAnalytics(this.selectedMonth,this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
+    this.analyticsService.getPayrollAnalytics(this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next:(d)=>{this.payrollData=d;this.payrollLoading=false;}, error:()=>{this.payrollLoading=false;} });
   }
   loadLeave() {
     if(this.leaveData)return; this.leaveLoading=true;
-    this.analyticsService.getLeaveAnalytics(this.selectedMonth,this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
+    this.analyticsService.getLeaveAnalytics(this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next:(d)=>{this.leaveData=d;this.leaveLoading=false;}, error:()=>{this.leaveLoading=false;} });
   }
   loadAttendance() {
     if(this.attendanceData)return; this.attendanceLoading=true;
-    this.analyticsService.getAttendanceAnalytics(this.selectedMonth,this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
+    this.analyticsService.getAttendanceAnalytics(this.selectedYear, this.selectedMonth).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next:(d)=>{this.attendanceData=d;this.attendanceLoading=false;}, error:()=>{this.attendanceLoading=false;} });
   }
+  loadRevenue() {
+    if(this.revenueData)return; this.revenueLoading=true;
+    this.analyticsService.getRevenueAnalytics(this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next:(d)=>{this.revenueData=d;this.revenueLoading=false;}, error:()=>{this.revenueLoading=false;} });
+  }
   loadInsights() {
-    if(this.deptInsights.length&&this.hrData)return; this.insightsLoading=true;
-    this.analyticsService.getPayrollAnalytics(this.selectedMonth,this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
+    this.insightsLoading=true;
+    this.analyticsService.getPayrollAnalytics(this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next:(payroll)=>{
         this.payrollData=payroll;
-        this.analyticsService.getHRInsights(this.selectedMonth,this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
+        this.analyticsService.getHRInsights().pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({ next:(hr)=>{this.hrData=hr;this.buildDeptInsights(payroll,hr);this.insightsLoading=false;}, error:()=>{this.insightsLoading=false;} });
       }, error:()=>{this.insightsLoading=false;} });
   }
@@ -74,15 +84,17 @@ export class AnalyticsComponent implements OnInit {
       return {department:dept.department,headcount:dept.employee_count,totalGross:totalG,avgSalary:avgS,payrollShare:share,costPerHead,flag,flagLabel,flagDetail};
     });
   }
-  setTab(tab:'overview'|'payroll'|'leave'|'attendance'|'insights'){
+  setTab(tab:'overview'|'payroll'|'leave'|'attendance'|'insights'|'revenue'){
     this.activeTab=tab;
     if(tab==='payroll')this.loadPayroll();
     if(tab==='leave')this.loadLeave();
     if(tab==='attendance')this.loadAttendance();
     if(tab==='insights')this.loadInsights();
+    if(tab==='revenue')this.loadRevenue();
   }
   onPeriodChange(){
-    this.dashboardData=null;this.payrollData=null;this.leaveData=null;this.attendanceData=null;this.hrData=null;this.deptInsights=[];
+    this.dashboardData=null;this.payrollData=null;this.leaveData=null;this.attendanceData=null;
+    this.hrData=null;this.deptInsights=[];this.revenueData=null;
     this.loadDashboard(); if(this.activeTab!=='overview')this.setTab(this.activeTab);
   }
   fmt(val:string|number):string{const n=typeof val==='string'?parseFloat(val):val;if(isNaN(n))return 'R 0';return 'R '+n.toLocaleString('en-ZA',{minimumFractionDigits:0,maximumFractionDigits:0});}
@@ -95,9 +107,11 @@ export class AnalyticsComponent implements OnInit {
   getDeptColor(i:number):string{return['#10b981','#6366f1','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#ec4899','#14b8a6'][i%8];}
   getFlagColor(flag:string):string{if(flag==='high-cost')return '#ef4444';if(flag==='overstaffed')return '#f59e0b';if(flag==='lean')return '#10b981';return '#6366f1';}
   getFlagBg(flag:string):string{if(flag==='high-cost')return 'rgba(239,68,68,0.08)';if(flag==='overstaffed')return 'rgba(245,158,11,0.08)';if(flag==='lean')return 'rgba(16,185,129,0.08)';return 'rgba(15,23,42,0.9)';}
+  getLabourFlagColor(flag:string):string{if(flag==='danger')return '#ef4444';if(flag==='warning')return '#f59e0b';return '#10b981';}
+  revBarWidth(val:string,arr:any[],key:string):number{const vals=arr.map(d=>parseFloat(d[key]||'0'));const max=Math.max(...vals);const v=parseFloat(val);return max===0?0:Math.round((v/max)*100);}
   totalPayroll():number{return this.deptInsights.reduce((s,d)=>s+d.totalGross,0);}
   alertCount():number{return this.deptInsights.filter(d=>d.flag==='high-cost'||d.flag==='overstaffed').length;}
-  genderMale():number{return this.hrData?.genderDistribution?.find(g=>g.gender==='Male')?.count||0;}
-  genderFemale():number{return this.hrData?.genderDistribution?.find(g=>g.gender==='Female')?.count||0;}
-  ageBarWidth(count:number):number{if(!this.hrData?.ageDistribution?.length)return 0;const max=Math.max(...this.hrData.ageDistribution.map(a=>a.count));return max===0?0:Math.round((count/max)*100);}
+  genderMale():number{return this.hrData?.genderDistribution?.find((g:any)=>g.gender==='Male')?.count||0;}
+  genderFemale():number{return this.hrData?.genderDistribution?.find((g:any)=>g.gender==='Female')?.count||0;}
+  ageBarWidth(count:number):number{if(!this.hrData?.ageDistribution?.length)return 0;const max=Math.max(...(this.hrData.ageDistribution as any[]).map((a:any)=>a.count));return max===0?0:Math.round((count/max)*100);}
 }

@@ -1,4 +1,4 @@
-// File: src/app/services/analytics.service.ts
+﻿// File: src/app/services/analytics.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -177,6 +177,30 @@ export interface HRInsights {
   };
 }
 
+
+export interface RevenueAnalytics {
+  monthlyData: Array<{
+    month: number;
+    total_revenue: string;
+    rooms_revenue: string;
+    fb_revenue: string;
+    other_revenue: string;
+    avg_occupancy: string;
+    days_recorded: number;
+    labour_cost: string;
+    headcount: number;
+    labour_pct: string;
+    revenue_per_employee: string;
+    flag: 'good'|'warning'|'danger';
+  }>;
+  summary: {
+    total_revenue: string;
+    total_labour_cost: string;
+    overall_labour_pct: string;
+    benchmark_min: string;
+    benchmark_max: string;
+  };
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -216,6 +240,11 @@ export class AnalyticsService {
   }
 
   // Get HR insights
+  getRevenueAnalytics(year: number): Observable<RevenueAnalytics> {
+    const params = { year: year.toString() };
+    return this.http.get<RevenueAnalytics>(`${this.baseUrl}/revenue`, { params });
+  }
+
   getHRInsights(): Observable<HRInsights> {
     return this.http.get<HRInsights>(`${this.baseUrl}/hr-insights`);
   }
@@ -239,3 +268,5 @@ export class AnalyticsService {
     return this.http.get(`${this.baseUrl}/export`, { params });
   }
 }
+
+

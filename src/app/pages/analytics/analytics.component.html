@@ -15,6 +15,7 @@
         <button class="tab-btn" [class.active]="activeTab==='leave'"      (click)="setTab('leave')">Leave</button>
         <button class="tab-btn" [class.active]="activeTab==='attendance'" (click)="setTab('attendance')">Attendance</button>
         <button class="tab-btn insights-tab" [class.active]="activeTab==='insights'" (click)="setTab('insights')">🧠 Insights</button>
+      <button class="tab-btn" [class.active]="activeTab==='revenue'" (click)="setTab('revenue')">📈 Revenue</button>
       </div>
       <div class="period-row">
         <select class="period-select" [(ngModel)]="selectedMonth" (change)="onPeriodChange()">
@@ -105,7 +106,7 @@
             </div>
           </div>
         </div>
-        <div class="charts-row" *ngIf="payrollData.monthlyTrend?.length">
+        <div class="charts-row" *ngIf="payrollData.monthlyTrend.length">
           <div class="chart-card full">
             <div class="chart-title">MONTHLY TREND</div>
             <div class="trend-chart">
@@ -116,7 +117,7 @@
             </div>
           </div>
         </div>
-        <div class="charts-row" *ngIf="payrollData.positionBreakdown?.length">
+        <div class="charts-row" *ngIf="payrollData.positionBreakdown.length">
           <div class="chart-card full">
             <div class="chart-title">TOP POSITIONS BY SALARY</div>
             <div class="position-table">
@@ -134,19 +135,65 @@
     <div *ngIf="activeTab==='leave'">
       <div *ngIf="leaveLoading" class="loading-state"><div class="spinner"></div><span>Loading leave data...</span></div>
       <div *ngIf="!leaveLoading && leaveData">
+
+        <!-- Approval stats cards -->
+        <div class="summary-cards" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+          <div class="summary-card indigo"><div class="card-label">TOTAL REQUESTS</div><div class="card-value">{{ leaveData.approvalStats.total_requests }}</div><div class="card-sub">Year to date</div></div>
+          <div class="summary-card green"><div class="card-label">APPROVED</div><div class="card-value">{{ leaveData.approvalStats.approved }}</div><div class="card-sub">{{ leaveData.approvalStats.approval_rate }}% approval rate</div></div>
+          <div class="summary-card amber"><div class="card-label">PENDING</div><div class="card-value">{{ leaveData.approvalStats.pending }}</div><div class="card-sub">Awaiting decision</div></div>
+          <div class="summary-card red"><div class="card-label">REJECTED</div><div class="card-value">{{ leaveData.approvalStats.rejected }}</div><div class="card-sub">This year</div></div>
+          <div class="summary-card teal"><div class="card-label">MONTHS TRACKED</div><div class="card-value">{{ leaveData.monthlyLeave.length }}</div><div class="card-sub">{{ selectedYear }}</div></div>
+        </div>
+
         <div class="charts-row">
-          <div class="chart-card full">
-            <div class="chart-title">LEAVE USAGE BY TYPE</div>
-            <div class="dept-bars" *ngIf="leaveData.leaveTypes?.length; else noLeave">
+          <!-- Leave by type -->
+          <div class="chart-card wide">
+            <div class="chart-title">LEAVE BY TYPE</div>
+            <div class="dept-bars" *ngIf="leaveData.leaveTypes.length; else noLeave">
               <div class="dept-bar-row" *ngFor="let lt of leaveData.leaveTypes; let i = index">
                 <div class="dept-name">{{ lt.leave_type }}</div>
                 <div class="dept-track"><div class="dept-fill" [style.width]="getBarWidth(lt.total_days, leaveData.leaveTypes, 'total_days') + '%'" [style.background]="getDeptColor(i)"></div></div>
-                <div class="dept-meta"><span class="dm-primary">{{ lt.total_days | number:'1.1-1' }} days</span><span class="dm-secondary">{{ lt.request_count }} requests</span></div>
+                <div class="dept-meta">
+                  <span class="dm-primary">{{ lt.total_days | number:'1.0-0' }} days</span>
+                  <span class="dm-secondary">{{ lt.request_count }} requests</span>
+                  <span class="dm-secondary">{{ lt.approved_count }} approved</span>
+                </div>
               </div>
             </div>
             <ng-template #noLeave><div class="empty-state">No leave data for selected period</div></ng-template>
           </div>
+
+          <!-- Monthly trend -->
+          <div class="chart-card narrow">
+            <div class="chart-title">MONTHLY TREND</div>
+            <div class="dept-bars" *ngIf="leaveData.monthlyLeave.length">
+              <div class="dept-bar-row" *ngFor="let m of leaveData.monthlyLeave; let i = index">
+                <div class="dept-name">{{ months[m.month-1]?.label?.substring(0,3) }}</div>
+                <div class="dept-track"><div class="dept-fill" [style.width]="getBarWidth(m.total_days, leaveData.monthlyLeave, 'total_days') + '%'" [style.background]="getDeptColor(i)"></div></div>
+                <div class="dept-meta"><span class="dm-primary">{{ m.total_days | number:'1.0-0' }} days</span><span class="dm-secondary">{{ m.request_count }} req</span></div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Leave by department -->
+        <div class="charts-row" *ngIf="leaveData.departmentLeave.length">
+          <div class="chart-card full">
+            <div class="chart-title">LEAVE BY DEPARTMENT</div>
+            <div class="dept-bars">
+              <div class="dept-bar-row" *ngFor="let dept of leaveData.departmentLeave; let i = index">
+                <div class="dept-name">{{ dept.department }}</div>
+                <div class="dept-track"><div class="dept-fill" [style.width]="getBarWidth(dept.total_days, leaveData.departmentLeave, 'total_days') + '%'" [style.background]="getDeptColor(i)"></div></div>
+                <div class="dept-meta">
+                  <span class="dm-primary">{{ dept.total_days | number:'1.0-0' }} days</span>
+                  <span class="dm-secondary">{{ dept.request_count }} requests</span>
+                  <span class="dm-secondary">{{ dept.unique_employees }} employees affected</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -154,19 +201,73 @@
     <div *ngIf="activeTab==='attendance'">
       <div *ngIf="attendanceLoading" class="loading-state"><div class="spinner"></div><span>Loading attendance...</span></div>
       <div *ngIf="!attendanceLoading && attendanceData">
+
+        <!-- Overtime summary cards -->
+        <div class="summary-cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="summary-card teal"><div class="card-label">TOTAL OVERTIME HRS</div><div class="card-value">{{ attendanceData.overtimeStats.total_overtime_hours }}</div><div class="card-sub">This period</div></div>
+          <div class="summary-card amber"><div class="card-label">EMPLOYEES WITH OT</div><div class="card-value">{{ attendanceData.overtimeStats.employees_with_overtime }}</div><div class="card-sub">Avg {{ (+attendanceData.overtimeStats.avg_overtime_per_employee).toFixed(1) }} hrs each</div></div>
+          <div class="summary-card indigo"><div class="card-label">OVERTIME PAY</div><div class="card-value">{{ fmtDec(attendanceData.overtimeStats.total_overtime_pay) }}</div><div class="card-sub">Total cost</div></div>
+          <div class="summary-card blue"><div class="card-label">WORKING DAYS</div><div class="card-value">{{ attendanceData.dailyAttendance.length }}</div><div class="card-sub">Days with records</div></div>
+        </div>
+
         <div class="charts-row">
-          <div class="chart-card full">
+          <!-- Dept attendance -->
+          <div class="chart-card wide">
             <div class="chart-title">ATTENDANCE BY DEPARTMENT</div>
-            <div class="dept-bars" *ngIf="attendanceData.departmentBreakdown?.length; else noAtt">
-              <div class="dept-bar-row" *ngFor="let dept of attendanceData.departmentBreakdown; let i = index">
+            <div class="dept-bars" *ngIf="attendanceData.departmentAttendance.length; else noAtt">
+              <div class="dept-bar-row" *ngFor="let dept of attendanceData.departmentAttendance; let i = index">
                 <div class="dept-name">{{ dept.department }}</div>
-                <div class="dept-track"><div class="dept-fill" [style.width]="dept.attendance_rate + '%'" [style.background]="dept.attendance_rate >= 90 ? '#10b981' : dept.attendance_rate >= 75 ? '#f59e0b' : '#ef4444'"></div></div>
-                <div class="dept-meta"><span class="dm-primary">{{ dept.attendance_rate }}%</span><span class="dm-secondary">{{ dept.present_count }} present</span><span class="dm-secondary">{{ dept.avg_hours | number:'1.1-1' }} hrs</span></div>
+                <div class="dept-track"><div class="dept-fill" [style.width]="(+dept.attendance_rate) + '%'" [style.background]="(+dept.attendance_rate) >= 95 ? '#10b981' : (+dept.attendance_rate) >= 85 ? '#f59e0b' : '#ef4444'"></div></div>
+                <div class="dept-meta">
+                  <span class="dm-primary">{{ dept.attendance_rate }}%</span>
+                  <span class="dm-secondary">{{ dept.present_count }} present</span>
+                  <span class="dm-secondary">{{ dept.late_count }} late</span>
+                  <span class="dm-secondary">{{ dept.total_records }} total shifts</span>
+                </div>
               </div>
             </div>
             <ng-template #noAtt><div class="empty-state">No attendance data for this period</div></ng-template>
           </div>
+
+          <!-- Late arrivals -->
+          <div class="chart-card narrow">
+            <div class="chart-title">LATE ARRIVALS</div>
+            <div class="late-list" *ngIf="attendanceData.lateArrivals.length; else noLate">
+              <div class="late-row" *ngFor="let l of attendanceData.lateArrivals">
+                <div class="late-date">{{ l.date | date:'d MMM' }}</div>
+                <div class="late-bar-wrap">
+                  <div class="late-bar" [style.width]="(l.late_count / 5 * 100) + '%'"></div>
+                </div>
+                <div class="late-meta"><span class="late-count">{{ l.late_count }}</span><span class="late-mins">~{{ (+l.avg_late_minutes).toFixed(0) }}min</span></div>
+              </div>
+            </div>
+            <ng-template #noLate><div class="empty-state">No late arrivals</div></ng-template>
+          </div>
         </div>
+
+        <!-- Daily attendance trend -->
+        <div class="charts-row" *ngIf="attendanceData.dailyAttendance.length">
+          <div class="chart-card full">
+            <div class="chart-title">DAILY ATTENDANCE TREND</div>
+            <div class="daily-trend">
+              <div class="daily-col" *ngFor="let day of attendanceData.dailyAttendance">
+                <div class="daily-bar-wrap">
+                  <div class="daily-tip">{{ day.date | date:'d MMM' }}: {{ day.present }}/{{ day.total_records }}</div>
+                  <div class="daily-bar-absent"  [style.height]="(day.absent / day.total_records * 100) + '%'"></div>
+                  <div class="daily-bar-late"    [style.height]="(day.late / day.total_records * 100) + '%'"></div>
+                  <div class="daily-bar-present" [style.height]="(day.present / day.total_records * 100) + '%'"></div>
+                </div>
+                <div class="daily-label">{{ day.date | date:'d' }}</div>
+              </div>
+            </div>
+            <div class="daily-legend">
+              <span><span class="dot" style="background:#10b981"></span>Present</span>
+              <span><span class="dot" style="background:#f59e0b"></span>Late</span>
+              <span><span class="dot" style="background:#ef4444"></span>Absent</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -223,6 +324,119 @@
       </div>
       <div *ngIf="!insightsLoading && !deptInsights.length" class="empty-state">No insights data available</div>
     </div>
+    <!-- REVENUE -->
+    <div *ngIf="activeTab==='revenue'">
+      <div *ngIf="revenueLoading" class="loading-state"><div class="spinner"></div><span>Loading revenue data...</span></div>
+      <div *ngIf="!revenueLoading && revenueData">
 
+        <!-- Summary cards -->
+        <div class="summary-cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="summary-card indigo">
+            <div class="card-label">TOTAL REVENUE {{ selectedYear }}</div>
+            <div class="card-value" style="font-size:18px;">{{ fmt(revenueData.summary.total_revenue) }}</div>
+            <div class="card-sub">{{ revenueData.monthlyData.length }} months recorded</div>
+          </div>
+          <div class="summary-card red">
+            <div class="card-label">TOTAL LABOUR COST</div>
+            <div class="card-value" style="font-size:18px;">{{ fmt(revenueData.summary.total_labour_cost) }}</div>
+            <div class="card-sub">{{ revenueData.summary.overall_labour_pct }}% of revenue</div>
+          </div>
+          <div class="summary-card amber">
+            <div class="card-label">INDUSTRY BENCHMARK</div>
+            <div class="card-value">{{ revenueData.summary.benchmark_min }}–{{ revenueData.summary.benchmark_max }}%</div>
+            <div class="card-sub">Labour cost as % of revenue</div>
+          </div>
+          <div class="summary-card" [class.red]="(+revenueData.summary.overall_labour_pct) > 40" [class.amber]="(+revenueData.summary.overall_labour_pct) <= 40 && (+revenueData.summary.overall_labour_pct) > 32" [class.green]="(+revenueData.summary.overall_labour_pct) <= 32">
+            <div class="card-label">YOUR LABOUR RATIO</div>
+            <div class="card-value">{{ revenueData.summary.overall_labour_pct }}%</div>
+            <div class="card-sub">{{ (+revenueData.summary.overall_labour_pct) > 40 ? '🔴 Significantly above benchmark' : (+revenueData.summary.overall_labour_pct) > 32 ? '⚡ Slightly above benchmark' : '✅ Within benchmark' }}</div>
+          </div>
+        </div>
+
+        <!-- Monthly labour % vs benchmark -->
+        <div class="charts-row">
+          <div class="chart-card full">
+            <div class="chart-title">MONTHLY LABOUR COST AS % OF REVENUE <span style="color:#64748b;font-size:10px;margin-left:8px;">BENCHMARK: 28–35%</span></div>
+            <div class="rev-month-grid">
+              <div class="rev-month-col" *ngFor="let m of revenueData.monthlyData">
+                <div class="rev-month-name">{{ months[m.month-1]?.label?.substring(0,3) }}</div>
+                <div class="rev-bar-track">
+                  <!-- Benchmark zone -->
+                  <div class="rev-benchmark-zone"></div>
+                  <!-- Labour % bar -->
+                  <div class="rev-labour-bar" *ngIf="(+m.labour_pct) > 0"
+                    [style.height]="(+m.labour_pct) + '%'"
+                    [style.background]="getLabourFlagColor(m.flag)"
+                    
+                  </div>
+                </div>
+                <div class="rev-pct" [style.color]="getLabourFlagColor(m.flag)">{{ m.labour_pct }}%</div>
+                <div class="rev-rev">{{ fmt(m.total_revenue) }}</div>
+              </div>
+            </div>
+            <!-- Legend -->
+            <div class="daily-legend" style="margin-top:12px;">
+              <span><span class="dot" style="background:#10b981"></span>Good (≤32%)</span>
+              <span><span class="dot" style="background:#f59e0b"></span>Warning (32–40%)</span>
+              <span><span class="dot" style="background:#ef4444"></span>Danger (&gt;40%)</span>
+              <span><span class="dot" style="background:rgba(99,102,241,0.2);border:1px solid #6366f1"></span>Benchmark zone</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue breakdown + Occupancy -->
+        <div class="charts-row">
+          <div class="chart-card wide">
+            <div class="chart-title">REVENUE BY STREAM</div>
+            <div class="dept-bars">
+              <div class="dept-bar-row" *ngFor="let m of revenueData.monthlyData">
+                <div class="dept-name">{{ months[m.month-1]?.label?.substring(0,3) }}</div>
+                <div class="dept-track">
+                  <div class="dept-fill" [style.width]="revBarWidth(m.total_revenue, revenueData.monthlyData, 'total_revenue') + '%'" style="background:#6366f1"></div>
+                </div>
+                <div class="dept-meta">
+                  <span class="dm-primary">{{ fmt(m.total_revenue) }}</span>
+                  <span class="dm-secondary">Rooms {{ fmt(m.rooms_revenue) }}</span>
+                  <span class="dm-secondary">F&B {{ fmt(m.fb_revenue) }}</span>
+                  <span class="dm-secondary">{{ m.days_recorded }} days</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card narrow">
+            <div class="chart-title">AVG OCCUPANCY RATE</div>
+            <div class="dept-bars">
+              <div class="dept-bar-row" *ngFor="let m of revenueData.monthlyData; let i=index">
+                <div class="dept-name">{{ months[m.month-1]?.label?.substring(0,3) }}</div>
+                <div class="dept-track">
+                  <div class="dept-fill" [style.width]="m.avg_occupancy + '%'" [style.background]="(+m.avg_occupancy)>=70?'#10b981':(+m.avg_occupancy)>=50?'#f59e0b':'#ef4444'"></div>
+                </div>
+                <div class="dept-meta">
+                  <span class="dm-primary">{{ m.avg_occupancy }}%</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-title" style="margin-top:20px;">REVENUE PER EMPLOYEE</div>
+            <div class="dept-bars">
+              <div class="dept-bar-row" *ngFor="let m of revenueData.monthlyData; let i=index">
+                <div class="dept-name">{{ months[m.month-1]?.label?.substring(0,3) }}</div>
+                <div class="dept-track">
+                  <div class="dept-fill" [style.width]="revBarWidth(m.revenue_per_employee, revenueData.monthlyData, 'revenue_per_employee') + '%'" [style.background]="getDeptColor(i)"></div>
+                </div>
+                <div class="dept-meta">
+                  <span class="dm-primary">{{ fmt(m.revenue_per_employee) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div *ngIf="!revenueLoading && !revenueData" class="empty-state">No revenue data available</div>
+    </div>
   </div>
 </div>
+
+
+

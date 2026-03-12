@@ -113,3 +113,37 @@
 @keyframes spin{to{transform:rotate(360deg);}}
 .error-state{padding:24px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;color:#fca5a5;font-size:14px;}
 .empty-state{text-align:center;padding:40px;color:#475569;font-size:14px;}
+
+/* ── LATE ARRIVALS ── */
+.late-list{display:flex;flex-direction:column;gap:10px;}
+.late-row{display:flex;align-items:center;gap:8px;}
+.late-date{font-size:11px;color:#94a3b8;width:44px;flex-shrink:0;}
+.late-bar-wrap{flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+.late-bar{height:100%;background:#f59e0b;border-radius:4px;transition:width 0.6s ease;}
+.late-meta{display:flex;gap:6px;align-items:center;}
+.late-count{font-size:12px;font-weight:700;color:#f1f5f9;width:16px;}
+.late-mins{font-size:10px;color:#64748b;}
+
+/* ── DAILY TREND ── */
+.daily-trend{display:flex;align-items:flex-end;gap:4px;height:120px;margin-bottom:8px;}
+.daily-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;gap:4px;position:relative;}
+.daily-col:hover .daily-tip{opacity:1;}
+.daily-bar-wrap{flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.daily-bar-present{width:100%;background:#10b981;min-height:2px;transition:height 0.6s ease;}
+.daily-bar-late{width:100%;background:#f59e0b;min-height:0;}
+.daily-bar-absent{width:100%;background:#ef4444;min-height:0;}
+.daily-tip{position:absolute;bottom:calc(100% + 6px);background:#1e293b;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:3px 7px;font-size:10px;color:#f1f5f9;white-space:nowrap;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:10;}
+.daily-label{font-size:9px;color:#475569;font-weight:600;}
+.daily-legend{display:flex;gap:16px;justify-content:center;font-size:11px;color:#64748b;margin-top:8px;}
+.daily-legend span{display:flex;align-items:center;gap:6px;}
+
+/* ── REVENUE TAB ── */
+.rev-month-grid{display:flex;gap:12px;align-items:flex-end;height:200px;padding:8px 0;}
+.rev-month-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;}
+.rev-month-name{font-size:10px;color:#94a3b8;font-weight:600;margin-bottom:6px;}
+.rev-bar-track{flex:1;width:100%;background:rgba(255,255,255,0.04);border-radius:6px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;}
+.rev-benchmark-zone{position:absolute;bottom:28%;height:7%;width:100%;background:rgba(99,102,241,0.15);border-top:1px dashed rgba(99,102,241,0.4);border-bottom:1px dashed rgba(99,102,241,0.4);}
+.rev-labour-bar{width:100%;border-radius:6px 6px 0 0;transition:height 0.8s ease;min-height:4px;}
+.rev-pct{font-size:11px;font-weight:700;margin-top:4px;}
+.rev-rev{font-size:9px;color:#475569;margin-top:2px;text-align:center;}
+
