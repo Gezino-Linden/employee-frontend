@@ -1,4 +1,5 @@
 ﻿import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -49,6 +50,12 @@ export class AnalyticsComponent implements OnInit {
     this.analyticsService.getAttendanceAnalytics(this.selectedYear, this.selectedMonth).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next:(d)=>{this.attendanceData=d;this.attendanceLoading=false;}, error:()=>{this.attendanceLoading=false;} });
   }
+  loadTips() {
+    if(this.tipsData) return;
+    this.tipsLoading=true;
+    this.analyticsService.getTipsAnalytics().pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next:(d)=>{this.tipsData=d;this.tipsLoading=false;}, error:()=>{this.tipsLoading=false;} });
+  }
   loadRevenue() {
     if(this.revenueData)return; this.revenueLoading=true;
     this.analyticsService.getRevenueAnalytics(this.selectedYear).pipe(takeUntilDestroyed(this.destroyRef))
@@ -91,6 +98,7 @@ export class AnalyticsComponent implements OnInit {
     if(tab==='attendance')this.loadAttendance();
     if(tab==='insights')this.loadInsights();
     if(tab==='revenue')this.loadRevenue();
+    if(tab==='tips')this.loadTips();
   }
   onPeriodChange(){
     this.dashboardData=null;this.payrollData=null;this.leaveData=null;this.attendanceData=null;

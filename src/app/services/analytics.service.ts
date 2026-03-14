@@ -283,10 +283,9 @@ export class AnalyticsService {
 
     return this.http.get(`${this.baseUrl}/export`, { params });
   }
+
+  getTipsAnalytics(): Observable<any> {
+    const params = new HttpParams().set('_t', Date.now().toString());
+    return this.http.get<any>(this.baseUrl + '/tips', { params });
+  }
 }
-
-
-
-
-
-
