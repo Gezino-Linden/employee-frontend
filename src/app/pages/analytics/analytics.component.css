@@ -175,3 +175,9 @@
 
 
 
+.tips-bar{background:linear-gradient(180deg,#fbbf24,#f59e0b)!important;}
+.tips-table{width:100%;border-collapse:collapse;margin-top:10px;}
+.tips-table th{font-size:11px;font-weight:700;color:#64748b;letter-spacing:0.05em;padding:8px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);}
+.tips-table td{font-size:13px;color:#f1f5f9;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.tips-table tr:hover td{background:rgba(255,255,255,0.03);}
+.tips-amount{color:#fbbf24;font-weight:600;}

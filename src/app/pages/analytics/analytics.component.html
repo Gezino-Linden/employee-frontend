@@ -16,6 +16,7 @@
         <button class="tab-btn" [class.active]="activeTab==='attendance'" (click)="setTab('attendance')">Attendance</button>
         <button class="tab-btn insights-tab" [class.active]="activeTab==='insights'" (click)="setTab('insights')"> Insights</button>
       <button class="tab-btn" [class.active]="activeTab==='revenue'" (click)="setTab('revenue')"> Revenue</button>
+      <button class="tab-btn" [class.active]="activeTab==='tips'" (click)="setTab('tips')">Tips</button>
       </div>
       <div class="period-row">
         <select class="period-select" [(ngModel)]="selectedMonth" (change)="onPeriodChange()">
@@ -463,16 +464,76 @@
     </div>
   </div>
 </div>
+    <!-- TIPS TAB -->
+    <div *ngIf="activeTab==='tips'">
+      <div *ngIf="tipsLoading" class="loading-state">Loading tips data...</div>
+      <div *ngIf="!tipsLoading && tipsData">
 
+        <!-- Stat Cards -->
+        <div class="dm-stats-row">
+          <div class="dm-stat-card">
+            <div class="dm-stat-label">TOTAL TIPS (ALL TIME)</div>
+            <div class="dm-stat-value">{{ fmtDec(tipsData.totals?.total_tips) }}</div>
+            <div class="dm-stat-sub">{{ tipsData.monthlyTrend?.length }} months recorded</div>
+          </div>
+          <div class="dm-stat-card">
+            <div class="dm-stat-label">AVERAGE MONTHLY</div>
+            <div class="dm-stat-value">{{ fmtDec(tipsData.totals?.avg_monthly) }}</div>
+            <div class="dm-stat-sub">Per tip pool</div>
+          </div>
+          <div class="dm-stat-card highlight">
+            <div class="dm-stat-label">BEST MONTH</div>
+            <div class="dm-stat-value">{{ fmtDec(tipsData.topMonth?.best_month) }}</div>
+            <div class="dm-stat-sub">{{ tipsData.topMonth?.best_month_label }}</div>
+          </div>
+          <div class="dm-stat-card">
+            <div class="dm-stat-label">RECIPIENTS</div>
+            <div class="dm-stat-value">{{ tipsData.recipientCount }}</div>
+            <div class="dm-stat-sub">Food &amp; Beverage staff</div>
+          </div>
+        </div>
 
+        <!-- Monthly Trend -->
+        <div class="chart-card full" style="margin-top:20px">
+          <div class="chart-title">MONTHLY TIPS TREND</div>
+          <div class="trend-chart">
+            <div class="trend-col" *ngFor="let m of tipsData.monthlyTrend">
+              <div class="trend-bar-wrap">
+                <div class="trend-tooltip">{{ fmtDec(m.total_tips) }}</div>
+                <div class="trend-bar tips-bar" [style.height.px]="getBarWidth(m.total_tips, tipsData.monthlyTrend, 'total_tips') * 1.2"></div>
+              </div>
+              <div class="trend-label">{{ m.month_label }}</div>
+            </div>
+          </div>
+        </div>
 
+        <!-- Employee Breakdown -->
+        <div class="chart-card full" style="margin-top:20px">
+          <div class="chart-title">TIP RECIPIENTS</div>
+          <table class="tips-table">
+            <thead>
+              <tr>
+                <th>EMPLOYEE</th>
+                <th>DEPARTMENT</th>
+                <th>POSITION</th>
+                <th>MONTHS</th>
+                <th>TOTAL RECEIVED</th>
+                <th>AVG / MONTH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let e of tipsData.employeeSummary">
+                <td>{{ e.name }}</td>
+                <td>{{ e.department }}</td>
+                <td>{{ e.position }}</td>
+                <td>{{ e.months_count }}</td>
+                <td class="tips-amount">{{ fmtDec(e.total_tips) }}</td>
+                <td class="tips-amount">{{ fmtDec(e.avg_monthly) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-
-
-
-
-
-
-
-
-
+      </div>
+      <div *ngIf="!tipsLoading && !tipsData" class="empty-state">No tips data available</div>
+    </div>
