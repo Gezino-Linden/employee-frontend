@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 type LoginRequest = { email: string; password: string };
-type LoginResponse = { token: string };
+type LoginResponse = { token: string; refreshToken: string };
 
-//  EXPORT ADDED
 export type MeResponse = {
   id: number;
   name: string;
@@ -15,7 +14,6 @@ export type MeResponse = {
   company_id: number | null;
 };
 
-//  EXPORT ADDED
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private baseUrl = environment.apiUrl;
@@ -25,6 +23,16 @@ export class AuthService {
   login(data: LoginRequest) {
     return this.http
       .post<LoginResponse>(`${this.baseUrl}/auth/login`, data)
+      .pipe(tap((res) => {
+        localStorage.setItem('token', res.token);
+        if (res.refreshToken) localStorage.setItem('refreshToken', res.refreshToken);
+      }));
+  }
+
+  refresh() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    return this.http
+      .post<{ token: string }>(`${this.baseUrl}/auth/refresh`, { refreshToken })
       .pipe(tap((res) => localStorage.setItem('token', res.token)));
   }
 
@@ -34,6 +42,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
   }
 
   isLoggedIn() {
