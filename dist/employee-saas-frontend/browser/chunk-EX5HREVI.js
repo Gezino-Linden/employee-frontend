@@ -1,1 +1,0 @@
-import{c as n,m as r,u as o,z as s}from"./chunk-UOHPWWDT.js";function h(t){t||(t=o(s));let i=new n(e=>{if(t.destroyed){e.next();return}return t.onDestroy(e.next.bind(e))});return e=>e.pipe(r(i))}export{h as a};
