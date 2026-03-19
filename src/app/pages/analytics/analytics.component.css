@@ -9,7 +9,7 @@
 .breadcrumb-current{color:#f1f5f9;font-weight:600;}
 .btn-back{padding:7px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#94a3b8;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s;}
 .btn-back:hover{background:rgba(255,255,255,0.1);color:#f1f5f9;}
-.page-body{padding:24px 28px;max-width:1400px;margin:0 auto;}
+.page-body{padding:24px 28px;max-width:1400px;margin:0 auto;min-height:calc(100vh - 56px);}
 .controls-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
 .tab-group{display:flex;gap:4px;background:rgba(255,255,255,0.04);border-radius:10px;padding:4px;}
 .tab-btn{padding:8px 18px;border:none;background:transparent;color:#64748b;font-size:13px;font-weight:600;border-radius:7px;cursor:pointer;font-family:inherit;transition:all 0.2s;letter-spacing:0.2px;}
@@ -188,5 +188,6 @@
 .dm-stat-label{font-size:11px;font-weight:700;color:#64748b;letter-spacing:0.05em;margin-bottom:8px;}
 .dm-stat-value{font-size:24px;font-weight:700;color:#f1f5f9;margin-bottom:4px;}
 .dm-stat-sub{font-size:12px;color:#64748b;}
+
 
 
