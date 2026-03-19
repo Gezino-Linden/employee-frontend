@@ -181,3 +181,10 @@
 .tips-table td{font-size:13px;color:#f1f5f9;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);}
 .tips-table tr:hover td{background:rgba(255,255,255,0.03);}
 .tips-amount{color:#fbbf24;font-weight:600;}
+
+.dm-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+.dm-stat-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px;}
+.dm-stat-card.highlight{border-color:#fbbf24;}
+.dm-stat-label{font-size:11px;font-weight:700;color:#64748b;letter-spacing:0.05em;margin-bottom:8px;}
+.dm-stat-value{font-size:24px;font-weight:700;color:#f1f5f9;margin-bottom:4px;}
+.dm-stat-sub{font-size:12px;color:#64748b;}
