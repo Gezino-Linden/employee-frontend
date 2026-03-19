@@ -50,7 +50,7 @@ export class AnalyticsComponent implements OnInit {
     this.analyticsService.getAttendanceAnalytics(this.selectedYear, this.selectedMonth).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next:(d)=>{this.attendanceData=d;this.attendanceLoading=false;}, error:()=>{this.attendanceLoading=false;} });
   }
-  loadTips() { window.scrollTo({top:0,behavior:'smooth'});
+  loadTips() {
     if(this.tipsData) return;
     this.tipsLoading=true;
     this.analyticsService.getTipsAnalytics().pipe(takeUntilDestroyed(this.destroyRef))
@@ -126,6 +126,7 @@ export class AnalyticsComponent implements OnInit {
   isFirstOfMonth(date: string, days: any[]): boolean { const d = new Date(date); return d.getDate() === 1 || days.findIndex((x:any) => x.revenue_date === date) === 0; }
 
 }
+
 
 
 
