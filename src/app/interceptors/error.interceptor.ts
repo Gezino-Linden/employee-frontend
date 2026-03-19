@@ -1,5 +1,5 @@
-﻿import { HttpInterceptorFn, HttpErrorResponse, HttpHandlerFn, HttpRequest } from '@angular/common/http';
-import { catchError, switchMap, throwError } from 'rxjs';
+﻿import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { catchError, switchMap, throwError, timer, retry } from 'rxjs';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -8,7 +8,21 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
+  const isRetryable = (err: HttpErrorResponse) =>
+    (err.status === 0 || err.status === 503) &&
+    req.method === 'GET' &&
+    !req.url.includes('/auth/');
+
   return next(req).pipe(
+    retry({
+      count: 3,
+      delay: (err, attempt) => {
+        if (err instanceof HttpErrorResponse && isRetryable(err)) {
+          return timer(attempt * 1000);
+        }
+        throw err;
+      }
+    }),
     catchError((err: HttpErrorResponse) => {
       if (err.status === 401 && !req.url.includes('/auth/refresh') && !req.url.includes('/auth/login')) {
         return authService.refresh().pipe(
