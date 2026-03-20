@@ -4,7 +4,7 @@ import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 type LoginRequest = { email: string; password: string };
-type LoginResponse = { token: string; refreshToken: string };
+type LoginResponse = { user: { id: number; name: string; email: string; role: string; company_id: number | null; } };
 
 export type MeResponse = {
   id: number;
@@ -21,31 +21,24 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(data: LoginRequest) {
-    return this.http
-      .post<LoginResponse>(`${this.baseUrl}/auth/login`, data)
-      .pipe(tap((res) => {
-        localStorage.setItem('token', res.token);
-        if (res.refreshToken) localStorage.setItem('refreshToken', res.refreshToken);
-      }));
+    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, data, { withCredentials: true });
   }
 
   refresh() {
-    const refreshToken = localStorage.getItem('refreshToken');
-    return this.http
-      .post<{ token: string }>(`${this.baseUrl}/auth/refresh`, { refreshToken })
-      .pipe(tap((res) => localStorage.setItem('token', res.token)));
+    return this.http.post<{ expiresIn: string }>(`${this.baseUrl}/auth/refresh`, {}, { withCredentials: true });
   }
 
   getMe() {
-    return this.http.get<MeResponse>(`${this.baseUrl}/me`);
+    return this.http.get<MeResponse>(`${this.baseUrl}/me`, { withCredentials: true });
   }
 
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
+    return this.http.post(`${this.baseUrl}/auth/logout`, {}, { withCredentials: true });
   }
 
   isLoggedIn() {
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem('token') || document.cookie.includes('accessToken');
   }
 }

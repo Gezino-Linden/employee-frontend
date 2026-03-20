@@ -26,8 +26,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err: HttpErrorResponse) => {
       if (err.status === 401 && !req.url.includes('/auth/refresh') && !req.url.includes('/auth/login')) {
         return authService.refresh().pipe(
-          switchMap((res) => {
-            return next(req.clone({ setHeaders: { Authorization: `Bearer ${res.token}` } }));
+          switchMap(() => {
+            return next(req.clone({ withCredentials: true }));
           }),
           catchError(() => {
             localStorage.removeItem('token');
@@ -66,3 +66,4 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
+
