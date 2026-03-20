@@ -4,7 +4,7 @@ import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 type LoginRequest = { email: string; password: string };
-type LoginResponse = { user: { id: number; name: string; email: string; role: string; company_id: number | null; } };
+type LoginResponse = { user: { id: number; name: string; email: string; role: string; company_id: number | null; plan?: string; } };
 
 export type MeResponse = {
   id: number;
@@ -21,7 +21,8 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(data: LoginRequest) {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, data, { withCredentials: true });
+    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, data, { withCredentials: true })
+      .pipe(tap(() => localStorage.setItem('loggedIn', '1')));
   }
 
   refresh() {
@@ -33,12 +34,13 @@ export class AuthService {
   }
 
   logout() {
+    localStorage.removeItem('loggedIn');
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     return this.http.post(`${this.baseUrl}/auth/logout`, {}, { withCredentials: true });
   }
 
   isLoggedIn() {
-    return !!localStorage.getItem('token') || document.cookie.includes('accessToken');
+    return !!localStorage.getItem('loggedIn') || !!localStorage.getItem('token');
   }
 }
