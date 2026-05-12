@@ -4,64 +4,15 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, MeResponse } from '../../services/auth.service';
 
-// Role-based access map — what each role can see on the dashboard
 const ROLE_ACCESS: Record<string, string[]> = {
-  owner: [
-    'employees',
-    'attendance',
-    'shifts',
-    'leave',
-    'payroll',
-    'accounting',
-    'sars',
-    'analytics',
-    'reports',
-    'audit',
-    'users',
-  ],
-  admin: [
-    'employees',
-    'attendance',
-    'shifts',
-    'leave',
-    'payroll',
-    'accounting',
-    'sars',
-    'analytics',
-    'reports',
-    'audit',
-    'users',
-  ],
-  general_manager: [
-    'employees',
-    'attendance',
-    'shifts',
-    'leave',
-    'payroll',
-    'accounting',
-    'sars',
-    'analytics',
-    'reports',
-    'audit',
-    'users',
-  ],
-  manager: [
-    'employees',
-    'attendance',
-    'shifts',
-    'leave',
-    'payroll',
-    'accounting',
-    'sars',
-    'analytics',
-    'reports',
-    'audit',
-    'users',
-  ],
-  hr_manager: ['employees', 'attendance', 'leave', 'shifts', 'payroll', 'reports', 'audit'],
-  accountant: ['payroll', 'accounting', 'sars', 'reports'],
-  front_office_manager: ['attendance', 'shifts', 'leave', 'reports'],
-  supervisor: ['attendance', 'shifts', 'leave'],
+  owner:           ['employees','attendance','shifts','leave','payroll','accounting','sars','analytics','reports','audit','users','portal'],
+  admin:           ['employees','attendance','shifts','leave','payroll','accounting','sars','analytics','reports','audit','users','portal'],
+  general_manager: ['employees','attendance','shifts','leave','payroll','accounting','sars','analytics','reports','audit','users','portal'],
+  manager:         ['employees','attendance','shifts','leave','payroll','accounting','sars','analytics','reports','audit','users','portal'],
+  hr_manager:      ['employees','attendance','leave','shifts','payroll','reports','audit','portal'],
+  accountant:      ['payroll','accounting','sars','reports','portal'],
+  front_office_manager: ['attendance','shifts','leave','reports','portal'],
+  supervisor:      ['attendance','shifts','leave','portal'],
 };
 
 @Component({
@@ -112,40 +63,16 @@ export class Dashboard implements OnInit {
     this.router.navigateByUrl('/login');
   }
 
-  goToEmployees() {
-    this.router.navigateByUrl('/employees');
-  }
-  goToAttendance() {
-    this.router.navigateByUrl('/attendance');
-  }
-  goToPayroll() {
-    this.router.navigateByUrl('/payroll');
-  }
-  goToLeave() {
-    this.router.navigateByUrl('/leave');
-  }
-  goToShifts() {
-    this.router.navigateByUrl('/shifts');
-  }
-  goToAccounting() {
-    this.router.navigateByUrl('/accounting');
-  }
-  goToSars() {
-    this.router.navigateByUrl('/sars');
-  }
-  goToAnalytics() {
-    this.router.navigateByUrl('/analytics');
-  }
-  goToReports() {
-    this.router.navigateByUrl('/reports');
-  }
-  goToAuditLog() {
-    this.router.navigateByUrl('/audit-log');
-  }
-  goToUsers() {
-    this.router.navigateByUrl('/users');
-  }
-  goToPortal() {
-    this.router.navigateByUrl('/portal');
-  }
+  goToEmployees()  { this.router.navigateByUrl('/employees'); }
+  goToAttendance() { this.router.navigateByUrl('/attendance'); }
+  goToPayroll()    { this.router.navigateByUrl('/payroll'); }
+  goToLeave()      { this.router.navigateByUrl('/leave'); }
+  goToShifts()     { this.router.navigateByUrl('/shifts'); }
+  goToAccounting() { this.router.navigateByUrl('/accounting'); }
+  goToSars()       { this.router.navigateByUrl('/sars'); }
+  goToAnalytics()  { this.router.navigateByUrl('/analytics'); }
+  goToReports()    { this.router.navigateByUrl('/reports'); }
+  goToAuditLog()   { this.router.navigateByUrl('/audit-log'); }
+  goToUsers()      { this.router.navigateByUrl('/users'); }
+  goToPortal()     { this.router.navigateByUrl('/employee-portal'); } // Bug 1 fixed
 }
