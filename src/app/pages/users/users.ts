@@ -6,7 +6,8 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService, MeResponse } from '../../services/auth.service';
 
-const API = 'https://employee-api-xpno.onrender.com/api';
+import { environment } from '../../../environments/environment';
+const API = environment.apiUrl;
 
 interface User {
   id: number;

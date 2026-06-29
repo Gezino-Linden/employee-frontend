@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService, MeResponse } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface IRP5Certificate {
   id: number;
@@ -84,7 +85,7 @@ export class IRP5 implements OnInit {
   selectedCert: IRP5Certificate | null = null;
   showCertModal = false;
 
-  private apiBase = 'https://employee-api-xpno.onrender.com/api/irp5';
+  private apiBase = environment.apiUrl + '/irp5';
 
   constructor(
     private auth: AuthService,

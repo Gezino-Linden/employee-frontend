@@ -1,6 +1,6 @@
-export const environment = {
+﻿export const environment = {
   production: false,
-  apiUrl: 'https://employee-api-xpno.onrender.com/api', // Use deployed API
-  // OR if you want to use local backend when developing:
-  // apiUrl: 'http://localhost:4000/api'
+  apiUrl: 'http://localhost:4000/api', // Local backend (npm run dev in employee-api)
+  // For the deployed API during local dev, use:
+  // apiUrl: 'https://employee-api-xpno.onrender.com/api'
 };

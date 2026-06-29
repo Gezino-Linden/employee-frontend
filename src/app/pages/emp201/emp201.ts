@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService, MeResponse } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface EMP201Declaration {
   id: number;
@@ -132,7 +133,7 @@ export class EMP201 implements OnInit {
     { value: 12, label: 'December' },
   ];
 
-  private apiBase = 'https://employee-api-xpno.onrender.com/api/emp201';
+  private apiBase = environment.apiUrl + '/emp201';
 
   constructor(
     private auth: AuthService,

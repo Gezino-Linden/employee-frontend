@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export type LeaveType = {
   id: number;
@@ -65,7 +66,7 @@ export type LeaveRequestsResponse = {
 @Injectable({ providedIn: 'root' })
 export class LeaveService {
   // FIXED: Removed space at the end
-  private baseUrl = 'https://employee-api-xpno.onrender.com/api/leave';
+  private baseUrl = `${environment.apiUrl}/leave`;
 
   constructor(private http: HttpClient) {}
 
@@ -138,9 +139,3 @@ export class LeaveService {
     return this.http.get(`${this.baseUrl}/analytics?year=${year}`);
   }
 }
-
-// Move this to a separate file: src/environments/environment.ts
-export const environment = {
-  production: false,
-  apiUrl: 'https://employee-api-xpno.onrender.com/api',
-};

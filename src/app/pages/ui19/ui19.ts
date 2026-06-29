@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService, MeResponse } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface UI19Declaration {
   id: number;
@@ -92,7 +93,7 @@ export class UI19 implements OnInit {
     { value: 12, label: 'December' },
   ];
 
-  private apiBase = 'https://employee-api-xpno.onrender.com/api/ui19';
+  private apiBase = environment.apiUrl + '/ui19';
 
   constructor(
     private auth: AuthService,

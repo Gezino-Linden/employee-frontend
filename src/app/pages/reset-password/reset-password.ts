@@ -5,7 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
-const API = 'https://employee-api-xpno.onrender.com/api';
+import { environment } from '../../../environments/environment';
+const API = environment.apiUrl;
 
 @Component({
   selector: 'app-reset-password',
