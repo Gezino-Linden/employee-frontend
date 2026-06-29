@@ -1,2 +1,154 @@
-<p>register works!</p>
+<div class="register-card">
 
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="14" height="14" rx="3" fill="#f59e0b"/>
+        <rect x="22" y="4" width="14" height="14" rx="3" fill="#f59e0b" opacity="0.6"/>
+        <rect x="4" y="22" width="14" height="14" rx="3" fill="#f59e0b" opacity="0.6"/>
+        <rect x="22" y="22" width="14" height="14" rx="3" fill="#f59e0b" opacity="0.3"/>
+      </svg>
+    </div>
+    <span>MaeRoll</span>
+  </div>
+
+  <!-- Loading state -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Validating your invite...</p>
+  </div>
+
+  <!-- Success state -->
+  <div class="success-state" *ngIf="success">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+    <h2>Account Created!</h2>
+    <p class="subtitle">Your account has been set up. Redirecting you to login...</p>
+  </div>
+
+  <!-- Error state (invalid/expired token) -->
+  <div class="invalid-state" *ngIf="!loading && !tokenValid && !success">
+    <div class="error-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+    </div>
+    <h2>{{ tokenExpired ? 'Invite Expired' : 'Invalid Invite' }}</h2>
+    <p class="subtitle">{{ error }}</p>
+    <a routerLink="/login" class="back-link">← Back to Login</a>
+  </div>
+
+  <!-- Register form -->
+  <div *ngIf="!loading && tokenValid && !success">
+    <h2>Set up your account</h2>
+    <p class="subtitle">You've been invited as a <span class="role-badge">{{ inviteRole }}</span></p>
+
+    <div class="email-display">
+      <svg viewBox="0 0 20 20" fill="currentColor">
+        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+      </svg>
+      {{ inviteEmail }}
+    </div>
+
+    <form (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="name">Full Name</label>
+        <div class="input-wrap">
+          <span class="icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+            </svg>
+          </span>
+          <input id="name" type="text" [(ngModel)]="name" name="name"
+            placeholder="Your full name" autocomplete="name" [disabled]="submitting"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <span class="icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+            </svg>
+          </span>
+          <input id="password" [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="password" name="password"
+            placeholder="Create a strong password" [disabled]="submitting"/>
+          <button type="button" class="toggle-pw" (click)="togglePassword()" tabindex="-1">
+            <svg *ngIf="!showPassword" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"/>
+              <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.064 7 9.542 7 .847 0 1.669-.105 2.454-.303z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="strength-bar" *ngIf="password">
+          <div class="strength-fill" [style.width]="passwordStrength.width" [style.background]="passwordStrength.color"></div>
+        </div>
+        <div class="strength-label" *ngIf="password" [style.color]="passwordStrength.color">
+          {{ passwordStrength.label }}
+        </div>
+        <div class="password-rules">
+          Must be 8+ characters with uppercase, number and special character
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="confirm">Confirm Password</label>
+        <div class="input-wrap">
+          <span class="icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+            </svg>
+          </span>
+          <input id="confirm" [type]="showConfirm ? 'text' : 'password'"
+            [(ngModel)]="confirmPassword" name="confirmPassword"
+            placeholder="Repeat your password" [disabled]="submitting"/>
+          <button type="button" class="toggle-pw" (click)="toggleConfirm()" tabindex="-1">
+            <svg *ngIf="!showConfirm" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+            </svg>
+            <svg *ngIf="showConfirm" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"/>
+              <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.064 7 9.542 7 .847 0 1.669-.105 2.454-.303z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="match-indicator" *ngIf="confirmPassword">
+          <span *ngIf="password === confirmPassword" style="color:#22c55e">✓ Passwords match</span>
+          <span *ngIf="password !== confirmPassword" style="color:#ef4444">✗ Passwords do not match</span>
+        </div>
+      </div>
+
+      <div class="error-box" *ngIf="error && tokenValid">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        {{ error }}
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="submitting">
+        <span *ngIf="!submitting">Create Account</span>
+        <span *ngIf="submitting" class="loading-state">
+          <span class="spinner"></span> Creating account...
+        </span>
+      </button>
+
+    </form>
+
+    <div class="login-hint">
+      Already have an account? <a routerLink="/login">Sign in →</a>
+    </div>
+  </div>
+
+</div>
