@@ -1,4 +1,4 @@
-// File: src/app/pages/dashboard/dashboard.ts
+﻿// File: src/app/pages/dashboard/dashboard.ts
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -33,7 +33,11 @@ export class Dashboard implements OnInit {
         this.me = res;
         this.cdr.detectChanges();
       },
-      error: () => this.router.navigateByUrl('/login'),
+      error: (err) => {
+        if (err.status !== 429) {
+          this.router.navigateByUrl('/login');
+        }
+      },
     });
   }
 

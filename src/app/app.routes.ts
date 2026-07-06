@@ -87,6 +87,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'settings',
+    loadComponent: () => import('./pages/settings/settings').then((m) => m.Settings),
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./pages/forgot-password/forgot-password').then((m) => m.ForgotPasswordComponent),

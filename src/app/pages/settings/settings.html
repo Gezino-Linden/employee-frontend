@@ -1,0 +1,96 @@
+<div class="hr-app">
+  <div class="bg-mesh"></div>
+
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <div class="topnav-brand">
+      <div class="brand-icon">HR</div>
+      <span class="brand-name">MaeRoll</span>
+    </div>
+    <div class="topnav-right">
+      <div class="user-chip" *ngIf="me">
+        <div class="user-avatar-sm">{{ initials }}</div>
+        <span>{{ me.name }}</span>
+        <span class="role-badge">{{ me.role }}</span>
+      </div>
+      <button class="btn-ghost" (click)="signOut()">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Company Settings</h1>
+        <p class="page-subtitle">Update your company name and identifier</p>
+      </div>
+      <button class="btn-ghost" onclick="history.back()">← Back</button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading company details...</p>
+    </div>
+
+    <!-- Settings Form -->
+    <div class="settings-card" *ngIf="!loading">
+
+      <div class="card-header">
+        <div class="company-icon">{{ name ? name[0].toUpperCase() : 'C' }}</div>
+        <div>
+          <div class="company-name">{{ company?.name }}</div>
+          <div class="company-meta">ID #{{ company?.id }} · Created {{ company?.created_at | date:'mediumDate' }}</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-section">
+        <h3 class="section-title">General Information</h3>
+
+        <div class="field">
+          <label>Company Name</label>
+          <input type="text" [(ngModel)]="name" placeholder="Your company name" [disabled]="saving"/>
+          <span class="field-hint">This appears on payslips and reports</span>
+        </div>
+
+        <div class="field">
+          <label>Company Slug</label>
+          <div class="slug-wrap">
+            <span class="slug-prefix">maeroll.com/</span>
+            <input type="text" [(ngModel)]="slug" placeholder="your-company" [disabled]="saving"/>
+          </div>
+          <span class="field-hint">Unique identifier — lowercase letters, numbers and hyphens only</span>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div class="success-box" *ngIf="success">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        Company settings saved successfully
+      </div>
+
+      <!-- Error -->
+      <div class="error-box" *ngIf="error">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        {{ error }}
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-save" (click)="save()" [disabled]="saving">
+          <span *ngIf="!saving">Save Changes</span>
+          <span *ngIf="saving" class="loading-inline">
+            <span class="spinner-sm"></span> Saving...
+          </span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
